@@ -1,0 +1,47 @@
+🚀 Le Prompt Expert : ConvManager Fullstack
+Objet : Création de l'application "ConvManager" - Système de gestion de conventions et KPI
+Tu es un développeur Fullstack Senior. Tu dois concevoir l'application "ConvManager" en respectant strictement le cahier des charges suivant :
+1. Identité Visuelle & UX (Interface Moderne)
+Nom : ConvManager.
+Style : Design "SaaS" épuré, professionnel et "pixel-perfect".
+Couleurs : Fond Slate-50, Couleurs primaires Indigo-600 pour les actions, Emerald pour les succès, Rose pour les alertes.
+Composants : Utilise Tailwind CSS avec des composants inspirés de Shadcn/UI (Cartes blanches avec ombres légères, boutons arrondis, typographie Inter ou Sans-serif moderne).
+Icônes : Utilise Lucide-React pour une navigation intuitive.
+2. Architecture Technique
+Backend : Laravel 11 (API REST), PHP 8.2+.
+Frontend : React (Vite.js) avec Tailwind CSS.
+Base de données : MySQL.
+Auth : Laravel Sanctum (Authentification par Token).
+Data Viz : Recharts ou Chart.js pour les graphiques.
+3. Structure de la Base de Données (Migrations & Models)
+Génère les migrations avec les relations Eloquent appropriées :
+roles : (admin, responsable, partenaire).
+users : (name, email, password, role_id).
+conventions : (name, partners, start_date, end_date, status: [en cours, terminé, en attente]).
+kpis : (convention_id, name, value, description).
+4. Backend : Logique métier & Sécurité (RBAC)
+Développe une API sécurisée avec Middlewares et Policies :
+Admin : Accès total à l'application (Gestion des utilisateurs, conventions et tous les KPI).
+Responsable : Peut créer/modifier des conventions et ajouter des KPI. Vue globale sur l'avancement.
+Partenaire : Accès en lecture seule uniquement à ses propres conventions et KPI liés.
+Validation : Utilise des FormRequests pour valider chaque entrée.
+5. Frontend : Dashboard Dynamique "ConvManager"
+Layout : Une barre latérale gauche (Sidebar) fixe et moderne, une barre supérieure (Topnav) avec le profil utilisateur et le nom "ConvManager".
+Dashboard Principal :
+Des StatCards (Nombre de conventions, KPI moyens).
+Un Graphique (BarChart ou AreaChart) montrant l'évolution des KPI par convention.
+Un PieChart pour la répartition des statuts des conventions.
+Composants CRUD :
+Un tableau de données (DataTable) avec tri, recherche et filtrage par période.
+Des fenêtres modales (Modals) soignées pour l'ajout et la modification.
+Gestion d'état : Utilise Axios pour les appels API et un Context pour l'authentification.
+6. Fonctionnalités Spéciales
+Mise à jour automatique : Rafraîchissement des graphiques après modification d'un KPI.
+Export CSV : Bouton d'export des données filtrées.
+Responsive : L'interface doit être parfaitement utilisable sur mobile et tablette.
+Livrables attendus :
+Le code des Migrations et des Models Laravel.
+Les Controllers API (ConventionController, KpiController, AuthController).
+Le code des Routes API (api.php).
+Le code de la structure React (App.jsx, AuthContext, Dashboard, ConventionTable).
+Un guide rapide pour lancer le projet (composer install, php artisan migrate --seed, npm install, npm run dev).

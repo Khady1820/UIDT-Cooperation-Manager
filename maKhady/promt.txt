@@ -1,0 +1,5 @@
+1-Partie : Prompt parfait 
+
+tu es un developpeur fullstack  expert ,
+en utilisant ce cahier de charge minimun , veuillez realiser un prompt parfait pour  creer en integralite l'application .
+on doit utiliser Laravel pour le developpement   du backend  et React pour l'interface  front  et  pour la base de donnees MySQL .

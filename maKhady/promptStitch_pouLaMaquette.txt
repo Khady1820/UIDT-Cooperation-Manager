@@ -1,0 +1,36 @@
+Génère une maquette d'application Web multi-écrans (5 écrans connectés) pour un SaaS B2B appelé "ConvManager", un système de gestion de conventions et de KPI. 
+
+STYLE ET DESIGN SYSTEM :
+- Style : Épuré, moderne, "pixel-perfect", reprenant exactement les codes visuels de Shadcn/UI (cartes blanches, ombres très légères "shadow-sm", coins arrondis "rounded-lg", bordures subtiles).
+- Couleurs : Fond général "slate-50". Couleur primaire pour les actions "indigo-600". Succès "emerald-500". Alertes "rose-500". 
+- Typographie : Inter ou police sans-serif moderne.
+- Layout Global (pour les écrans 2 à 5) : Une "Sidebar" fixe à gauche (fond blanc) contenant le logo ConvManager et les liens de navigation avec des icônes Lucide (Dashboard, Conventions, KPIs, Paramètres). Une "Topnav" en haut avec une barre de recherche globale, une icône de notification, et l'avatar du profil utilisateur.
+
+Génère les 5 écrans suivants pour simuler le parcours utilisateur complet :
+
+ÉCRAN 1 : Page de Connexion (Login)
+Un design minimaliste. Sur un fond slate-50, une carte blanche centrée avec une ombre légère. À l'intérieur : Le logo ConvManager en grand, un titre "Bon retour", des champs d'entrée (input) propres pour l'Email et le Mot de passe, et un grand bouton de soumission "Se connecter" en indigo-600.
+
+ÉCRAN 2 : Dashboard Principal (Vue Globale)
+Layout avec Sidebar et Topnav. 
+Contenu : Un titre de page "Vue d'ensemble". Juste en dessous, 3 "StatCards" blanches (Nombre de conventions, Moyenne des KPI, Partenaires actifs) avec des mini-graphiques en fond. 
+En dessous, une grille divisée en deux : 
+- À gauche (2/3) : Un grand "AreaChart" montrant l'évolution globale des KPI avec une courbe indigo. 
+- À droite (1/3) : Un "PieChart" affichant la répartition des statuts des conventions (En cours en indigo, Terminé en emerald, En attente en gris/slate).
+
+ÉCRAN 3 : Gestion des Conventions (DataTable)
+Layout avec Sidebar et Topnav.
+Contenu : Un titre "Conventions" avec deux boutons en haut à droite : "Exporter CSV" (bouton outline) et "+ Nouvelle Convention" (bouton plein indigo-600). 
+En dessous, un grand tableau de données (DataTable) moderne. Colonnes : Nom de la convention, Partenaire, Date de début, Date de fin, et Statut. 
+Pour la colonne Statut, utilise des badges stylisés : fond vert clair/texte emerald pour "Terminé", fond bleu clair/texte indigo pour "En cours", fond gris/texte slate pour "En attente". Ajoute un menu d'action (3 petits points) à la fin de chaque ligne.
+
+ÉCRAN 4 : Modale de Création (CRUD Overlay)
+Affiche l'Écran 3 en arrière-plan, recouvert d'un calque sombre (overlay). Au centre, une fenêtre modale blanche bien proportionnée avec le titre "Créer une Convention". 
+Contenu du formulaire : Champs de texte pour "Nom" et "Partenaire", des sélecteurs de date (Datepickers) côte à côte pour début/fin, et un menu déroulant (Select) pour le statut. En bas à droite de la modale, un bouton "Annuler" et un bouton "Enregistrer" en indigo-600.
+
+ÉCRAN 5 : Détails d'une Convention & Suivi des KPI (Vue Partenaire/Responsable)
+Layout avec Sidebar et Topnav.
+Contenu : Un header avec un bouton "Retour", le titre d'une convention spécifique (ex: "Convention Alpha") et un badge de statut. 
+La page est divisée :
+- À gauche : Une liste de petites cartes représentant les KPIs associés (Titre, Valeur actuelle, Description) avec un bouton "+ Ajouter un KPI".
+- À droite : Un graphique dynamique (BarChart) dédié uniquement à la progression des KPIs de cette convention spécifique.

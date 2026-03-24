@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ConvManager - Dashboard Principal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-container": "#006e4b",
+                        "surface-tint": "#4d44e3",
+                        "primary": "#3525cd",
+                        "tertiary-fixed": "#6ffbbe",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary-fixed": "#e2dfff",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#002113",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#4f46e5",
+                        "secondary-container": "#d0e1fb",
+                        "on-tertiary-container": "#67f4b7",
+                        "on-surface": "#191c1e",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e0e3e5",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed": "#0b1c30",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "surface-container-low": "#f2f4f6",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#d3e4fe",
+                        "outline-variant": "#c7c4d8",
+                        "on-background": "#191c1e",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "surface-dim": "#d8dadc",
+                        "outline": "#777587",
+                        "background": "#f7f9fb",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-bright": "#f7f9fb",
+                        "surface-variant": "#e0e3e5",
+                        "on-secondary-container": "#54647a",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-surface-variant": "#464555",
+                        "secondary": "#505f76",
+                        "on-primary-fixed": "#0f0069",
+                        "surface": "#f7f9fb",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "on-primary-container": "#dad7ff",
+                        "inverse-primary": "#c3c0ff",
+                        "inverse-surface": "#2d3133",
+                        "tertiary": "#005338"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r-0 bg-white dark:bg-slate-900 z-50 flex flex-col py-6">
+<div class="px-6 mb-8">
+<span class="text-xl font-bold text-indigo-600 dark:text-indigo-400">ConvManager</span>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Dashboard (Active) -->
+<a class="flex items-center gap-3 px-4 py-3 text-indigo-600 dark:text-indigo-400 border-l-4 border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-inter body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">event</span>
+<span class="font-inter body-md">Conventions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-inter body-md">KPIs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-inter body-md">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<div class="flex items-center gap-3 p-2 rounded-lg bg-surface-container-low">
+<img alt="User Profile Avatar" class="w-8 h-8 rounded-full" data-alt="Avatar de l'utilisateur connecté" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwKbLzmRU89yBWw21-ZIR7iD8o54HQxtyIOWoNs4Gb1iq5-m5_hhCd-gTM7X-zEuweAiQPkJt_Hvd7ONa8CL-VFyEELglpeLFTTTD_qr1QRR0TWao4pMe1K5A0FD9fr-v6UyOj9yFF_yKNawyf9tjvc9YOqV2GzjGrxwJvA9dMGNwpzoNEj4-t1w9hLSsGbtXmdHF4qOSYJpbtv86hUe83lj3R2-Y7DV_KMQya3rCmquNQ5vIclGouGPHUqxkp9vUdiCAj7TyZApw"/>
+<div class="overflow-hidden">
+<p class="text-xs font-semibold truncate">Alexandre D.</p>
+<p class="text-[10px] text-on-surface-variant truncate">Admin</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Anchor -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex justify-between items-center px-8 shadow-sm dark:shadow-none">
+<div class="flex items-center bg-surface-container-low px-4 py-2 rounded-full w-96 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
+<span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full p-0" placeholder="Rechercher une convention..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative text-on-surface-variant hover:text-indigo-500 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="h-6 w-[1px] bg-outline-variant"></div>
+<span class="font-inter label-md uppercase tracking-wider text-slate-500">ConvManager</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 min-h-screen bg-surface">
+<div class="p-8 space-y-8">
+<!-- Page Title -->
+<div class="flex justify-between items-end">
+<div>
+<h1 class="text-3xl font-semibold text-on-surface tracking-tight">Vue d'ensemble</h1>
+<p class="text-on-surface-variant mt-1">Suivi analytique et performance des conventions actives.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-white text-on-surface text-sm font-medium rounded-lg shadow-sm hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-lg">download</span>
+                        Exporter
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg shadow-sm hover:bg-primary-container transition-all">
+<span class="material-symbols-outlined text-lg">add</span>
+                        Nouvelle Convention
+                    </button>
+</div>
+</div>
+<!-- Stat Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="relative overflow-hidden bg-white p-6 rounded-xl shadow-sm group hover:shadow-md transition-shadow">
+<div class="relative z-10 flex justify-between items-start">
+<div>
+<p class="text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">Nombre de conventions</p>
+<h3 class="text-3xl font-bold text-on-surface">1,284</h3>
+<p class="text-xs text-tertiary-container font-medium mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+                                +12.5% vs mois dernier
+                            </p>
+</div>
+<div class="p-2 bg-indigo-50 rounded-lg text-primary">
+<span class="material-symbols-outlined">description</span>
+</div>
+</div>
+<!-- Mini Graph Background -->
+<div class="absolute bottom-0 left-0 right-0 h-16 opacity-10 pointer-events-none">
+<svg class="w-full h-full preserve-3d" viewbox="0 0 400 100">
+<path d="M0 80 Q 50 20, 100 70 T 200 40 T 300 60 T 400 20" fill="none" stroke="#3525cd" stroke-width="4"></path>
+</svg>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="relative overflow-hidden bg-white p-6 rounded-xl shadow-sm group hover:shadow-md transition-shadow">
+<div class="relative z-10 flex justify-between items-start">
+<div>
+<p class="text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">Moyenne des KPI</p>
+<h3 class="text-3xl font-bold text-on-surface">84.2%</h3>
+<p class="text-xs text-tertiary-container font-medium mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+                                +3.2% performance globale
+                            </p>
+</div>
+<div class="p-2 bg-emerald-50 rounded-lg text-tertiary">
+<span class="material-symbols-outlined">query_stats</span>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-16 opacity-10 pointer-events-none">
+<svg class="w-full h-full" viewbox="0 0 400 100">
+<path d="M0 50 Q 100 50, 200 50 T 400 20" fill="none" stroke="#005338" stroke-width="4"></path>
+</svg>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="relative overflow-hidden bg-white p-6 rounded-xl shadow-sm group hover:shadow-md transition-shadow">
+<div class="relative z-10 flex justify-between items-start">
+<div>
+<p class="text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">Partenaires actifs</p>
+<h3 class="text-3xl font-bold text-on-surface">42</h3>
+<p class="text-xs text-on-surface-variant font-medium mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">group</span>
+                                8 nouveaux ce semestre
+                            </p>
+</div>
+<div class="p-2 bg-slate-50 rounded-lg text-secondary">
+<span class="material-symbols-outlined">handshake</span>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-16 opacity-10 pointer-events-none">
+<svg class="w-full h-full" viewbox="0 0 400 100">
+<path d="M0 90 L 50 70 L 100 80 L 150 40 L 200 60 L 250 30 L 300 50 L 400 20" fill="none" stroke="#505f76" stroke-width="4"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Main Charts Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- AreaChart Container (2/3) -->
+<div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-8">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h2 class="text-lg font-semibold text-on-surface">Évolution globale des KPI</h2>
+<p class="text-sm text-on-surface-variant">Performance agrégée sur les 12 derniers mois</p>
+</div>
+<select class="bg-surface-container-low border-none rounded-lg text-xs font-medium text-on-surface focus:ring-2 focus:ring-primary/20">
+<option>Année 2023</option>
+<option>Année 2024</option>
+</select>
+</div>
+<div class="h-80 w-full relative">
+<!-- Simulated Area Chart -->
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 800 300">
+<defs>
+<lineargradient id="gradient-area" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#3525cd" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#3525cd" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Grid Lines -->
+<line stroke="#f2f4f6" stroke-width="1" x1="0" x2="800" y1="50" y2="50"></line>
+<line stroke="#f2f4f6" stroke-width="1" x1="0" x2="800" y1="150" y2="150"></line>
+<line stroke="#f2f4f6" stroke-width="1" x1="0" x2="800" y1="250" y2="250"></line>
+<!-- Area -->
+<path d="M0 280 L0 180 Q 100 140, 200 160 T 400 100 T 600 130 T 800 60 L 800 280 Z" fill="url(#gradient-area)"></path>
+<!-- Line -->
+<path d="M0 180 Q 100 140, 200 160 T 400 100 T 600 130 T 800 60" fill="none" stroke="#3525cd" stroke-linecap="round" stroke-width="3"></path>
+<!-- Data Points -->
+<circle cx="400" cy="100" fill="#3525cd" r="4"></circle>
+<circle cx="800" cy="60" fill="#3525cd" r="4"></circle>
+</svg>
+<!-- X Axis Labels -->
+<div class="flex justify-between mt-4 text-[10px] font-medium text-on-surface-variant uppercase tracking-tighter">
+<span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Juin</span><span>Juil</span><span>Août</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Déc</span>
+</div>
+</div>
+</div>
+<!-- PieChart Container (1/3) -->
+<div class="bg-white rounded-xl shadow-sm p-8">
+<h2 class="text-lg font-semibold text-on-surface mb-2">Statut des conventions</h2>
+<p class="text-sm text-on-surface-variant mb-10">Répartition par état d'avancement</p>
+<div class="relative h-64 w-64 mx-auto mb-8">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<!-- En cours (Indigo) -->
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="#3525cd" stroke-dasharray="150 251.2" stroke-width="12"></circle>
+<!-- Terminé (Emerald) -->
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="#10b981" stroke-dasharray="70 251.2" stroke-dashoffset="-150" stroke-width="12"></circle>
+<!-- En attente (Slate) -->
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="#94a3b8" stroke-dasharray="31.2 251.2" stroke-dashoffset="-220" stroke-width="12"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-2xl font-bold">100%</span>
+<span class="text-[10px] text-on-surface-variant uppercase">Total</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="text-sm text-on-surface">En cours</span>
+</div>
+<span class="text-sm font-semibold">60%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+<span class="text-sm text-on-surface">Terminé</span>
+</div>
+<span class="text-sm font-semibold">28%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-slate-400"></div>
+<span class="text-sm text-on-surface">En attente</span>
+</div>
+<span class="text-sm font-semibold">12%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Lower Detail Grid (Asymmetric Bento) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="md:col-span-1 bg-indigo-600 rounded-xl p-6 text-white flex flex-col justify-between">
+<div>
+<h4 class="font-semibold text-indigo-100 mb-2">Objectifs Q4</h4>
+<p class="text-2xl font-bold">78/100</p>
+</div>
+<div class="mt-4 bg-indigo-500/30 h-2 rounded-full overflow-hidden">
+<div class="bg-white h-full w-[78%]"></div>
+</div>
+<p class="text-[10px] mt-2 text-indigo-200 uppercase tracking-widest">En bonne voie</p>
+</div>
+<div class="md:col-span-3 bg-surface-container-low border border-outline-variant/10 rounded-xl p-6 flex items-center justify-between overflow-hidden relative">
+<div class="flex-1">
+<h4 class="text-lg font-semibold text-on-surface">Alerte Convention</h4>
+<p class="text-sm text-on-surface-variant max-w-md">La convention "Partenariat IA-2024" avec TechGlobal arrive à échéance dans 5 jours sans renouvellement.</p>
+<button class="mt-4 px-4 py-2 bg-white rounded-lg text-xs font-bold text-on-surface shadow-sm hover:bg-white/80 transition-all">Consulter le dossier</button>
+</div>
+<div class="hidden lg:block relative z-10">
+<span class="material-symbols-outlined text-6xl text-error opacity-20">warning</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>
