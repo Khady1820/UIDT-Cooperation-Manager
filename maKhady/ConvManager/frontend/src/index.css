@@ -1,9 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg-main: 248 250 252;
+    --text-main: 15 23 42;
+    --surface: 255 255 255;
+    --surface-alt: 241 245 249;
+    --border: 226 232 240;
+    --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+  }
+
+  .dark {
+    --bg-main: 2 6 23;
+    --text-main: 248 250 252;
+    --surface: 15 23 42;
+    --surface-alt: 30 41 59;
+    --border: 30 41 59;
+    --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    --glass-bg: rgba(15, 23, 42, 0.8);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
-    @apply bg-surface text-on-surface font-sans;
+    background-color: rgb(var(--bg-main));
+    color: rgb(var(--text-main));
+    @apply font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Custom selection color */
+  ::selection {
+    @apply bg-primary/20 text-primary;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background-color: var(--glass-bg);
+    @apply backdrop-blur-xl border border-outline-variant shadow-premium rounded-3xl transition-all duration-300;
+  }
+  
+  .premium-button {
+    @apply px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none font-sans;
+  }
+  
+  .premium-button-primary {
+    @apply premium-button bg-primary text-white shadow-xl shadow-primary/20 hover:bg-indigo-600 hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-0.5;
+  }
+  
+  .premium-input {
+    @apply w-full px-5 py-4 rounded-2xl border border-outline-variant bg-surface-100/50 text-sm font-bold placeholder:text-surface-300 focus:border-primary/50 focus:ring-8 focus:ring-primary/5 outline-none transition-all font-sans;
+  }
+  
+  .premium-input:focus {
+    background-color: rgb(var(--surface));
+  }
+
+  .shadow-premium {
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05), 0 4px 12px -4px rgba(0, 0, 0, 0.02);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-surface-200 rounded-full hover:bg-surface-300 transition-colors;
   }
 }

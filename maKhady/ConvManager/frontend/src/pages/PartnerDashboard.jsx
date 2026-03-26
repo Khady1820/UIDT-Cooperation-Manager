@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { LayoutDashboard, Handshake, CheckCircle2, Clock, PlayCircle, BarChart3 } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { LayoutDashboard, Handshake, CheckCircle2, Clock, PlayCircle, BarChart3, TrendingUp, Calendar } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const PartnerDashboard = () => {
     const { user } = useAuth();
@@ -23,13 +24,14 @@ const PartnerDashboard = () => {
         fetchPartnerData();
     }, []);
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    if (loading) return (
+        <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                <p className="text-surface-500 font-bold uppercase tracking-widest text-[10px]">Chargement de votre espace...</p>
             </div>
-        );
-    }
+        </div>
+    );
 
     const stats = {
         total: conventions.length,
@@ -38,25 +40,24 @@ const PartnerDashboard = () => {
         completed: conventions.filter(c => c.status === 'terminé').length,
     };
 
-    const getStatusColor = (status) => {
+    const getStatusStyles = (status) => {
         switch (status) {
-            case 'en cours': return 'text-primary bg-primary/10 border-primary/20';
-            case 'terminé': return 'text-success bg-success/10 border-success/20';
-            case 'en attente': return 'text-on-surface-variant bg-surface-container-high border-outline-variant/30';
-            default: return 'text-on-surface-variant bg-surface-container-high';
+            case 'en cours': return 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20';
+            case 'terminé': return 'text-secondary bg-secondary/10 border-secondary/10';
+            case 'en attente': return 'text-amber-500 bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20';
+            default: return 'text-surface-500 bg-surface-50 dark:bg-surface-800 border-surface-100 dark:border-surface-700';
         }
     };
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case 'en cours': return <PlayCircle className="w-4 h-4" />;
-            case 'terminé': return <CheckCircle2 className="w-4 h-4" />;
-            case 'en attente': return <Clock className="w-4 h-4" />;
+            case 'en cours': return <PlayCircle className="w-3.5 h-3.5" />;
+            case 'terminé': return <CheckCircle2 className="w-3.5 h-3.5" />;
+            case 'en attente': return <Clock className="w-3.5 h-3.5" />;
             default: return null;
         }
     };
 
-    // Mock KPI data for visualization
     const kpiData = [
         { name: 'Jan', performance: 65 },
         { name: 'Fév', performance: 59 },
@@ -66,20 +67,48 @@ const PartnerDashboard = () => {
         { name: 'Juin', performance: 95 },
     ];
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1 }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: { duration: 0.5, ease: "easeOut" }
+        }
+    };
+
     return (
-        <div className="space-y-8 animate-in fade-in duration-700">
-            {/* Header section with Partner welcome */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/10 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                <div className="relative z-10">
-                    <h1 className="text-display-sm font-medium tracking-tight text-on-surface">Bonjour, {user?.name}</h1>
-                    <p className="text-body-lg text-on-surface-variant mt-1">Bienvenue sur votre espace partenaire dédié.</p>
+        <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            className="space-y-8 font-outfit"
+        >
+            {/* Hero Welcome Section */}
+            <motion.div variants={itemVariants} className="bg-card-bg p-10 rounded-3xl shadow-premium border border-outline-variant relative overflow-hidden group transition-colors duration-300">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl transition-all group-hover:bg-primary/10"></div>
+                <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-surface-400">Espace Partenaire</span>
+                        </div>
+                        <h1 className="text-4xl font-black text-surface-900 tracking-tight leading-none">Bonjour, <span className="text-primary">{user?.name}</span></h1>
+                        <p className="text-surface-500 font-medium italic mt-3 max-w-md">Suivez en temps réel l'évolution de vos conventions et l'atteinte de vos objectifs stratégiques.</p>
+                    </div>
+                    <div className="px-6 py-3 bg-primary text-white rounded-2xl shadow-xl shadow-primary/20 flex items-center gap-3 scale-100 hover:scale-105 transition-transform cursor-default">
+                        <Handshake className="w-5 h-5" />
+                        <span className="text-sm font-black uppercase tracking-widest">{user?.role?.name || 'Partenaire Externe'}</span>
+                    </div>
                 </div>
-                <div className="relative z-10 px-4 py-2 bg-primary/10 rounded-2xl border border-primary/20 flex items-center gap-2">
-                    <Handshake className="text-primary w-5 h-5" />
-                    <span className="text-primary font-medium">{user?.role?.name || 'Partenaire'}</span>
-                </div>
-            </div>
+            </motion.div>
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -87,90 +116,117 @@ const PartnerDashboard = () => {
                     { label: 'Total Conventions', value: stats.total, icon: LayoutDashboard, color: 'bg-primary' },
                     { label: 'En Cours', value: stats.active, icon: PlayCircle, color: 'bg-indigo-500' },
                     { label: 'En Attente', value: stats.pending, icon: Clock, color: 'bg-amber-500' },
-                    { label: 'Terminées', value: stats.completed, icon: CheckCircle2, color: 'bg-emerald-500' },
+                    { label: 'Terminées', value: stats.completed, icon: CheckCircle2, color: 'bg-secondary' },
                 ].map((stat, i) => (
-                    <div key={i} className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-all group">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className={`p-3 rounded-2xl ${stat.color} text-white shadow-lg shadow-${stat.color.split('-')[1]}/20 group-hover:scale-110 transition-transform`}>
-                                <stat.icon className="w-6 h-6" />
+                    <motion.div 
+                        key={i} 
+                        variants={itemVariants}
+                        className="bg-card-bg p-7 rounded-3xl shadow-premium border border-outline-variant hover:border-primary/20 transition-all hover:-translate-y-1 group transition-colors duration-300"
+                    >
+                        <div className="flex justify-between items-start mb-6">
+                            <div className={`p-3.5 rounded-2xl ${stat.color} text-white shadow-xl group-hover:rotate-6 transition-transform`}>
+                                <stat.icon className="w-5 h-5" />
                             </div>
+                            <TrendingUp className="w-4 h-4 text-surface-200 group-hover:text-primary transition-colors" />
                         </div>
-                        <p className="text-label-md uppercase tracking-wider text-on-surface-variant mb-1">{stat.label}</p>
-                        <h3 className="text-display-sm font-bold text-on-surface">{stat.value}</h3>
-                    </div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-surface-400 mb-1">{stat.label}</p>
+                        <h3 className="text-4xl font-black text-surface-900 leading-none">{stat.value}</h3>
+                    </motion.div>
                 ))}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Evolution Profile */}
-                <div className="lg:col-span-2 bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/10 shadow-sm">
-                    <div className="flex justify-between items-center mb-8">
-                        <div>
-                            <h2 className="text-title-lg font-semibold text-on-surface">Performance de Partenariat</h2>
-                            <p className="text-body-sm text-on-surface-variant">Évolution de l'atteinte des KPIs sur le semestre</p>
-                        </div>
-                        <div className="p-2 bg-surface-container-high rounded-xl">
-                            <BarChart3 className="w-5 h-5 text-on-surface-variant" />
+                {/* Performance Chart */}
+                <motion.div variants={itemVariants} className="lg:col-span-2 bg-card-bg p-8 rounded-3xl shadow-premium border border-outline-variant flex flex-col transition-colors duration-300">
+                    <div className="flex justify-between items-center mb-10">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center">
+                                <BarChart3 className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-black text-surface-900 tracking-tight leading-none uppercase tracking-tighter">Indicateurs de Performance</h2>
+                                <p className="text-[11px] text-surface-400 font-bold uppercase tracking-widest mt-1">Évolution de l'atteinte des cibles</p>
+                            </div>
                         </div>
                     </div>
-                    <div className="h-[300px] w-full">
+                    <div className="h-[320px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={kpiData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorPerf" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3525cd" stopOpacity={0.2}/>
-                                        <stop offset="95%" stopColor="#3525cd" stopOpacity={0}/>
+                                        <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.15}/>
+                                        <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#464555', fontSize: 12}} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{fill: '#464555', fontSize: 12}} />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 700}} dy={15} />
+                                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 700}} />
                                 <Tooltip 
-                                    contentStyle={{backgroundColor: '#fff', borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} 
-                                    itemStyle={{color: '#3525cd', fontWeight: 'bold'}}
+                                    contentStyle={{backgroundColor: 'var(--surface)', borderRadius: '16px', border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.08)'}} 
+                                    itemStyle={{color: '#4f46e5', fontWeight: '900', fontSize: '12px'}}
                                 />
-                                <Area type="monotone" dataKey="performance" stroke="#3525cd" strokeWidth={4} fillOpacity={1} fill="url(#colorPerf)" />
+                                <Area type="monotone" dataKey="performance" stroke="#4f46e5" strokeWidth={4} fillOpacity={1} fill="url(#colorPerf)" animationDuration={2000} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* List of active conventions with KPIs */}
-                <div className="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col">
-                    <h2 className="text-title-lg font-semibold text-on-surface mb-6">Vos Conventions</h2>
-                    <div className="flex-1 space-y-4 overflow-y-auto max-h-[400px] pr-2 scrollbar-hide">
+                {/* Conventions List */}
+                <motion.div variants={itemVariants} className="bg-card-bg p-8 rounded-3xl shadow-premium border border-outline-variant flex flex-col transition-colors duration-300">
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
+                            <Calendar className="w-5 h-5" />
+                        </div>
+                        <h2 className="text-xl font-black text-surface-900 tracking-tight leading-none uppercase tracking-tighter">Mes Dossiers</h2>
+                    </div>
+                    
+                    <div className="flex-1 space-y-4 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
                         {conventions.length === 0 ? (
-                            <div className="text-center p-8 bg-surface-container-low rounded-2xl border border-dashed border-outline-variant/30">
-                                <p className="text-on-surface-variant text-sm">Aucune convention associée.</p>
+                            <div className="flex flex-col items-center justify-center h-full py-12 text-center opacity-30">
+                                <Handshake className="w-16 h-16 mb-4" />
+                                <p className="text-[10px] font-black uppercase tracking-widest text-surface-400">Aucun dossier actif</p>
                             </div>
                         ) : (
-                            conventions.map(conv => (
-                                <div key={conv.id} className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/10 hover:border-primary/30 transition-all group cursor-pointer">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h4 className="font-semibold text-on-surface group-hover:text-primary transition-colors">{conv.name}</h4>
-                                        <div className={`px-2 py-1 rounded-full text-[10px] font-bold border flex items-center gap-1 ${getStatusColor(conv.status)}`}>
-                                            {getStatusIcon(conv.status)}
-                                            {conv.status.toUpperCase()}
+                            <AnimatePresence>
+                                {conventions.map((conv, idx) => (
+                                    <motion.div 
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: idx * 0.1 }}
+                                        key={conv.id} 
+                                        className="p-5 rounded-2xl border border-outline-variant bg-surface-100/50 hover:bg-card-bg hover:shadow-premium hover:border-primary/20 transition-all group cursor-pointer transition-colors duration-300"
+                                    >
+                                        <div className="flex justify-between items-start mb-3">
+                                            <h4 className="font-black text-sm text-surface-900 group-hover:text-primary transition-colors leading-snug">{conv.name}</h4>
                                         </div>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-on-surface-variant">
-                                        <BarChart3 className="w-3 h-3" />
-                                        <span className="text-[11px] font-medium italic">
-                                            {conv.kpis && conv.kpis.length > 0 
-                                                ? `${conv.kpis.length} KPIs suivis` 
-                                                : "Aucun KPI défini"}
-                                        </span>
-                                    </div>
-                                    <div className="mt-4 flex items-center justify-between text-[11px] text-on-surface-variant font-medium">
-                                        <span>Début: {new Date(conv.start_date).toLocaleDateString()}</span>
-                                        <span>Fin: {new Date(conv.end_date).toLocaleDateString()}</span>
-                                    </div>
-                                </div>
-                            ))
+                                        
+                                        <div className="flex flex-wrap gap-2 mb-4">
+                                            <div className={`px-2 py-0.5 rounded-lg text-[9px] font-black flex items-center gap-1.5 border ${getStatusStyles(conv.status)} uppercase tracking-widest`}>
+                                                {getStatusIcon(conv.status)}
+                                                {conv.status}
+                                            </div>
+                                            {conv.kpis?.length > 0 && (
+                                                <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-surface-100 text-surface-500 border border-surface-200 uppercase tracking-widest">
+                                                    {conv.kpis.length} KPIs
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center justify-between text-[10px] font-bold text-surface-400">
+                                            <span className="flex items-center gap-1">
+                                                <Calendar className="w-3 h-3" />
+                                                {new Date(conv.end_date).toLocaleDateString()}
+                                            </span>
+                                            <span className="text-primary group-hover:translate-x-1 transition-transform material-symbols-outlined text-[16px]">arrow_forward</span>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
                         )}
                     </div>
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

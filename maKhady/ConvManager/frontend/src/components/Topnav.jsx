@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Topnav = () => {
     const { t } = useLanguage();
@@ -21,72 +22,95 @@ const Topnav = () => {
         fetchNotifications();
     }, []);
 
+    const handleNotificationClick = async (id) => {
+        try {
+            await api.put(`/conventions/${id}`, { status: 'en cours' });
+            setNotifications(notifications.filter(n => n.id !== id));
+            setIsOpen(false);
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour de la notification", error);
+            setIsOpen(false);
+        }
+    };
+
     return (
-        <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex justify-between items-center px-8 shadow-sm dark:shadow-none">
-            <div className="flex items-center bg-surface-container-low px-4 py-2 rounded-full w-96 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
-                <span className="material-symbols-outlined text-on-surface-variant mr-2">search</span>
-                <input className="bg-transparent border-none focus:ring-0 text-sm w-full p-0 outline-none" placeholder={t('search')} type="text"/>
+        <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-white/80 backdrop-blur-md border-b border-surface-200 flex justify-between items-center px-8">
+            <div className="flex items-center bg-surface-100 px-4 py-2 rounded-xl w-96 focus-within:ring-2 focus-within:ring-primary/20 focus-within:bg-white border border-transparent focus-within:border-primary/20 transition-all duration-200">
+                <span className="material-symbols-outlined text-surface-400 mr-2 text-[20px]">search</span>
+                <input className="bg-transparent border-none focus:ring-0 text-sm w-full p-0 outline-none placeholder:text-surface-400" placeholder={t('search')} type="text"/>
             </div>
             
-            <div className="flex items-center gap-6 relative">
+            <div className="flex items-center gap-4 relative">
                 <div className="relative">
                     <button 
                         onClick={() => setIsOpen(!isOpen)}
-                        className="relative p-2 text-on-surface-variant hover:text-indigo-500 transition-colors rounded-full hover:bg-surface-container-low"
+                        className={`relative p-2.5 rounded-xl transition-all duration-200 ${isOpen ? 'bg-primary/10 text-primary' : 'text-surface-500 hover:bg-surface-100 hover:text-surface-900'}`}
                     >
-                        <span className="material-symbols-outlined">notifications</span>
+                        <span className="material-symbols-outlined text-[24px]">notifications</span>
                         {notifications.length > 0 && (
-                            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-error text-[10px] text-white font-bold flex items-center justify-center rounded-full animate-pulse">
-                                {notifications.length}
-                            </span>
+                            <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
                         )}
                     </button>
 
-                    {isOpen && (
-                        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-glass border border-outline-variant/10 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                            <div className="p-4 border-b border-outline-variant/10 bg-surface-container-low/50">
-                                <h3 className="text-sm font-semibold text-on-surface uppercase tracking-wider">{t('notifications')}</h3>
-                            </div>
-                            <div className="max-h-96 overflow-y-auto">
-                                {notifications.length === 0 ? (
-                                    <div className="p-8 text-center">
-                                        <span className="material-symbols-outlined text-on-surface-variant opacity-20 text-4xl mb-2">notifications_off</span>
-                                        <p className="text-xs text-on-surface-variant">{t('no_notifications')}</p>
-                                    </div>
-                                ) : (
-                                    notifications.map(notif => (
-                                        <Link 
-                                            key={notif.id} 
-                                            to={`/conventions/${notif.id}`}
-                                            onClick={() => setIsOpen(false)}
-                                            className="block p-4 border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group"
-                                        >
-                                            <div className="flex gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-error/10 text-error flex items-center justify-center shrink-0">
-                                                    <span className="material-symbols-outlined text-sm">warning</span>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs font-medium text-on-surface group-hover:text-primary transition-colors">
-                                                        Convention <span className="font-bold">"{notif.name}"</span> en attente.
-                                                    </p>
-                                                    <p className="text-[10px] text-on-surface-variant mt-1 italic">Nécessite votre validation</p>
-                                                </div>
+                    <AnimatePresence>
+                        {isOpen && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-premium border border-surface-200 overflow-hidden z-50 origin-top-right"
+                            >
+                                <div className="p-4 border-b border-surface-100 bg-surface-50/50">
+                                    <h3 className="text-sm font-bold text-surface-900 uppercase tracking-widest leading-none">{t('notifications')}</h3>
+                                </div>
+                                <div className="max-h-80 overflow-y-auto">
+                                    {notifications.length === 0 ? (
+                                        <div className="p-10 text-center">
+                                            <div className="w-12 h-12 bg-surface-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                <span className="material-symbols-outlined text-surface-400">notifications_off</span>
                                             </div>
-                                        </Link>
-                                    ))
-                                )}
-                            </div>
-                            <div className="p-3 bg-surface-container-low/30 text-center border-t border-outline-variant/10">
-                                <Link to="/conventions" onClick={() => setIsOpen(false)} className="text-[10px] font-bold text-primary uppercase hover:underline">
-                                    Voir tous les dossiers
-                                </Link>
-                            </div>
-                        </div>
-                    )}
+                                            <p className="text-xs text-surface-500">{t('no_notifications')}</p>
+                                        </div>
+                                    ) : (
+                                        notifications.map(notif => (
+                                            <Link 
+                                                key={notif.id} 
+                                                to={`/conventions/${notif.id}`}
+                                                onClick={() => handleNotificationClick(notif.id)}
+                                                className="block p-4 border-b border-surface-50 hover:bg-surface-50 transition-colors group"
+                                            >
+                                                <div className="flex gap-3">
+                                                    <div className="w-9 h-9 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                                                        <span className="material-symbols-outlined text-[18px]">priority_high</span>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs font-semibold text-surface-900 leading-tight group-hover:text-primary transition-colors">
+                                                            Convention <span className="text-primary font-bold">"{notif.name}"</span>
+                                                        </p>
+                                                        <p className="text-[10px] text-surface-500 mt-1 uppercase font-bold tracking-tighter">En attente de validation</p>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        ))
+                                    )}
+                                </div>
+                                <div className="p-3 bg-surface-50 text-center border-t border-surface-100">
+                                    <Link to="/conventions" onClick={() => setIsOpen(false)} className="text-[10px] font-bold text-primary uppercase tracking-widest hover:underline">
+                                        Voir tous les dossiers
+                                    </Link>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
-                <div className="h-6 w-[1px] bg-outline-variant"></div>
-                <span className="font-inter label-md uppercase tracking-wider text-slate-500">ConvManager</span>
+                <div className="h-6 w-px bg-surface-200 mx-1"></div>
+                
+                {/* Language or other quick actions can go here */}
+                {/* Example placeholder for better visual balance */}
+                <div className="w-8 h-8 rounded-full bg-surface-100 border border-surface-200 flex items-center justify-center overflow-hidden">
+                   <span className="material-symbols-outlined text-surface-400 text-[18px]">help</span>
+                </div>
             </div>
 
             {/* Backdrop for closing dropdown */}

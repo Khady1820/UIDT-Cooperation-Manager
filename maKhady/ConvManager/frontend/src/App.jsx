@@ -12,11 +12,14 @@ import PartnerDashboard from './pages/PartnerDashboard';
 import Register from './pages/Register';
 import Indicators from './pages/Indicators';
 
+import { ThemeProvider } from './context/ThemeContext';
+
 function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <Router>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -67,6 +70,7 @@ function App() {
         </Router>
       </AuthProvider>
     </LanguageProvider>
+  </ThemeProvider>
   );
 }
 
