@@ -13,61 +13,64 @@ import Register from './pages/Register';
 import Indicators from './pages/Indicators';
 
 import { ThemeProvider } from './context/ThemeContext';
+import { SearchProvider } from './context/SearchContext';
 
 function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
         <AuthProvider>
-          <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/conventions" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Conventions />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/conventions/:id" element={
-              <ProtectedRoute>
-                <Layout>
-                  <ConventionDetails />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/settings" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Settings />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/partenaire" element={
-              <ProtectedRoute>
-                <Layout>
-                  <PartnerDashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/indicators" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Indicators />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </Router>
+          <SearchProvider>
+            <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/conventions" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Conventions />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/conventions/:id" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ConventionDetails />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Settings />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/partenaire" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <PartnerDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/indicators" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Indicators />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </Router>
+        </SearchProvider>
       </AuthProvider>
     </LanguageProvider>
   </ThemeProvider>

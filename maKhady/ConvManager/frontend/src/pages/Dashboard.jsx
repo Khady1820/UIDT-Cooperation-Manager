@@ -4,11 +4,13 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, 
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
     const { t } = useLanguage();
     const [conventions, setConventions] = useState([]);
     const [kpis, setKpis] = useState([]);
+    const { user } = useAuth();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -165,7 +167,7 @@ const Dashboard = () => {
                             <h2 className="text-lg font-bold text-surface-900">{t('kpi_evolution')}</h2>
                             <p className="text-xs text-surface-500 font-medium">{t('aggregated_performance')}</p>
                         </div>
-                        <select className="bg-surface-100 border border-outline-variant rounded-xl px-3 py-1.5 text-[11px] font-bold text-surface-600 focus:ring-2 focus:ring-primary/20 outline-none transition-colors duration-300">
+                        <select className="bg-surface-alt border border-outline-variant rounded-xl px-3 py-1.5 text-[11px] font-bold text-surface-600 focus:ring-2 focus:ring-primary/20 outline-none transition-colors duration-300">
                             <option>Année 2026</option>
                             <option>Année 2025</option>
                         </select>
@@ -275,22 +277,29 @@ const Dashboard = () => {
                             <h4 className="text-xl font-bold text-surface-900">{t('pending_conventions')}</h4>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {conventions.filter(c => c.status === 'en attente').length > 0 ? (
-                                conventions.filter(c => c.status === 'en attente').slice(0, 4).map(conv => (
-                                    <div key={conv.id} className="p-4 bg-surface-100 rounded-xl border border-outline-variant group hover:border-primary/20 transition-all transition-colors duration-300">
-                                        <p className="text-xs font-bold text-surface-900 group-hover:text-primary transition-colors">
-                                            {conv.name}
+                            {(() => {
+                                let pending = conventions.filter(c => c.status === 'en attente');
+                                if (user && user.role?.name !== 'admin') {
+                                    pending = pending.filter(c => (c.partners || '').includes(user.name));
+                                }
+                                
+                                return pending.length > 0 ? (
+                                    pending.slice(0, 4).map(conv => (
+                                        <div key={conv.id} className="p-4 bg-surface-alt rounded-xl border border-outline-variant group hover:border-primary/20 transition-all transition-colors duration-300">
+                                            <p className="text-xs font-bold text-surface-900 group-hover:text-primary transition-colors">
+                                                {conv.name}
+                                            </p>
+                                            <p className="text-[10px] text-surface-400 font-bold uppercase tracking-tighter mt-1">Nécessite votre attention</p>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="sm:col-span-2 py-4">
+                                        <p className="text-sm text-surface-500 italic font-medium">
+                                            Aucune convention critique n'arrive à échéance dans les prochains jours.
                                         </p>
-                                        <p className="text-[10px] text-surface-400 font-bold uppercase tracking-tighter mt-1">Nécessite votre attention</p>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="sm:col-span-2 py-4">
-                                    <p className="text-sm text-surface-500 italic font-medium">
-                                        Aucune convention critique n'arrive à échéance dans les prochains jours.
-                                    </p>
-                                </div>
-                            )}
+                                );
+                            })()}
                         </div>
                         <div className="mt-8">
                             <Link to="/conventions" className="text-xs font-bold text-primary uppercase tracking-widest hover:underline decoration-2 underline-offset-4">

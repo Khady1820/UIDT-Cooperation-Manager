@@ -125,7 +125,7 @@ const Settings = () => {
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             className="relative z-10 w-full max-w-md overflow-hidden flex flex-col shadow-2xl bg-card-bg border border-outline-variant rounded-3xl transition-colors duration-300"
                         >
-                            <div className="p-6 border-b border-surface-100 bg-surface-50/50 flex justify-between items-center">
+                            <div className="p-6 border-b border-outline-variant bg-surface-alt/50 flex justify-between items-center transition-colors duration-300">
                                 <h2 className="text-xl font-bold text-surface-900 leading-none">{t('change_password')}</h2>
                                 <button onClick={() => setShowPasswordModal(false)} className="p-2 hover:bg-surface-200 rounded-full transition-colors text-surface-400">
                                     <X className="w-5 h-5" />
@@ -197,7 +197,7 @@ const Settings = () => {
                                 >
                                     {user?.name?.charAt(0).toUpperCase()}
                                 </motion.div>
-                                <button className="absolute -bottom-2 -right-2 p-2.5 bg-white border border-surface-100 rounded-2xl shadow-premium text-primary hover:text-indigo-600 hover:scale-110 transition-all">
+                                <button className="absolute -bottom-2 -right-2 p-2.5 bg-card-bg border border-outline-variant rounded-2xl shadow-premium text-primary hover:text-indigo-600 hover:scale-110 transition-all transition-colors duration-300">
                                     <Camera className="w-4 h-4" />
                                 </button>
                             </div>
@@ -224,7 +224,7 @@ const Settings = () => {
                                                     setIsEditing(false);
                                                     setEditName(user?.name || '');
                                                 }}
-                                                className="px-4 py-1.5 bg-surface-100 text-surface-400 text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-surface-200 transition-all"
+                                                className="px-4 py-1.5 bg-surface-alt text-surface-400 text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-surface-200 transition-all"
                                             >
                                                 {t('cancel')}
                                             </button>
@@ -243,7 +243,7 @@ const Settings = () => {
                                 )}
                             </div>
                             
-                            <div className="w-full h-px bg-surface-50 my-8"></div>
+                            <div className="w-full h-px bg-outline-variant my-8"></div>
                             
                             <div className="w-full space-y-6 text-left">
                                 <div className="group/field">
@@ -277,7 +277,7 @@ const Settings = () => {
                                 className="flex items-center justify-between p-5 rounded-2xl border border-surface-50 hover:border-primary/20 hover:bg-surface-50/50 transition-all cursor-pointer group/toggle"
                             >
                                 <div className="flex items-center gap-5">
-                                    <div className="w-12 h-12 rounded-xl bg-surface-50 text-surface-400 flex items-center justify-center group-hover/toggle:bg-white group-hover/toggle:text-primary transition-all">
+                                    <div className="w-12 h-12 rounded-xl bg-surface-alt text-surface-400 flex items-center justify-center group-hover/toggle:bg-card-bg group-hover/toggle:text-primary transition-all">
                                         {darkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                                     </div>
                                     <div>
@@ -293,19 +293,11 @@ const Settings = () => {
                                 </button>
                             </div>
 
-                            <div className="relative">
-                                <div className="flex items-center justify-between p-5 rounded-2xl border border-surface-50 hover:border-primary/20 hover:bg-surface-50/50 transition-all group/lang">
-                                    <div className="flex items-center gap-5">
-                                        <div className="w-12 h-12 rounded-xl bg-surface-50 text-surface-400 flex items-center justify-center group-hover/lang:bg-white group-hover/lang:text-primary transition-all">
-                                            <Globe className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-black text-surface-900 uppercase tracking-widest">{t('language')}</p>
-                                            <p className="text-xs text-primary font-bold mt-0.5">{language}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-[10px] font-black uppercase text-surface-300 group-hover/lang:text-primary transition-colors">
-                                        Changer <span className="material-symbols-outlined text-[18px]">expand_more</span>
+                            <div className="space-y-2">
+                                <label className="block text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-2 ml-1">{t('language')}</label>
+                                <div className="relative group/lang">
+                                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-surface-400 group-hover/lang:text-primary transition-colors">
+                                        <Globe className="w-5 h-5" />
                                     </div>
                                     <select 
                                         value={language}
@@ -314,13 +306,16 @@ const Settings = () => {
                                             setShowSuccess(true);
                                             setTimeout(() => setShowSuccess(false), 2000);
                                         }}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        className="premium-input pl-14 appearance-none pr-12 cursor-pointer transition-all hover:border-primary/30"
                                     >
-                                        <option value="Français (France)">Français (France)</option>
-                                        <option value="English (US)">English (US)</option>
-                                        <option value="Español">Español</option>
-                                        <option value="Deutsch">Deutsch</option>
+                                        <option value="Français (France)" className="bg-card-bg text-surface-900">Français (France)</option>
+                                        <option value="English (US)" className="bg-card-bg text-surface-900">English (US)</option>
+                                        <option value="Español" className="bg-card-bg text-surface-900">Español</option>
+                                        <option value="Deutsch" className="bg-card-bg text-surface-900">Deutsch</option>
                                     </select>
+                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-surface-400 group-hover/lang:text-primary transition-colors">
+                                        <span className="material-symbols-outlined text-[20px]">expand_more</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -342,7 +337,7 @@ const Settings = () => {
                                 </div>
                                 <button 
                                     onClick={() => setShowPasswordModal(true)}
-                                    className="premium-button text-xs uppercase font-black tracking-widest whitespace-nowrap px-8 py-3.5 bg-white border border-red-200 text-red-500 hover:bg-red-50 transition-all scale-100 hover:scale-105 active:scale-95 shadow-sm"
+                                    className="premium-button text-xs uppercase font-black tracking-widest whitespace-nowrap px-8 py-3.5 bg-card-bg border border-red-200 text-red-500 hover:bg-red-50 transition-all scale-100 hover:scale-105 active:scale-95 shadow-sm"
                                 >
                                     {t('change_password')}
                                 </button>

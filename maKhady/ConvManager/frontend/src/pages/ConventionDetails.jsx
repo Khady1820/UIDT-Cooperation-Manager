@@ -106,7 +106,7 @@ const ConventionDetails = () => {
             className="space-y-8"
         >
             <div className="flex flex-col sm:flex-row items-start gap-6">
-                <Link to="/conventions" className="p-3 bg-white border border-surface-200 text-surface-400 hover:text-primary hover:border-primary/30 rounded-xl transition-all shadow-premium group">
+                <Link to="/conventions" className="p-3 bg-card-bg border border-outline-variant text-surface-400 hover:text-primary hover:border-primary/30 rounded-xl transition-all shadow-premium group">
                     <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                 </Link>
                 <div className="flex-1">
@@ -141,7 +141,7 @@ const ConventionDetails = () => {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 {/* Stats Sidebar */}
                 <motion.div variants={itemVariants} className="lg:col-span-1 space-y-6">
-                    <div className="bg-white p-7 rounded-2xl shadow-premium border border-surface-100 relative overflow-hidden group">
+                    <div className="bg-card-bg p-7 rounded-2xl shadow-premium border border-outline-variant relative overflow-hidden group transition-colors duration-300">
                         <div className="relative z-10">
                             <p className="text-[10px] font-bold text-surface-400 uppercase tracking-widest mb-1">Total KPIs</p>
                             <h3 className="text-4xl font-black text-surface-900 leading-none">{(convention.kpis || []).length}</h3>
@@ -168,8 +168,8 @@ const ConventionDetails = () => {
                 </motion.div>
 
                 {/* Main KPI Table */}
-                <motion.div variants={itemVariants} className="lg:col-span-3 bg-white rounded-2xl shadow-premium border border-surface-100 overflow-hidden flex flex-col">
-                    <div className="p-6 border-b border-surface-100 bg-surface-50/50 flex justify-between items-center">
+                <motion.div variants={itemVariants} className="lg:col-span-3 bg-card-bg rounded-2xl shadow-premium border border-outline-variant overflow-hidden flex flex-col transition-colors duration-300">
+                    <div className="p-6 border-b border-outline-variant bg-surface-alt/30 flex justify-between items-center transition-colors duration-300">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                                 <span className="material-symbols-outlined text-[20px]">analytics</span>
@@ -209,7 +209,7 @@ const ConventionDetails = () => {
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: idx * 0.05 }}
                                                 key={kpi.id} 
-                                                className="border-b border-surface-50 hover:bg-surface-50/80 transition-all group"
+                                                className="border-b border-outline-variant hover:bg-surface-alt/50 transition-all group"
                                             >
                                                 <td className="p-6">
                                                     <span className="font-bold text-surface-900 flex items-center gap-3">
@@ -262,9 +262,9 @@ const ConventionDetails = () => {
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="glass-card relative z-10 w-full max-w-lg overflow-hidden flex flex-col shadow-2xl bg-white border-white/50"
+                            className="glass-card relative z-10 w-full max-w-lg overflow-hidden flex flex-col shadow-2xl bg-card-bg border border-outline-variant rounded-3xl transition-colors duration-300"
                         >
-                            <div className="p-6 border-b border-surface-100 bg-surface-50/50 flex justify-between items-center">
+                            <div className="p-6 border-b border-outline-variant bg-surface-alt/50 flex justify-between items-center">
                                 <h2 className="text-xl font-bold text-surface-900 leading-none">{editingKpi ? 'Modifier le KPI' : 'Ajouter un indicateur'}</h2>
                                 <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-surface-200 rounded-full transition-colors text-surface-400">
                                     <X className="w-5 h-5" />

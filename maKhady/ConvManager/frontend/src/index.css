@@ -23,6 +23,7 @@
     --border: 30 41 59;
     --card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
     --glass-bg: rgba(15, 23, 42, 0.8);
+    color-scheme: dark;
   }
 
   html {
@@ -41,6 +42,10 @@
   ::selection {
     @apply bg-primary/20 text-primary;
   }
+
+  input, textarea, select {
+    @apply text-surface-900;
+  }
 }
 
 @layer components {
@@ -58,11 +63,12 @@
   }
   
   .premium-input {
-    @apply w-full px-5 py-4 rounded-2xl border border-outline-variant bg-surface-100/50 text-sm font-bold placeholder:text-surface-300 focus:border-primary/50 focus:ring-8 focus:ring-primary/5 outline-none transition-all font-sans;
+    @apply w-full px-5 py-4 rounded-2xl border border-outline-variant bg-surface-100/50 text-surface-900 text-sm font-bold placeholder:text-surface-400 focus:border-primary/50 focus:ring-8 focus:ring-primary/5 outline-none transition-all font-sans;
   }
   
   .premium-input:focus {
     background-color: rgb(var(--surface));
+    @apply shadow-lg;
   }
 
   .shadow-premium {

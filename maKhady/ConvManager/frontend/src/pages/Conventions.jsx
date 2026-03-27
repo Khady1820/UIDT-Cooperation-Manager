@@ -4,10 +4,11 @@ import api from '../services/api';
 import { Search, Plus, Download, Edit, Trash2, ChevronRight, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearch } from '../context/SearchContext';
 
 const Conventions = () => {
     const [conventions, setConventions] = useState([]);
-    const [search, setSearch] = useState('');
+    const { searchQuery, setSearchQuery } = useSearch();
     const [loading, setLoading] = useState(true);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -82,8 +83,8 @@ const Conventions = () => {
     };
 
     const filteredConventions = conventions.filter(c => 
-        c.name.toLowerCase().includes(search.toLowerCase()) || 
-        (c.partners && c.partners.toLowerCase().includes(search.toLowerCase()))
+        (c.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+        (c.partners || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const getStatusBadge = (status) => {
@@ -113,15 +114,15 @@ const Conventions = () => {
             </div>
 
             <div className="bg-card-bg rounded-2xl shadow-premium border border-outline-variant overflow-hidden flex flex-col transition-colors duration-300">
-                <div className="p-6 border-b border-outline-variant bg-surface-100/30 flex flex-col sm:flex-row items-center gap-4 transition-colors duration-300">
+                <div className="p-6 border-b border-outline-variant bg-surface-alt/30 flex flex-col sm:flex-row items-center gap-4 transition-colors duration-300">
                     <div className="relative w-full max-w-md group">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400 group-focus-within:text-primary transition-colors" />
                         <input 
                             type="text" 
                             placeholder="Rechercher par nom ou partenaire..." 
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            className="w-full bg-card-bg border border-outline-variant text-on-surface rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-medium"
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                            className="w-full bg-surface-alt border border-outline-variant text-on-surface rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-medium"
                         />
                     </div>
                     {/* Add more filters here if needed */}
@@ -130,7 +131,7 @@ const Conventions = () => {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-surface-100/50 text-[10px] text-surface-400 uppercase font-black tracking-widest transition-colors duration-300">
+                            <tr className="bg-surface-alt/50 text-[10px] text-surface-400 uppercase font-black tracking-widest transition-colors duration-300">
                                 <th className="p-6 border-b border-outline-variant">Nom de la convention</th>
                                 <th className="p-6 border-b border-outline-variant">Partenaires</th>
                                 <th className="p-6 border-b border-outline-variant">Période d'exécution</th>
@@ -165,11 +166,11 @@ const Conventions = () => {
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: index * 0.05 }}
                                             key={conv.id} 
-                                            className="border-b border-outline-variant hover:bg-surface-100/50 transition-all group"
+                                            className="border-b border-outline-variant hover:bg-surface-alt/50 transition-all group"
                                         >
                                             <td className="p-6">
                                                 <Link to={`/conventions/${conv.id}`} className="font-bold text-surface-900 group-hover:text-primary transition-colors flex items-center gap-3">
-                                                   <div className="w-8 h-8 rounded-lg bg-surface-100 flex items-center justify-center text-surface-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                                                   <div className="w-8 h-8 rounded-lg bg-surface-alt flex items-center justify-center text-surface-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
                                                        <span className="material-symbols-outlined text-[18px]">article</span>
                                                    </div>
                                                     {conv.name}
@@ -221,7 +222,7 @@ const Conventions = () => {
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             className="relative z-10 w-full max-w-lg overflow-hidden flex flex-col shadow-2xl bg-card-bg border border-outline-variant rounded-3xl transition-colors duration-300"
                         >
-                            <div className="p-6 border-b border-outline-variant bg-surface-100/30 flex justify-between items-center transition-colors duration-300">
+                            <div className="p-6 border-b border-outline-variant bg-surface-alt/30 flex justify-between items-center transition-colors duration-300">
                                 <h2 className="text-xl font-bold text-surface-900 leading-none">{editingId ? 'Modifier la convention' : 'Nouvelle Convention'}</h2>
                                 <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-surface-200 rounded-full transition-colors text-surface-400">
                                     <X className="w-5 h-5" />

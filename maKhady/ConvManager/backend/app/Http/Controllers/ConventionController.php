@@ -12,7 +12,7 @@ class ConventionController extends Controller
         $user = $request->user();
         $query = Convention::with('kpis');
         
-        if ($user->role && $user->role->name === 'partenaire') {
+        if ($user->role && $user->role->name !== 'admin') {
             $query->where('partners', 'like', '%' . $user->name . '%');
         }
 
