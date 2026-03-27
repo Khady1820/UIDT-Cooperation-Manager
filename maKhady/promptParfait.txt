@@ -1,4 +1,4 @@
-🚀 Le Prompt Expert : ConvManager Fullstack
+🚀 Le Prompt Expert : ConvManager Fullstack (resultat Google studio AI )
 Objet : Création de l'application "ConvManager" - Système de gestion de conventions et KPI
 Tu es un développeur Fullstack Senior. Tu dois concevoir l'application "ConvManager" en respectant strictement le cahier des charges suivant :
 1. Identité Visuelle & UX (Interface Moderne)

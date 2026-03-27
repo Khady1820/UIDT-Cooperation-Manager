@@ -32,34 +32,34 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen w-full flex items-center justify-center p-6 relative overflow-hidden font-outfit">
+        <div className="min-h-screen w-full flex items-center justify-center p-6 relative overflow-hidden font-outfit bg-surface-50">
             {/* Animated Mesh Gradient Background */}
-            <div className="absolute inset-0 z-0 bg-slate-950">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px] animate-pulse delay-700"></div>
-                <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-indigo-500/10 rounded-full blur-[100px] animate-pulse delay-1000"></div>
+            <div className="absolute inset-0 z-0">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/5 rounded-full blur-[120px] animate-pulse delay-700"></div>
+                <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-indigo-500/5 rounded-full blur-[100px] animate-pulse delay-1000"></div>
             </div>
 
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="glass-card w-full max-w-[480px] p-10 relative z-10 border-white/10 shadow-2xl overflow-hidden"
+                className="glass-card w-full max-w-[480px] p-10 relative z-10 border-outline-variant shadow-2xl overflow-hidden"
             >
                 {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
                 
                 <div className="mb-10 text-center relative">
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="inline-block p-4 bg-white/5 rounded-3xl mb-6 border border-white/10"
+                        className="inline-block p-4 bg-surface-100/50 rounded-3xl mb-6 border border-outline-variant"
                     >
                         <img src={logo} alt="ConvManager Logo" className="h-16 w-auto object-contain" />
                     </motion.div>
-                    <h1 className="text-3xl font-black text-white tracking-tight mb-2">Inscription</h1>
-                    <p className="text-slate-400 font-medium italic">Rejoignez la plateforme ConvManager</p>
+                    <h1 className="text-3xl font-black text-surface-900 tracking-tight mb-2">Inscription</h1>
+                    <p className="text-surface-500 font-medium italic">Rejoignez la plateforme ConvManager</p>
                 </div>
 
                 {error && (
@@ -81,7 +81,7 @@ const Register = () => {
                             id="name"
                             type="text"
                             required
-                            className="premium-input bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:bg-white/10"
+                            className="premium-input"
                             value={formData.name}
                             onChange={(e) => setFormData({...formData, name: e.target.value})}
                             placeholder="Jean Dupont"
@@ -96,7 +96,7 @@ const Register = () => {
                             id="email"
                             type="email"
                             required
-                            className="premium-input bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:bg-white/10"
+                            className="premium-input"
                             value={formData.email}
                             onChange={(e) => setFormData({...formData, email: e.target.value})}
                             placeholder="jean.dupont@finance.gov"
@@ -110,13 +110,13 @@ const Register = () => {
                         <div className="relative">
                             <select
                                 id="role"
-                                className="premium-input bg-white/5 border-white/10 text-white appearance-none cursor-pointer focus:bg-white/10 pr-10"
+                                className="premium-input appearance-none cursor-pointer pr-10"
                                 value={formData.role_id}
                                 onChange={(e) => setFormData({...formData, role_id: e.target.value})}
                             >
-                                <option value="1" className="bg-slate-900">Administrateur</option>
-                                <option value="2" className="bg-slate-900">Responsable de Projet</option>
-                                <option value="3" className="bg-slate-900">Partenaire Externe</option>
+                                <option value="1" className="bg-surface-50 text-surface-900">Administrateur</option>
+                                <option value="2" className="bg-surface-50 text-surface-900">Responsable de Projet</option>
+                                <option value="3" className="bg-surface-50 text-surface-900">Partenaire Externe</option>
                             </select>
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none material-symbols-outlined">expand_more</span>
                         </div>
@@ -131,7 +131,7 @@ const Register = () => {
                                 id="password"
                                 type="password"
                                 required
-                                className="premium-input bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:bg-white/10"
+                                className="premium-input"
                                 value={formData.password}
                                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                                 placeholder="••••••••"
@@ -145,7 +145,7 @@ const Register = () => {
                                 id="password_confirmation"
                                 type="password"
                                 required
-                                className="premium-input bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:bg-white/10"
+                                className="premium-input"
                                 value={formData.password_confirmation}
                                 onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
                                 placeholder="••••••••"
@@ -163,7 +163,7 @@ const Register = () => {
                     </motion.button>
                 </form>
 
-                <div className="mt-10 text-center border-t border-white/5 pt-8">
+                <div className="mt-10 text-center border-t border-outline-variant pt-8">
                     <p className="text-sm text-slate-500 font-medium">
                         Vous avez déjà un accès ?{' '}
                         <Link to="/login" className="text-primary font-black hover:text-indigo-400 transition-colors uppercase tracking-widest text-xs ml-1">

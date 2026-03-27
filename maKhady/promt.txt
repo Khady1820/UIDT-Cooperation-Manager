@@ -1,4 +1,4 @@
-1-Partie : Prompt parfait 
+1-Partie : Prompt parfait (Google studio AI) 
 
 tu es un developpeur fullstack  expert ,
 en utilisant ce cahier de charge minimun , veuillez realiser un prompt parfait pour  creer en integralite l'application .

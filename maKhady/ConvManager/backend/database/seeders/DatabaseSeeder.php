@@ -18,6 +18,15 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
+            OrangePartnerSeeder::class,
+            HuaweiPartnerSeeder::class,
+            GooglePartnerSeeder::class,
+            SenyMbayeSeeder::class,
+            SenyMbayeDsiUidtSeeder::class,
+            SenyMbayeUidtPerformicsSeeder::class,
+            SenyMbayeTwoMoreSeeder::class,
+            ThirteenConventionsSeeder::class,
+            TwelveMoreConventionsSeeder::class,
         ]);
     }
 }
