@@ -44,7 +44,7 @@
   }
 
   input, textarea, select {
-    @apply text-surface-900;
+    @apply text-on-surface bg-transparent;
   }
 }
 
@@ -75,6 +75,35 @@
     box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05), 0 4px 12px -4px rgba(0, 0, 0, 0.02);
   }
 
+  /* Institution Theme (CoopManager) */
+  .institution-card {
+    @apply bg-card-bg border-l-[6px] border-l-[#8B7355] shadow-[0_20px_50px_rgba(0,0,0,0.08)] rounded-sm transition-all duration-300;
+  }
+
+  .institution-input {
+    @apply w-full px-5 py-4 rounded-md border-none bg-surface-100 text-on-surface text-sm font-medium placeholder:text-surface-400 focus:ring-2 focus:ring-primary/10 outline-none transition-all;
+  }
+
+  .institution-button {
+    @apply w-full py-4 rounded-md bg-[#001D3D] text-white text-sm font-bold tracking-wider transition-all hover:bg-[#002b5c] shadow-lg active:scale-[0.98];
+  }
+
+  .institution-button-google {
+    @apply flex items-center justify-center gap-3 w-full py-4 rounded-md bg-[#F2F2F2] border border-[#E0E0E0] text-[#444] text-[13px] font-medium transition-all hover:bg-[#EAEAEA] active:scale-[0.98];
+  }
+
+  .trust-badge {
+    @apply flex items-center gap-3 p-3 rounded-xl bg-transparent;
+  }
+
+  .trust-badge-icon {
+    @apply flex items-center justify-center w-10 h-10 rounded-full bg-[#E8E3D9] text-[#8B7355];
+  }
+
+  .footer-link {
+    @apply text-[10px] uppercase tracking-widest font-bold text-[#888] hover:text-[#444] transition-colors;
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }
@@ -84,6 +113,50 @@
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-surface-200 rounded-full hover:bg-surface-300 transition-colors;
+    @apply bg-surface-200/50 rounded-full hover:bg-surface-300 transition-colors;
+  }
+}
+
+/* Print Styles */
+@media print {
+  @page {
+    size: A4;
+    margin: 2cm;
+  }
+
+  /* Hide UI elements */
+  aside, 
+  header, 
+  nav,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset layout for print */
+  main,
+  #root,
+  .min-h-screen {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Show hidden print elements */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Force background colors */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Prevent section breaks */
+  .bg-white, .institution-card {
+    break-inside: avoid;
+    border: 1px solid #eee !important;
+    box-shadow: none !important;
   }
 }

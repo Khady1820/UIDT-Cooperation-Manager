@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import logo from '../assets/logo_convmanager.png';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../context/LanguageContext';
 
 const Register = () => {
+    const { t } = useLanguage();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
-        role_id: '2' // Default to Responsable
+        role_id: '4' // Default to Porteur de Projet
     });
     const [error, setError] = useState('');
     const { register } = useAuth();
@@ -32,146 +33,151 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen w-full flex items-center justify-center p-6 relative overflow-hidden font-outfit bg-surface-50">
-            {/* Animated Mesh Gradient Background */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/5 rounded-full blur-[120px] animate-pulse delay-700"></div>
-                <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-indigo-500/5 rounded-full blur-[100px] animate-pulse delay-1000"></div>
-            </div>
+        <div className="relative min-h-screen flex items-center justify-center bg-[#F8F9FA] p-6 overflow-hidden">
+            {/* Background Decorative Elements */}
+            <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#001D3D]/5 rounded-full blur-[120px]"></div>
+            <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#8B7355]/5 rounded-full blur-[120px]"></div>
 
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="glass-card w-full max-w-[480px] p-10 relative z-10 border-outline-variant shadow-2xl overflow-hidden"
-            >
-                {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+            <div className="relative z-10 w-full max-w-[1000px] grid grid-cols-1 lg:grid-cols-2 bg-white rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
                 
-                <div className="mb-10 text-center relative">
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.2, duration: 0.5 }}
-                        className="inline-block p-4 bg-surface-100/50 rounded-3xl mb-6 border border-outline-variant"
-                    >
-                        <img src={logo} alt="ConvManager Logo" className="h-16 w-auto object-contain" />
-                    </motion.div>
-                    <h1 className="text-3xl font-black text-surface-900 tracking-tight mb-2">Inscription</h1>
-                    <p className="text-surface-500 font-medium italic">Rejoignez la plateforme ConvManager</p>
+                {/* Visual Side */}
+                <div className="hidden lg:flex flex-col justify-between p-16 bg-[#001D3D] text-white relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                    
+                    <div className="relative z-10">
+                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-8 shadow-2xl">
+                             <span className="material-symbols-outlined text-[#001D3D] text-4xl">account_balance</span>
+                        </div>
+                        <h2 className="text-4xl font-black tracking-tight leading-tight mb-6">
+                            Rejoignez la <br/> Plateforme UIDT
+                        </h2>
+                        <p className="text-[#8B7355] font-bold text-sm uppercase tracking-[0.2em] mb-12">Portail de Coopération</p>
+                        
+                        <div className="space-y-8">
+                            <div className="flex items-start gap-4">
+                                <span className="material-symbols-outlined text-[#8B7355]">check_circle</span>
+                                <div>
+                                    <p className="font-bold text-sm uppercase tracking-wide">Gestion de Projet</p>
+                                    <p className="text-gray-400 text-xs mt-1">Soumettez et suivez vos conventions en temps réel.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-4">
+                                <span className="material-symbols-outlined text-[#8B7355]">check_circle</span>
+                                <div>
+                                    <p className="font-bold text-sm uppercase tracking-wide">Audit & Transparence</p>
+                                    <p className="text-gray-400 text-xs mt-1">Suivi complet des validations hiérarchiques.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="relative z-10 pt-10 border-t border-white/10">
+                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.3em]">© 2026 UIDT THIÈS</p>
+                    </div>
                 </div>
 
-                {error && (
-                    <motion.div 
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs font-bold uppercase tracking-widest text-center"
-                    >
-                        {error}
-                    </motion.div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="space-y-1.5">
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1" htmlFor="name">
-                            Nom Complet
-                        </label>
-                        <input
-                            id="name"
-                            type="text"
-                            required
-                            className="premium-input"
-                            value={formData.name}
-                            onChange={(e) => setFormData({...formData, name: e.target.value})}
-                            placeholder="Jean Dupont"
-                        />
+                {/* Form Side */}
+                <div className="p-10 md:p-16">
+                    <div className="mb-10 text-center lg:text-left">
+                        <h1 className="text-3xl font-black text-[#001D3D] tracking-tight">{t('register')}</h1>
+                        <p className="text-xs font-bold text-gray-400 mt-2 uppercase tracking-widest leading-loose">Création de profil institutionnel</p>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1" htmlFor="email">
-                            Adresse Email
-                        </label>
-                        <input
-                            id="email"
-                            type="email"
-                            required
-                            className="premium-input"
-                            value={formData.email}
-                            onChange={(e) => setFormData({...formData, email: e.target.value})}
-                            placeholder="jean.dupont@finance.gov"
-                        />
-                    </div>
+                    <AnimatePresence>
+                        {error && (
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-[11px] font-black uppercase text-center"
+                            >
+                                {error}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
-                    <div className="space-y-1.5">
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1" htmlFor="role">
-                            Votre Fonction
-                        </label>
-                        <div className="relative">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Nom complet</label>
+                            <input
+                                type="text"
+                                required
+                                className="w-full bg-gray-50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-medium outline-none transition-all"
+                                value={formData.name}
+                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                placeholder="Dr. Prénom Nom"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Adresse Email</label>
+                            <input
+                                type="email"
+                                required
+                                className="w-full bg-gray-50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-medium outline-none transition-all"
+                                value={formData.email}
+                                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                placeholder="nom@uidt.sn"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Mot de passe</label>
+                                <input
+                                    type="password"
+                                    required
+                                    className="w-full bg-gray-50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-medium outline-none transition-all"
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                    placeholder="••••••••"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Confirmation</label>
+                                <input
+                                    type="password"
+                                    required
+                                    className="w-full bg-gray-50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-medium outline-none transition-all"
+                                    value={formData.password_confirmation}
+                                    onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
+                                    placeholder="••••••••"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Rôle souhaité</label>
                             <select
-                                id="role"
-                                className="premium-input appearance-none cursor-pointer pr-10"
+                                className="w-full bg-gray-50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-medium outline-none transition-all appearance-none cursor-pointer"
                                 value={formData.role_id}
                                 onChange={(e) => setFormData({...formData, role_id: e.target.value})}
                             >
-                                <option value="1" className="bg-surface-50 text-surface-900">Administrateur</option>
-                                <option value="2" className="bg-surface-50 text-surface-900">Responsable de Projet</option>
-                                <option value="3" className="bg-surface-50 text-surface-900">Partenaire Externe</option>
+                                <option value="4">Porteur de Projet</option>
+                                <option value="3">Partenaire Externe</option>
                             </select>
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none material-symbols-outlined">expand_more</span>
                         </div>
+
+                        <div className="pt-6">
+                            <button
+                                type="submit"
+                                className="w-full bg-[#001D3D] text-white py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-[#002b5c] transition-all shadow-2xl shadow-[#001D3D]/30 active:scale-95"
+                            >
+                                Créer mon Compte
+                            </button>
+                        </div>
+                    </form>
+
+                    <div className="mt-12 text-center pt-8 border-t border-gray-50">
+                        <p className="text-[13px] text-gray-400 font-bold">
+                            Déjà membre ?{' '}
+                            <Link to="/login" className="text-[#8B7355] hover:text-[#001D3D] transition-colors">
+                                Se connecter
+                            </Link>
+                        </p>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1" htmlFor="password">
-                                Mot de passe
-                            </label>
-                            <input
-                                id="password"
-                                type="password"
-                                required
-                                className="premium-input"
-                                value={formData.password}
-                                onChange={(e) => setFormData({...formData, password: e.target.value})}
-                                placeholder="••••••••"
-                            />
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1" htmlFor="password_confirmation">
-                                Confirmation
-                            </label>
-                            <input
-                                id="password_confirmation"
-                                type="password"
-                                required
-                                className="premium-input"
-                                value={formData.password_confirmation}
-                                onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
-                                placeholder="••••••••"
-                            />
-                        </div>
-                    </div>
-
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        type="submit"
-                        className="premium-button-primary w-full py-4 mt-4 text-xs uppercase tracking-widest font-black"
-                    >
-                        Finaliser l'inscription
-                    </motion.button>
-                </form>
-
-                <div className="mt-10 text-center border-t border-outline-variant pt-8">
-                    <p className="text-sm text-slate-500 font-medium">
-                        Vous avez déjà un accès ?{' '}
-                        <Link to="/login" className="text-primary font-black hover:text-indigo-400 transition-colors uppercase tracking-widest text-xs ml-1">
-                            Se connecter
-                        </Link>
-                    </p>
                 </div>
-            </motion.div>
+            </div>
         </div>
     );
 };

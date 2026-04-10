@@ -35,26 +35,26 @@ const PartnerDashboard = () => {
 
     const stats = {
         total: conventions.length,
-        active: conventions.filter(c => c.status === 'en cours').length,
-        pending: conventions.filter(c => c.status === 'en attente').length,
-        completed: conventions.filter(c => c.status === 'terminé').length,
+        active: conventions.filter(c => c.status === 'signe_recteur').length,
+        completed: conventions.filter(c => c.status === 'termine').length,
+        archived: conventions.filter(c => c.status === 'archive').length,
     };
 
     const getStatusStyles = (status) => {
         switch (status) {
-            case 'en cours': return 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20';
-            case 'terminé': return 'text-secondary bg-secondary/10 border-secondary/10';
-            case 'en attente': return 'text-amber-500 bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20';
-            default: return 'text-surface-500 bg-surface-50 dark:bg-surface-800 border-surface-100 dark:border-surface-700';
+            case 'signe_recteur': return 'text-green-500 bg-green-50 dark:bg-green-500/10 border-green-100 dark:border-green-500/20';
+            case 'termine': return 'text-secondary bg-secondary/10 border-secondary/10';
+            case 'archive': return 'text-surface-400 bg-surface-50 dark:bg-surface-800 border-surface-100 dark:border-surface-700';
+            default: return 'text-blue-500 bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20';
         }
     };
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case 'en cours': return <PlayCircle className="w-3.5 h-3.5" />;
-            case 'terminé': return <CheckCircle2 className="w-3.5 h-3.5" />;
-            case 'en attente': return <Clock className="w-3.5 h-3.5" />;
-            default: return null;
+            case 'signe_recteur': return <CheckCircle2 className="w-3.5 h-3.5" />;
+            case 'termine': return <PlayCircle className="w-3.5 h-3.5" />;
+            case 'archive': return <Clock className="w-3.5 h-3.5" />;
+            default: return <Handshake className="w-3.5 h-3.5" />;
         }
     };
 
@@ -114,9 +114,9 @@ const PartnerDashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
                     { label: 'Total Conventions', value: stats.total, icon: LayoutDashboard, color: 'bg-primary' },
-                    { label: 'En Cours', value: stats.active, icon: PlayCircle, color: 'bg-indigo-500' },
-                    { label: 'En Attente', value: stats.pending, icon: Clock, color: 'bg-amber-500' },
-                    { label: 'Terminées', value: stats.completed, icon: CheckCircle2, color: 'bg-secondary' },
+                    { label: 'Signées / Actives', value: stats.active, icon: CheckCircle2, color: 'bg-green-500' },
+                    { label: 'Terminées', value: stats.completed, icon: PlayCircle, color: 'bg-indigo-500' },
+                    { label: 'Archivées', value: stats.archived, icon: Clock, color: 'bg-surface-400' },
                 ].map((stat, i) => (
                     <motion.div 
                         key={i} 
@@ -203,7 +203,7 @@ const PartnerDashboard = () => {
                                         <div className="flex flex-wrap gap-2 mb-4">
                                             <div className={`px-2 py-0.5 rounded-lg text-[9px] font-black flex items-center gap-1.5 border ${getStatusStyles(conv.status)} uppercase tracking-widest`}>
                                                 {getStatusIcon(conv.status)}
-                                                {conv.status}
+                                                {conv.status.replace('_', ' ')}
                                             </div>
                                             {conv.kpis?.length > 0 && (
                                                 <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-surface-100 text-surface-500 border border-surface-200 uppercase tracking-widest">

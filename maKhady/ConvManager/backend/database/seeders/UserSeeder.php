@@ -18,8 +18,35 @@ class UserSeeder extends Seeder
             ['email' => 'admin@convmanager.com'],
             [
                 'name' => 'Admin ConvManager',
-                'password' => bcrypt('password'), // password
-                'role_id' => $adminRole->id ?? null,
+                'password' => bcrypt('password'),
+                'role_id' => \App\Models\Role::where('name', 'admin')->first()->id ?? null,
+            ]
+        );
+
+        \App\Models\User::firstOrCreate(
+            ['email' => 'porteur@uidt.sn'],
+            [
+                'name' => 'Dr. Moussa Ndiaye',
+                'password' => bcrypt('password'),
+                'role_id' => \App\Models\Role::where('name', 'porteur_projet')->first()->id ?? null,
+            ]
+        );
+
+        \App\Models\User::firstOrCreate(
+            ['email' => 'directeur@uidt.sn'],
+            [
+                'name' => 'Directeur Coopération',
+                'password' => bcrypt('password'),
+                'role_id' => \App\Models\Role::where('name', 'directeur_cooperation')->first()->id ?? null,
+            ]
+        );
+
+        \App\Models\User::firstOrCreate(
+            ['email' => 'recteur@uidt.sn'],
+            [
+                'name' => 'Recteur UIDT',
+                'password' => bcrypt('password'),
+                'role_id' => \App\Models\Role::where('name', 'recteur')->first()->id ?? null,
             ]
         );
     }

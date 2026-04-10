@@ -13,11 +13,16 @@ return new class extends Migration
     {
         Schema::create('conventions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('name');
+            $table->enum('type', ['regional', 'national', 'international'])->default('international');
+            $table->text('description')->nullable();
+            $table->text('objectives')->nullable();
             $table->text('partners')->nullable();
             $table->date('start_date');
             $table->date('end_date');
-            $table->enum('status', ['en cours', 'terminé', 'en attente'])->default('en attente');
+            $table->enum('status', ['brouillon', 'soumis', 'valide_dir', 'signe_recteur', 'rejete', 'termine', 'archive', 'en cours', 'en attente'])->default('brouillon');
+            $table->text('rejection_reason')->nullable();
             $table->timestamps();
         });
     }

@@ -7,7 +7,7 @@ const Layout = ({ children }) => {
     const location = useLocation();
 
     return (
-        <div className="bg-surface-50 text-surface-900 antialiased min-h-screen font-sans transition-colors duration-300">
+        <div className="bg-surface-50 text-on-surface antialiased min-h-screen font-sans transition-colors duration-300">
             <Sidebar />
             <Topnav />
             
@@ -19,7 +19,7 @@ const Layout = ({ children }) => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.3, ease: "easeOut" }}
-                        className="p-8"
+                        className="p-10"
                     >
                         {children}
                     </motion.div>

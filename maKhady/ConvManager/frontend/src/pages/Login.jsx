@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
-import logo from '../assets/logo_convmanager.png';
+import { useLanguage } from '../context/LanguageContext';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const { login } = useAuth();
+    const { t } = useLanguage();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -24,95 +24,117 @@ const Login = () => {
     };
 
     return (
-        <div className="relative flex min-h-screen items-center justify-center bg-surface-50 overflow-hidden font-sans">
-            {/* Animated Background Elements */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#F8F9FA] overflow-hidden font-sans p-6">
+            <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="mb-10 text-center"
+            >
+                <div className="w-16 h-16 bg-[#001D3D] rounded-lg flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#001D3D]/20">
+                    <span className="material-symbols-outlined text-white text-4xl">account_balance</span>
+                </div>
+                <h1 className="text-2xl font-black text-[#001D3D] tracking-tight mb-1 uppercase">{t('app_name')}</h1>
+                <p className="text-[10px] font-bold text-[#8B7355] tracking-[0.2em] uppercase opacity-80">{t('institutional_sub')}</p>
+            </motion.div>
 
             <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="relative z-10 w-full max-w-md p-4"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="relative z-10 w-full max-w-[440px]"
             >
-                <div className="glass-card p-10 border border-white/40 shadow-2xl">
-                    <div className="mb-10 text-center flex flex-col items-center">
-                        <motion.img 
-                            initial={{ scale: 0.8 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: "spring", stiffness: 100 }}
-                            src={logo} 
-                            alt="ConvManager Logo" 
-                            className="h-20 w-auto object-contain mb-6" 
-                        />
-                        <h1 className="text-2xl font-bold text-surface-900 tracking-tight">Bienvenue</h1>
-                        <p className="text-sm text-surface-500 mt-1">Système de Gestion des Conventions</p>
-                    </div>
-                    
+                <div className="bg-white p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-gray-100">
                     {error && (
                         <motion.div 
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="mb-6 rounded-xl bg-red-50 border border-red-100 p-4 text-xs font-bold text-red-500 flex items-center gap-2"
+                            className="mb-8 rounded-xl bg-red-50 border border-red-100 p-4 text-[13px] font-medium text-red-600 flex items-center gap-3"
                         >
-                            <span className="material-symbols-outlined text-sm">error</span>
+                            <span className="material-symbols-outlined text-lg">error</span>
                             {error}
                         </motion.div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-8">
                         <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-2 ml-1" htmlFor="email">
-                                Adresse Email
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3 ml-1" htmlFor="email">
+                                Email / Identifiant
                             </label>
                             <input
                                 id="email"
                                 type="email"
                                 required
-                                className="premium-input"
+                                className="w-full bg-gray-50/50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-xl px-6 py-4 text-sm font-medium outline-none transition-all"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="votre@email.com"
+                                placeholder="administrateur@uidt.sn"
                             />
                         </div>
-                        <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-2 ml-1" htmlFor="password">
-                                Mot de passe
-                            </label>
+                        <div className="relative">
+                            <div className="flex justify-between items-center mb-3">
+                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1" htmlFor="password">
+                                    Mot de passe
+                                </label>
+                                <a href="#" className="text-[10px] font-bold text-[#8B7355] hover:underline uppercase tracking-wider">Oublié ?</a>
+                            </div>
                             <input
                                 id="password"
                                 type="password"
                                 required
-                                className="premium-input"
+                                className="w-full bg-gray-50/50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-xl px-6 py-4 text-sm font-medium outline-none transition-all"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
+                                placeholder="••••••••••••"
                             />
                         </div>
 
                         <div className="pt-2">
                             <button
                                 type="submit"
-                                className="premium-button-primary w-full py-3.5 text-sm font-bold tracking-wide uppercase"
+                                className="w-full bg-[#001D3D] text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-[#001D3D]/20 hover:bg-[#002b5c] transition-all active:scale-[0.98]"
                             >
                                 Se connecter
                             </button>
                         </div>
                     </form>
 
-                    <div className="mt-8 text-center pt-6 border-t border-surface-100">
-                        <p className="text-sm text-surface-500">
-                            Pas encore utilisateur ?{' '}
-                            <Link to="/register" className="text-primary font-bold hover:underline decoration-2 underline-offset-4">
+                    <div className="mt-12 text-center pt-8 border-t border-gray-50">
+                        <p className="text-[13px] text-gray-400 font-medium">
+                            Nouveau sur la plateforme ?{' '}
+                            <Link to="/register" className="text-[#8B7355] font-black underline decoration-2 underline-offset-4 hover:text-[#001D3D] transition-colors">
                                 Créer un compte
                             </Link>
                         </p>
                     </div>
                 </div>
                 
-                <p className="mt-8 text-center text-[10px] text-surface-400 uppercase tracking-widest font-bold">
-                    © 2026 ConvManager · Tous droits réservés
-                </p>
+                <div className="mt-12 flex justify-center gap-12">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-400 border border-gray-100 shadow-sm">
+                            <span className="material-symbols-outlined text-xl">verified_user</span>
+                        </div>
+                        <div>
+                            <p className="text-[11px] font-black text-[#001D3D] uppercase tracking-tight">Sécurisé</p>
+                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">AES-256 bits</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-400 border border-gray-100 shadow-sm">
+                            <span className="material-symbols-outlined text-xl">public</span>
+                        </div>
+                        <div>
+                            <p className="text-[11px] font-black text-[#001D3D] uppercase tracking-tight">Réseau Local</p>
+                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Accès UIDT</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-16 text-center opacity-50">
+                    <p className="text-[9px] font-bold text-[#001D3D] uppercase tracking-[0.3em]">
+                        © 2026 Université Iba Der Thiam de Thiès
+                    </p>
+                </div>
             </motion.div>
         </div>
     );

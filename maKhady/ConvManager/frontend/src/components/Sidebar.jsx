@@ -1,67 +1,95 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { motion } from 'framer-motion';
-
-import logo from '../assets/logo_convmanager.png';
 
 const Sidebar = () => {
-    const { logout, user } = useAuth();
+    const location = useLocation();
     const { t } = useLanguage();
-    const isAdmin = user?.role?.name === 'admin';
-    const isPartner = user?.role?.name === 'partenaire';
-
-    const menuItems = [
-        { icon: 'grid_view', label: t('dashboard'), path: '/' },
-        { icon: 'description', label: t('conventions'), path: '/conventions' },
-        { icon: 'analytics', label: t('indicators'), path: '/indicators' },
-        ...(isAdmin ? [{ icon: 'settings', label: t('settings'), path: '/settings' }] : []),
-        ...(isPartner ? [{ icon: 'handshake', label: t('partner_page'), path: '/partenaire' }] : []),
-    ];
+    const { user } = useAuth();
 
     return (
-        <aside className="h-screen w-64 fixed left-0 top-0 bg-card-bg border-r border-outline-variant z-50 flex flex-col transition-colors duration-300">
+        <aside className="h-screen w-64 fixed left-0 top-0 bg-card-bg border-r border-outline-variant z-50 flex flex-col transition-all duration-300">
+            {/* Branding Section */}
             <div className="p-8 mb-4">
-                <img src={logo} alt="ConvManager Logo" className="h-10 w-auto object-contain mx-auto" />
+                <div className="flex flex-col">
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 bg-[#001D3D] rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-[#001D3D]/20">
+                            <span className="material-symbols-outlined text-white text-xl">account_balance</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-black text-surface-900 tracking-tight leading-none uppercase">{t('app_name')}</span>
+                            <span className="text-[9px] font-bold text-[#8B7355] mt-0.5 uppercase tracking-tighter opacity-80">{t('institutional_sub')}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <nav className="flex-1 px-4 space-y-2">
-                {menuItems.map((item) => (
-                    <NavLink
-                        key={item.path}
-                        to={item.path}
-                        className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                                isActive 
-                                ? 'bg-primary text-white shadow-premium' 
-                                : 'text-surface-500 hover:bg-surface-100 hover:text-surface-900'
-                            }`
-                        }
-                    >
-                        <span className="material-symbols-outlined text-[22px] leading-none">{item.icon}</span>
-                        <span className="font-medium">{item.label}</span>
-                        {/* Subtle indicator for active state */}
-                    </NavLink>
-                ))}
+            {/* Navigation Links */}
+            <nav className="flex-1 px-4 space-y-1.5">
+                <Link to="/" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                    <span className="material-symbols-outlined text-[20px]">dashboard</span>
+                    <span className="text-[13px]">{t('dashboard')}</span>
+                </Link>
+                
+                <Link to="/conventions" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/conventions' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                    <span className="material-symbols-outlined text-[20px]">folder_shared</span>
+                    <span className="text-[13px]">{t('conventions')}</span>
+                </Link>
+
+                <Link to="/validation" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/validation' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                    <span className="material-symbols-outlined text-[20px]">fact_check</span>
+                    <span className="text-[13px]">{t('validation')}</span>
+                </Link>
+
+                <Link to="/indicators" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/indicators' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                    <span className="material-symbols-outlined text-[20px]">insights</span>
+                    <span className="text-[13px]">{t('indicators')}</span>
+                </Link>
+
+                <Link to="/timeline" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/timeline' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                    <span className="material-symbols-outlined text-[20px]">account_tree</span>
+                    <span className="text-[13px]">{t('timeline')}</span>
+                </Link>
             </nav>
 
-            <div className="p-4 mt-auto border-t border-surface-200">
-                <button
-                    onClick={logout}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-surface-500 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-500 transition-all duration-200 rounded-xl font-medium"
-                >
-                    <span className="material-symbols-outlined">logout</span>
-                    {t('logout')}
-                </button>
+            {/* Bottom Links */}
+            <div className="p-4 border-t border-outline-variant space-y-1">
+                <Link to="/settings" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-surface-500 hover:bg-surface-100 ${location.pathname === '/settings' ? 'text-primary font-bold' : ''}`}>
+                    <span className="material-symbols-outlined text-[20px]">settings</span>
+                    <span className="text-[13px]">{t('settings')}</span>
+                </Link>
+                <Link to="/archived" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-surface-500 hover:bg-surface-100 ${location.pathname === '/archived' ? 'text-primary font-bold' : ''}`}>
+                    <span className="material-symbols-outlined text-[20px]">archive</span>
+                    <span className="text-[13px]">{t('archived')}</span>
+                </Link>
+                <Link to="/help" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-surface-500 hover:bg-surface-100 ${location.pathname === '/help' ? 'text-primary font-bold' : ''}`}>
+                    <span className="material-symbols-outlined text-[20px]">help_center</span>
+                    <span className="text-[13px]">Centre d'Aide</span>
+                </Link>
+            </div>
 
-                <div className="flex items-center gap-3 p-3 rounded-2xl bg-surface-50 mt-4 border border-outline-variant">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold shadow-sm">
-                        {user?.name?.charAt(0).toUpperCase()}
+            {/* Active Session Profile */}
+            <div className="p-4 bg-surface-100 m-4 rounded-xl border border-outline-variant">
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg overflow-hidden bg-card-bg border border-outline-variant p-0.5">
+                        <img 
+                            src={user?.avatar_url || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=random`} 
+                            alt="Profile" 
+                            className="w-full h-full object-cover rounded-md" 
+                        />
                     </div>
-                    <div className="overflow-hidden">
-                        <p className="text-sm font-bold text-surface-900 truncate">{user?.name}</p>
-                        <p className="text-[10px] text-surface-500 truncate uppercase font-bold tracking-wider">{user?.role?.name}</p>
+                    <div className="flex flex-col text-left">
+                        <span className="text-[11px] font-black text-surface-900 tracking-tight truncate w-32">
+                            {user?.name || 'Utilisateur'}
+                        </span>
+                        <span className="text-[9px] font-bold text-surface-400 uppercase tracking-widest mt-0.5">
+                            {user?.role?.name ? t(`role_${user.role.name}`) : t('chief_curator')}
+                        </span>
                     </div>
+                </div>
+                <div className="mt-3 py-1 px-3 bg-card-bg rounded-md text-[9px] font-bold text-surface-900 uppercase tracking-widest flex items-center gap-2 border border-outline-variant">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                    {t('active_session')}
                 </div>
             </div>
         </aside>

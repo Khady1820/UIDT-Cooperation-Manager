@@ -23,6 +23,16 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    public function conventions()
+    {
+        return $this->hasMany(Convention::class);
+    }
+
+    public function logs()
+    {
+        return $this->hasMany(ConventionLog::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

@@ -11,6 +11,11 @@ import Settings from './pages/Settings';
 import PartnerDashboard from './pages/PartnerDashboard';
 import Register from './pages/Register';
 import Indicators from './pages/Indicators';
+import Validation from './pages/Validation';
+import Timeline from './pages/Timeline';
+import Help from './pages/Help';
+import Notifications from './pages/Notifications';
+import Archived from './pages/Archived';
 
 import { ThemeProvider } from './context/ThemeContext';
 import { SearchProvider } from './context/SearchContext';
@@ -39,7 +44,29 @@ function App() {
                   </Layout>
                 </ProtectedRoute>
               } />
+              <Route path="/validation" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Validation />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/timeline" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Timeline />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/notifications" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Notifications />
+                  </Layout>
+                </ProtectedRoute>
+              } />
               <Route path="/conventions/:id" element={
+
                 <ProtectedRoute>
                   <Layout>
                     <ConventionDetails />
@@ -64,6 +91,20 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <Indicators />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/help" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Help />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/archived" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Archived />
                   </Layout>
                 </ProtectedRoute>
               } />

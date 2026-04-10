@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { ArrowLeft, Plus, Edit, Trash2, X, ClipboardCheck } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ConventionDetails = () => {
     const { id } = useParams();
+    const { user } = useAuth();
+    const navigate = useNavigate();
     const [convention, setConvention] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingKpi, setEditingKpi] = useState(null);
-    const [formData, setFormData] = useState({ name: '', value: '', description: '' });
+    const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState('');
 
     useEffect(() => {
         fetchConvention();
@@ -29,268 +31,311 @@ const ConventionDetails = () => {
         }
     };
 
-    const handleSaveKpi = async (e) => {
-        e.preventDefault();
+    const handleWorkflowAction = async (action, reason = null) => {
+        setSubmitting(true);
         try {
-            if (editingKpi) {
-                await api.put(`/kpis/${editingKpi.id}`, formData);
-            } else {
-                await api.post('/kpis', { ...formData, convention_id: id });
+            let endpoint = '';
+            let payload = {};
+
+            switch(action) {
+                case 'submit': endpoint = `/conventions/${id}/submit`; break;
+                case 'validate': endpoint = `/conventions/${id}/validate-director`; break;
+                case 'sign': endpoint = `/conventions/${id}/sign-rector`; break;
+                case 'reject': 
+                    endpoint = `/conventions/${id}/reject`; 
+                    payload = { reason };
+                    break;
+                default: return;
             }
-            setIsModalOpen(false);
-            fetchConvention(); // refresh to get new kpis
-        } catch (err) {
-            alert('Erreur lors de l\'enregistrement.');
-        }
-    };
 
-    const handleDeleteKpi = async (kpiId) => {
-        if (!window.confirm('Supprimer ce KPI ?')) return;
-        try {
-            await api.delete(`/kpis/${kpiId}`);
+            await api.post(endpoint, payload);
+            setIsRejectionModalOpen(false);
+            setRejectionReason('');
             fetchConvention();
+            alert('Action effectuée avec succès.');
         } catch (err) {
-            alert('Erreur: permission refusée.');
+            alert('Erreur lors de l\'action du workflow.');
+        } finally {
+            setSubmitting(false);
         }
-    };
-
-    const openModal = (kpi = null) => {
-        if (kpi) {
-            setEditingKpi(kpi);
-            setFormData({ name: kpi.name, value: kpi.value, description: kpi.description || '' });
-        } else {
-            setEditingKpi(null);
-            setFormData({ name: '', value: '', description: '' });
-        }
-        setIsModalOpen(true);
     };
 
     if (loading) return (
         <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="flex flex-col items-center gap-4">
-                <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-                <p className="text-surface-500 font-bold uppercase tracking-widest text-[10px]">Chargement du dossier...</p>
-            </div>
+            <div className="w-12 h-12 border-4 border-[#001D3D]/10 border-t-[#001D3D] rounded-full animate-spin"></div>
         </div>
     );
     
     if (!convention) return (
-        <div className="p-8 text-center bg-red-50 rounded-2xl border border-red-100">
-            <p className="text-red-500 font-bold">Convention introuvable.</p>
-            <Link to="/conventions" className="text-sm text-red-600 hover:underline mt-2 inline-block">Retour à la liste</Link>
+        <div className="p-20 text-center bg-white rounded-3xl shadow-sm border border-gray-100 italic text-gray-400">
+            Dossier introuvable ou archivé.
         </div>
     );
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 }
-        }
-    };
+    const steps = [
+        { id: 'brouillon', label: 'Brouillon', icon: 'edit_square' },
+        { id: 'soumis', label: 'Instruction (Coopération)', icon: 'account_balance' },
+        { id: 'valide_dir', label: 'Approbation (Direction)', icon: 'verified_user' },
+        { id: 'signe_recteur', label: 'Signature (Rectorat)', icon: 'ink_pen' }
+    ];
 
-    const itemVariants = {
-        hidden: { y: 20, opacity: 0 },
-        visible: {
-            y: 0,
-            opacity: 1,
-            transition: { duration: 0.5, ease: "easeOut" }
-        }
-    };
+    const currentStepIndex = steps.findIndex(s => s.id === convention.status);
 
     return (
         <motion.div 
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-            className="space-y-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-10 pb-20"
         >
-            <div className="flex flex-col sm:flex-row items-start gap-6">
-                <Link to="/conventions" className="p-3 bg-card-bg border border-outline-variant text-surface-400 hover:text-primary hover:border-primary/30 rounded-xl transition-all shadow-premium group">
-                    <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                </Link>
-                <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
-                        <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-lg border border-primary/10">Convention #{id}</span>
-                        {convention.status && (
-                            <span className={`px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded-lg border ${
-                                convention.status === 'en cours' ? 'bg-indigo-50 text-indigo-500 border-indigo-100' : 
-                                convention.status === 'terminé' ? 'bg-secondary/10 text-secondary border-secondary/10' : 
-                                'bg-surface-100 text-surface-500 border-surface-200'
-                            }`}>
-                                {convention.status}
-                            </span>
-                        )}
+            {/* Action Bar / Status */}
+            <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-8 bg-gradient-to-r from-white to-gray-50/50">
+                <div className="flex items-center gap-6">
+                    <Link to="/conventions" className="w-14 h-14 bg-gray-50 text-gray-400 hover:text-[#001D3D] flex items-center justify-center rounded-2xl transition-all border border-gray-100 group">
+                        <span className="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                    </Link>
+                    <div>
+                        <div className="flex items-center gap-3 mb-1">
+                            <span className="text-[10px] font-black text-[#8B7355] uppercase tracking-[0.2em]">UIDT Dossier #{convention.id}</span>
+                            {convention.status === 'brouillon' && convention.rejection_reason && (
+                                <span className="bg-red-50 text-red-500 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-red-100 animate-pulse">Action Requise: Correction</span>
+                            )}
+                        </div>
+                        <h1 className="text-2xl font-black text-[#001D3D] tracking-tight uppercase">{convention.name}</h1>
                     </div>
-                    <h1 className="text-3xl font-black text-surface-900 tracking-tight leading-tight">{convention.name}</h1>
-                    <p className="text-surface-500 mt-2 font-medium flex items-center gap-4 flex-wrap">
-                        <span className="flex items-center gap-1.5">
-                            <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-                            {format(new Date(convention.start_date), 'dd MMM yyyy')} — {format(new Date(convention.end_date), 'dd MMM yyyy')}
-                        </span>
-                        {convention.partners && (
-                            <span className="flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-[18px]">handshake</span>
-                                {convention.partners}
-                            </span>
-                        )}
-                    </p>
+                </div>
+
+                <div className="flex items-center gap-4">
+                    {/* Role-based Buttons */}
+                    {user?.role?.name === 'porteur_projet' && convention.status === 'brouillon' && (
+                        <button onClick={() => handleWorkflowAction('submit')} disabled={submitting} className="px-10 py-4 bg-[#001D3D] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-[#001D3D]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
+                            Soumettre pour Approbation
+                            <span className="material-symbols-outlined text-[18px]">send</span>
+                        </button>
+                    )}
+
+                    {(user?.role?.name === 'directeur_cooperation' || user?.role?.name === 'admin') && convention.status === 'soumis' && (
+                        <div className="flex gap-4">
+                            <button onClick={() => handleWorkflowAction('validate')} disabled={submitting} className="px-10 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-green-600/20 hover:bg-green-700 transition-all">Valider le Dossier</button>
+                            <button onClick={() => setIsRejectionModalOpen(true)} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Rejeter</button>
+                        </div>
+                    )}
+
+                    {(user?.role?.name === 'recteur' || user?.role?.name === 'admin') && convention.status === 'valide_dir' && (
+                        <div className="flex gap-4">
+                            <button onClick={() => handleWorkflowAction('sign')} disabled={submitting} className="px-10 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-green-600/20 hover:bg-green-700 transition-all">Apposer Signature</button>
+                            <button onClick={() => setIsRejectionModalOpen(true)} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Rejeter Protocol</button>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Stats Sidebar */}
-                <motion.div variants={itemVariants} className="lg:col-span-1 space-y-6">
-                    <div className="bg-card-bg p-7 rounded-2xl shadow-premium border border-outline-variant relative overflow-hidden group transition-colors duration-300">
-                        <div className="relative z-10">
-                            <p className="text-[10px] font-bold text-surface-400 uppercase tracking-widest mb-1">Total KPIs</p>
-                            <h3 className="text-4xl font-black text-surface-900 leading-none">{(convention.kpis || []).length}</h3>
-                        </div>
-                        <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:scale-110 transition-transform duration-500">
-                             <ClipboardCheck className="w-20 h-20" />
-                        </div>
-                    </div>
-
-                    <div className="bg-primary p-7 rounded-2xl shadow-premium relative overflow-hidden group">
-                        <div className="relative z-10 text-white">
-                            <p className="text-[10px] font-bold text-primary-100 uppercase tracking-widest mb-1">Performance</p>
-                            <h3 className="text-4xl font-black leading-none">
-                                {convention.kpis?.length > 0 
-                                    ? (convention.kpis.reduce((acc, k) => acc + parseFloat(k.value || 0), 0) / convention.kpis.length).toFixed(1)
-                                    : '0'}%
-                            </h3>
-                            <p className="text-[10px] font-medium text-primary-100 mt-3 uppercase tracking-tighter italic">Moyenne calculée</p>
-                        </div>
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500 text-white">
-                             <span className="material-symbols-outlined text-[80px]">trending_up</span>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Main KPI Table */}
-                <motion.div variants={itemVariants} className="lg:col-span-3 bg-card-bg rounded-2xl shadow-premium border border-outline-variant overflow-hidden flex flex-col transition-colors duration-300">
-                    <div className="p-6 border-b border-outline-variant bg-surface-alt/30 flex justify-between items-center transition-colors duration-300">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                                <span className="material-symbols-outlined text-[20px]">analytics</span>
-                            </div>
-                            <h2 className="text-xl font-bold text-surface-900 leading-none">Indicateurs de Performance</h2>
-                        </div>
-                        <button onClick={() => openModal()} className="premium-button-primary flex items-center gap-2 text-xs">
-                            <Plus className="w-4 h-4" /> Ajouter un KPI
-                        </button>
-                    </div>
+            {/* Workflow Progress Bar */}
+            <div className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-100">
+                <div className="flex justify-between relative">
+                    <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-50 -translate-y-1/2 z-0"></div>
+                    <div 
+                        className="absolute top-1/2 left-0 h-1 bg-green-500 -translate-y-1/2 z-0 transition-all duration-1000"
+                        style={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
+                    ></div>
                     
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="bg-surface-50/50 text-[10px] text-surface-400 uppercase font-black tracking-widest">
-                                    <th className="p-6 border-b border-surface-100">Nom du KPI</th>
-                                    <th className="p-6 border-b border-surface-100">Valeur actuelle</th>
-                                    <th className="p-6 border-b border-surface-100">Description / Détails</th>
-                                    <th className="p-6 border-b border-surface-100 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="text-sm">
-                                {(!convention.kpis || convention.kpis.length === 0) ? (
-                                    <tr>
-                                        <td colSpan="4" className="p-20 text-center">
-                                            <div className="flex flex-col items-center gap-4 opacity-30">
-                                                <ClipboardCheck className="w-12 h-12" />
-                                                <p className="text-surface-400 font-bold uppercase tracking-widest text-[10px]">Aucun KPI défini.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    <AnimatePresence>
-                                        {convention.kpis.map((kpi, idx) => (
-                                            <motion.tr 
-                                                initial={{ opacity: 0, x: -10 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: idx * 0.05 }}
-                                                key={kpi.id} 
-                                                className="border-b border-outline-variant hover:bg-surface-alt/50 transition-all group"
-                                            >
-                                                <td className="p-6">
-                                                    <span className="font-bold text-surface-900 flex items-center gap-3">
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-primary/40 group-hover:scale-150 transition-transform"></div>
-                                                        {kpi.name}
-                                                    </span>
-                                                </td>
-                                                <td className="p-6">
-                                                    <div className="inline-flex items-center px-3 py-1 bg-surface-50 rounded-lg border border-surface-100">
-                                                        <span className="text-primary font-black text-lg leading-none">{kpi.value}</span>
-                                                        <span className="text-[10px] text-surface-400 font-bold ml-1 uppercase">%</span>
-                                                    </div>
-                                                </td>
-                                                <td className="p-6">
-                                                    <p className="text-surface-500 font-medium text-xs max-w-xs leading-relaxed italic line-clamp-2">
-                                                        {kpi.description || '—'}
-                                                    </p>
-                                                </td>
-                                                <td className="p-6">
-                                                    <div className="flex justify-end gap-1">
-                                                        <button onClick={() => openModal(kpi)} className="p-2 text-surface-400 hover:text-primary hover:bg-primary/10 rounded-xl transition-all">
-                                                            <Edit className="w-4 h-4" />
-                                                        </button>
-                                                        <button onClick={() => handleDeleteKpi(kpi.id)} className="p-2 text-surface-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </motion.tr>
-                                        ))}
-                                    </AnimatePresence>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </motion.div>
+                    {steps.map((s, idx) => {
+                        const isDone = idx < currentStepIndex;
+                        const isCurrent = idx === currentStepIndex;
+                        const isLast = idx === steps.length - 1;
+                        
+                        return (
+                            <div key={s.id} className="relative z-10 flex flex-col items-center gap-4">
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${isDone ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : isCurrent ? 'bg-[#001D3D] text-white shadow-2xl shadow-[#001D3D]/30 scale-125' : 'bg-white border-4 border-gray-50 text-gray-200'}`}>
+                                    <span className="material-symbols-outlined text-[24px]">{isDone ? 'check' : s.icon}</span>
+                                </div>
+                                <div className="text-center">
+                                    <p className={`text-[10px] font-black uppercase tracking-widest ${isCurrent ? 'text-[#001D3D]' : 'text-gray-300'}`}>{s.label}</p>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
 
-            <AnimatePresence>
-                {isModalOpen && (
-                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-                        <motion.div 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-surface-900/40 backdrop-blur-sm"
-                            onClick={() => setIsModalOpen(false)}
-                        ></motion.div>
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="glass-card relative z-10 w-full max-w-lg overflow-hidden flex flex-col shadow-2xl bg-card-bg border border-outline-variant rounded-3xl transition-colors duration-300"
-                        >
-                            <div className="p-6 border-b border-outline-variant bg-surface-alt/50 flex justify-between items-center">
-                                <h2 className="text-xl font-bold text-surface-900 leading-none">{editingKpi ? 'Modifier le KPI' : 'Ajouter un indicateur'}</h2>
-                                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-surface-200 rounded-full transition-colors text-surface-400">
-                                    <X className="w-5 h-5" />
-                                </button>
+            {convention.rejection_reason && convention.status === 'brouillon' && (
+                <div className="bg-red-50 p-8 rounded-[2.5rem] border border-red-100 flex items-start gap-6">
+                    <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-red-500 shrink-0">
+                        <span className="material-symbols-outlined text-[24px]">feedback</span>
+                    </div>
+                    <div>
+                        <h4 className="text-[11px] font-black text-red-500 uppercase tracking-widest mb-1">Motif du rejet :</h4>
+                        <p className="text-sm font-bold text-red-700/80 leading-relaxed italic">"{convention.rejection_reason}"</p>
+                        <p className="text-[10px] text-red-400 mt-4 font-black uppercase tracking-widest">Action: Veuillez corriger les informations et soumettre à nouveau le dossier.</p>
+                    </div>
+                </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+                {/* Details Content */}
+                <div className="lg:col-span-3 space-y-8">
+                    <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100 space-y-12">
+                        <div className="grid grid-cols-3 gap-12">
+                            <div className="space-y-1">
+                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Classification</label>
+                                <p className="text-sm font-black text-[#001D3D] uppercase">{convention.type}</p>
                             </div>
-                            <form onSubmit={handleSaveKpi} className="p-8 space-y-6">
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-2 ml-1">Nom de l'indicateur</label>
-                                    <input required type="text" className="premium-input" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Ex: Taux de réalisation" />
+                            <div className="space-y-1">
+                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Partenaire Stratégique</label>
+                                <p className="text-sm font-black text-[#001D3D]">{convention.partners || '—'}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Année de Référence</label>
+                                <p className="text-sm font-black text-[#001D3D]">{convention.year || '2024'}</p>
+                            </div>
+                        </div>
+
+                        <div className="h-px bg-gray-50"></div>
+
+                        <div className="space-y-6">
+                            <h3 className="text-sm font-black text-[#001D3D] uppercase tracking-[0.2em]">Objectifs Institutionnels</h3>
+                            <p className="text-sm text-gray-500 leading-[1.8] font-medium italic bg-gray-50/30 p-8 rounded-[2.5rem] border border-gray-50 whitespace-pre-wrap">
+                                {convention.objectives || 'Aucun objectif spécifié pour le moment.'}
+                            </p>
+                        </div>
+
+                        {/* Performance Metric Section */}
+                        <div className="bg-gradient-to-br from-[#001D3D] to-[#002b5c] p-10 rounded-[3rem] text-white flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-[#B68F40] text-[24px]">analytics</span>
+                                    <h4 className="text-xs font-black uppercase tracking-widest">Indicateur de Performance</h4>
                                 </div>
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-2 ml-1">Valeur (%)</label>
-                                    <div className="relative">
-                                        <input required type="number" step="0.01" className="premium-input pr-10" value={formData.value} onChange={e => setFormData({...formData, value: e.target.value})} placeholder="0.00" />
-                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 font-bold">%</span>
+                                <p className="text-lg font-black tracking-tight text-white/90">{convention.indicator || 'N/A'}</p>
+                            </div>
+                            <div className="flex items-center gap-12">
+                                <div className="text-center">
+                                    <p className="text-[9px] font-black text-white/40 uppercase mb-2">Cible</p>
+                                    <p className="text-2xl font-black">{convention.target || 0}</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-[9px] font-black text-white/40 uppercase mb-2">Réalisé</p>
+                                    <p className="text-2xl font-black">{convention.actual_value || 0}</p>
+                                </div>
+                                <div className="w-px h-12 bg-white/10"></div>
+                                <div className="text-center">
+                                    <p className="text-[9px] font-black text-[#B68F40] uppercase mb-2">Completion</p>
+                                    <p className="text-3xl font-black text-[#B68F40]">{parseFloat(convention.completion_rate || 0).toFixed(1)}%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Timeline / Audit Log */}
+                    <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100">
+                        <div className="flex items-center gap-4 mb-12">
+                            <span className="material-symbols-outlined text-[#001D3D]">history_edu</span>
+                            <h3 className="text-sm font-black text-[#001D3D] uppercase tracking-[0.2em]">Historique de Validation (Audit)</h3>
+                        </div>
+                        <div className="space-y-10 relative">
+                            <div className="absolute left-[31px] top-4 bottom-4 w-px bg-gray-50"></div>
+                            {(convention.logs || []).map((log, idx) => (
+                                <div key={log.id} className="flex gap-10 items-start relative bg-white group">
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 z-10 transition-all ${idx === 0 ? 'bg-[#001D3D] text-white shadow-xl shadow-[#001D3D]/20' : 'bg-gray-50 text-gray-300 border border-gray-100'}`}>
+                                        <span className="material-symbols-outlined text-[20px]">
+                                            {log.action === 'creation' ? 'add' : log.action === 'rejet' ? 'close' : 'check'}
+                                        </span>
+                                    </div>
+                                    <div className="flex-1 pt-3">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <h4 className="text-[11px] font-black text-[#001D3D] uppercase tracking-wider">{log.action.replace('_', ' ')}</h4>
+                                            <span className="text-[9px] font-bold text-gray-400">{format(new Date(log.created_at), 'dd/MM/yyyy HH:mm')}</span>
+                                        </div>
+                                        <p className="text-xs font-bold text-gray-500">Par {log.user?.name}</p>
+                                        {log.comment && <p className="mt-3 text-[10px] text-gray-400 italic bg-gray-50/50 p-4 rounded-xl">"{log.comment}"</p>}
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-2 ml-1">Description / Objectifs</label>
-                                    <textarea className="premium-input min-h-[120px] resize-none" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Détails sur le mode de calcul ou les cibles..." />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Sidebar Info */}
+                <div className="lg:col-span-1 space-y-8">
+                     <div className="bg-[#001D3D] p-10 rounded-[3rem] text-white space-y-8 relative overflow-hidden">
+                        <div className="relative z-10 space-y-6">
+                            <div className="space-y-1">
+                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Porteur de Projet</label>
+                                <p className="text-sm font-black">{convention.user?.name}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Contact Rectorat</label>
+                                <p className="text-[10px] font-bold text-white/60">Direction de la Coopération - UIDT</p>
+                            </div>
+                            <div className="h-px bg-white/5"></div>
+                            <div className="space-y-4">
+                                <div className="flex justify-between text-[10px] font-black uppercase">
+                                    <span className="text-white/40">Durée</span>
+                                    <span>{convention.duration || '5 ans'}</span>
                                 </div>
-                                <div className="pt-6 flex justify-end gap-4 border-t border-surface-50">
-                                    <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 rounded-xl text-sm font-bold text-surface-600 hover:bg-surface-50 transition-all uppercase tracking-widest">Annuler</button>
-                                    <button type="submit" className="premium-button-primary px-8 py-2.5 text-sm uppercase tracking-widest leading-none">{editingKpi ? 'Mettre à jour' : 'Ajouter au dossier'}</button>
+                                <div className="flex justify-between text-[10px] font-black uppercase">
+                                    <span className="text-white/40">Échéance</span>
+                                    <span className="text-[#B68F40]">{format(new Date(convention.end_date), 'dd/MM/yyyy')}</span>
                                 </div>
-                            </form>
+                            </div>
+                        </div>
+                        <div className="absolute -bottom-10 -right-10 text-white/[0.03] rotate-12 pointer-events-none">
+                            <span className="material-symbols-outlined text-[120px]">verified</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Rejection Modal */}
+            <AnimatePresence>
+                {isRejectionModalOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md bg-black/20">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden border border-gray-100"
+                        >
+                            <div className="p-10 border-b border-gray-50 flex justify-between items-center bg-red-50/30">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-red-500">
+                                        <span className="material-symbols-outlined">feedback</span>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-lg font-black text-[#001D3D] uppercase">Rejet du Dossier</h2>
+                                        <p className="text-[9px] font-black text-red-400 uppercase tracking-widest mt-1">Établissement du motif obligatoire</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setIsRejectionModalOpen(false)} className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors text-gray-400">
+                                    <span className="material-symbols-outlined">close</span>
+                                </button>
+                            </div>
+                            <div className="p-12 space-y-8">
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2">Description des motifs du rejet</label>
+                                    <textarea 
+                                        required
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-[2rem] p-8 text-sm font-bold text-[#001D3D] outline-none focus:border-red-200 transition-all min-h-[150px] placeholder:italic"
+                                        placeholder="Veuillez spécifier les corrections nécessaires..."
+                                        value={rejectionReason}
+                                        onChange={(e) => setRejectionReason(e.target.value)}
+                                    />
+                                </div>
+                                <div className="flex gap-4">
+                                    <button 
+                                        onClick={() => setIsRejectionModalOpen(false)}
+                                        className="flex-1 py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors"
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button 
+                                        onClick={() => handleWorkflowAction('reject', rejectionReason)}
+                                        disabled={!rejectionReason || submitting}
+                                        className="flex-[2] py-5 bg-red-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-red-500/20 active:scale-95 transition-all disabled:opacity-50"
+                                    >
+                                        Confirmer le Rejet
+                                    </button>
+                                </div>
+                            </div>
                         </motion.div>
                     </div>
                 )}
