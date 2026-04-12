@@ -6,23 +6,23 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
 const Dashboard = () => {
-    const [conventions, setConventions] = useState([]);
+    const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
     const { t } = useLanguage();
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchStats = async () => {
             try {
-                const res = await api.get('/conventions');
-                setConventions(res.data);
+                const res = await api.get('/dashboard/stats');
+                setStats(res.data);
             } catch (error) {
-                console.error("Erreur de chargement", error);
+                console.error("Erreur de chargement des statistiques", error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchData();
+        fetchStats();
     }, []);
 
     const containerVariants = {
@@ -35,7 +35,7 @@ const Dashboard = () => {
         visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
     };
 
-    if (loading) return (
+    if (loading || !stats) return (
         <div className="flex items-center justify-center min-h-[60vh]">
             <div className="w-8 h-8 border-4 border-[#001D3D]/20 border-t-[#001D3D] rounded-full animate-spin"></div>
         </div>
@@ -52,7 +52,7 @@ const Dashboard = () => {
             <div className="flex justify-between items-center mb-10">
                 <div>
                     <h1 className="text-3xl font-black text-[#001D3D] tracking-tight">{t('dashboard')}</h1>
-                    <p className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-wider">{t('institutional_sub')} • Q4 2026</p>
+                    <p className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-wider">{t('institutional_sub')} • {new Date().toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }).toUpperCase()}</p>
                 </div>
                 <div className="flex gap-4 no-print">
                     <button 
@@ -75,10 +75,10 @@ const Dashboard = () => {
                     <div>
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Conventions Actives</h3>
-                            <span className="text-[10px] font-bold text-[#8B7355] bg-[#E8E3D9] px-2 py-1 rounded">+12% vs AN-1</span>
+                            <span className="text-[10px] font-bold text-[#8B7355] bg-[#E8E3D9] px-2 py-1 rounded">Mise à jour</span>
                         </div>
                         <div className="flex items-baseline gap-3">
-                            <span className="text-5xl font-black text-[#001D3D]">142</span>
+                            <span className="text-5xl font-black text-[#001D3D]">{stats.active_conventions}</span>
                             <span className="text-sm font-bold text-gray-400">Accords Valides</span>
                         </div>
                     </div>
@@ -95,7 +95,7 @@ const Dashboard = () => {
                             <span className="text-[11px] font-black text-[#8B7355] uppercase tracking-widest">Vérifié</span>
                         </div>
                         <div className="flex items-baseline gap-3">
-                            <span className="text-5xl font-black text-[#001D3D]">87.4%</span>
+                            <span className="text-5xl font-black text-[#001D3D]">{stats.efficiency_index}%</span>
                             <span className="text-sm font-bold text-gray-400">Indice d'Efficacité</span>
                         </div>
                     </div>
@@ -115,13 +115,13 @@ const Dashboard = () => {
                             <span className="text-[10px] font-bold text-white bg-red-400 px-2 py-1 rounded">Action Requise</span>
                         </div>
                         <div className="flex items-baseline gap-3">
-                            <span className="text-5xl font-black text-[#001D3D]">29</span>
+                            <span className="text-5xl font-black text-[#001D3D]">{stats.pending_validations}</span>
                             <span className="text-sm font-bold text-gray-400">Dossiers Urgents</span>
                         </div>
                     </div>
                     <div className="mt-4">
                         <p className="text-[10px] font-bold text-gray-400 flex items-center gap-1 uppercase tracking-tight">
-                            <span className="material-symbols-outlined text-xs">schedule</span> Moy. 4.2 jours d'attente
+                            <span className="material-symbols-outlined text-xs">schedule</span> Temps de traitement optimisé
                         </p>
                     </div>
                 </motion.div>
@@ -137,27 +137,24 @@ const Dashboard = () => {
                     </div>
 
                     <div className="space-y-8">
-                        {[
-                            { icon: 'biotech', title: 'Recherche Scientifique', sub: 'Labos Conjoints & Mobilité Doctorale', val: 64, color: '#001D3D' },
-                            { icon: 'school', title: 'Échange Étudiant', sub: 'Erasmus+ & Bilatéral', val: 48, color: '#8B7355' },
-                            { icon: 'factory', title: 'Transfert Industriel', sub: 'Externalisation R&D', val: 18, color: '#001D3D' },
-                            { icon: 'palette', title: 'Affaires Culturelles', sub: 'Programmes de Langues & Arts', val: 12, color: '#001D3D' }
-                        ].map((type) => (
-                            <div key={type.title} className="group cursor-pointer">
+                        {stats.cooperation_types.map((type, index) => (
+                            <div key={index} className="group cursor-pointer">
                                 <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-4">
                                         <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-[#001D3D]/5 transition-colors">
-                                            <span className="material-symbols-outlined text-[#8B7355] text-2xl opacity-60 group-hover:opacity-100 transition-opacity">{type.icon}</span>
+                                            <span className="material-symbols-outlined text-[#8B7355] text-2xl opacity-60 group-hover:opacity-100 transition-opacity">
+                                                {type.type === 'international' ? 'public' : (type.type === 'national' ? 'flag' : 'location_on')}
+                                            </span>
                                         </div>
                                         <div>
-                                            <h4 className="text-sm font-black text-[#001D3D] tracking-tight">{type.title}</h4>
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{type.sub}</p>
+                                            <h4 className="text-sm font-black text-[#001D3D] tracking-tight capitalize">{type.type}</h4>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{type.count} Projets</p>
                                         </div>
                                     </div>
-                                    <span className="text-2xl font-black text-[#001D3D]">{type.val}</span>
+                                    <span className="text-2xl font-black text-[#001D3D]">{type.count}</span>
                                 </div>
                                 <div className="w-full bg-gray-100 h-[3px] rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#001D3D] rounded-full" style={{ width: `${(type.val/142)*100}%` }}></div>
+                                    <div className="h-full bg-[#001D3D] rounded-full" style={{ width: `${(type.count / stats.total_conventions) * 100}%` }}></div>
                                 </div>
                             </div>
                         ))}
@@ -176,17 +173,16 @@ const Dashboard = () => {
                     <div className="space-y-8 relative flex-1">
                         <div className="absolute left-[3px] top-2 bottom-0 w-[1px] bg-gray-100"></div>
                         
-                        {[
-                            { title: 'Partenariat Formalisé', desc: 'L\'UIDT & King\'s College London ont signé l\'accord de mobilité 2024-2027.', time: 'IL Y A 2 HEURES', color: '#001D3D' },
-                            { title: 'Fonds Alloués', desc: '450 000 € débloqués pour le cluster de recherche Horizon Europe A.', time: 'HIER, 14:30', color: '#8B7355' },
-                            { title: 'Proposition Soumise', desc: 'Le Dr Aris Thorne a soumis un nouveau cadre avec la NUS Singapour.', time: '12 OCT 2026', color: '#001D3D' },
-                            { title: 'Archivage Terminé', desc: 'Les coopérations historiques (2015-2020) ont été sécurisées.', time: '10 OCT 2026', color: '#E8E8E8' }
-                        ].map((act, index) => (
+                        {stats.recent_activity.map((act, index) => (
                             <div key={index} className="relative pl-8">
-                                <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full border-2 border-white shadow-sm ring-4 ring-white" style={{ backgroundColor: act.color }}></div>
-                                <h4 className="text-[11px] font-black text-[#001D3D] uppercase tracking-wider">{act.title}</h4>
-                                <p className="text-[11px] font-bold text-gray-500 leading-relaxed mt-1">{act.desc}</p>
-                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-2 block">{act.time}</span>
+                                <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full border-2 border-white shadow-sm ring-4 ring-white" style={{ backgroundColor: '#001D3D' }}></div>
+                                <h4 className="text-[11px] font-black text-[#001D3D] uppercase tracking-wider">{act.action}</h4>
+                                <p className="text-[11px] font-bold text-gray-500 leading-relaxed mt-1">
+                                    {act.comment} - {act.convention.name}
+                                </p>
+                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-2 block">
+                                    {new Date(act.created_at).toLocaleString('fr-FR')}
+                                </span>
                             </div>
                         ))}
                     </div>
@@ -201,29 +197,32 @@ const Dashboard = () => {
                 </div>
 
                 <div className="space-y-4">
-                    {[
-                        { icon: 'signature', title: 'MoU: Université de la Sorbonne', status: 'ATTENTE VALIDATION DIRECTION', action: 'VALIDER' },
-                        { icon: 'gavel', title: 'Contrat: Initiative Quantum MIT', status: 'ATTENTE SIGNATURE RECTEUR', action: 'SIGNER' },
-                        { icon: 'history_edu', title: 'Extension: Labo Tokyo Tech', status: 'RÉVISION FINALE EN COURS', action: 'CONSULTER' }
-                    ].map((task, index) => (
-                        <div key={index} className="flex items-center gap-6 p-6 border border-gray-50 bg-[#FBFBFB] hover:bg-white hover:shadow-xl transition-all rounded-3xl group">
-                            <div className="w-14 h-14 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-sm">
-                                <span className="material-symbols-outlined text-[#8B7355] text-3xl opacity-60 group-hover:scale-110 transition-transform">{task.icon}</span>
-                            </div>
-                            <div className="flex-1">
-                                <h4 className="text-base font-black text-[#001D3D]">{task.title}</h4>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{task.status}</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <button className="w-10 h-10 rounded-xl bg-white border border-gray-100 text-gray-300 hover:text-red-500 transition-colors flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-[20px]">close</span>
-                                </button>
-                                <button className="px-8 py-3 bg-[#001D3D] text-white text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-[#002b5c] transition-all shadow-lg shadow-[#001D3D]/10">
-                                    {task.action}
-                                </button>
-                            </div>
+                    {stats.pending_actions && stats.pending_actions.length > 0 ? (
+                        stats.pending_actions.map((task, index) => (
+                            <Link to={`/conventions/${task.id}`} key={index} className="flex items-center gap-6 p-6 border border-gray-50 bg-[#FBFBFB] hover:bg-white hover:shadow-xl transition-all rounded-3xl group">
+                                <div className="w-14 h-14 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-sm">
+                                    <span className="material-symbols-outlined text-[#8B7355] text-3xl opacity-60 group-hover:scale-110 transition-transform">
+                                        {task.status === 'en attente' ? 'signature' : 'gavel'}
+                                    </span>
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="text-base font-black text-[#001D3D] line-clamp-1">{task.name}</h4>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                                        {task.status === 'en attente' ? 'ATTENTE VALIDATION DIRECTION' : 'ATTENTE SIGNATURE RECTEUR'}
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button className="px-8 py-3 bg-[#001D3D] text-white text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-[#002b5c] transition-all shadow-lg shadow-[#001D3D]/10">
+                                        EXAMINER
+                                    </button>
+                                </div>
+                            </Link>
+                        ))
+                    ) : (
+                        <div className="p-10 text-center bg-[#FBFBFB] rounded-3xl border border-dashed border-gray-200">
+                             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Aucune action urgente en attente</p>
                         </div>
-                    ))}
+                    )}
                 </div>
             </motion.div>
 
@@ -251,16 +250,16 @@ const Dashboard = () => {
                         <h2 className="text-lg font-black uppercase tracking-widest border-l-4 border-[#8B7355] pl-4">Résumé des Métriques</h2>
                         <div className="space-y-4">
                             <div className="flex justify-between items-center py-3 border-b border-gray-100 italic">
-                                <span className="text-sm text-gray-500">Conventions Actives en Cours :</span>
-                                <span className="text-lg font-black text-[#001D3D]">142</span>
+                                <span className="text-sm text-gray-500">Conventions Actives :</span>
+                                <span className="text-lg font-black text-[#001D3D]">{stats.active_conventions}</span>
                             </div>
                             <div className="flex justify-between items-center py-3 border-b border-gray-100 italic">
-                                <span className="text-sm text-gray-500">Dossiers en Attente de Validation :</span>
-                                <span className="text-lg font-black text-red-600">29</span>
+                                <span className="text-sm text-gray-500">Dossiers en Attente :</span>
+                                <span className="text-lg font-black text-red-600">{stats.pending_validations}</span>
                             </div>
                             <div className="flex justify-between items-center py-3 border-b border-gray-100 italic">
                                 <span className="text-sm text-gray-500">Indice d'Efficacité Globale :</span>
-                                <span className="text-lg font-black text-green-600">87.4%</span>
+                                <span className="text-lg font-black text-green-600">{stats.efficiency_index}%</span>
                             </div>
                         </div>
                     </div>
@@ -268,15 +267,10 @@ const Dashboard = () => {
                     <div className="space-y-6">
                         <h2 className="text-lg font-black uppercase tracking-widest border-l-4 border-[#001D3D] pl-4">Types de Coopération</h2>
                         <div className="space-y-3">
-                            {[
-                                { title: 'Recherche Scientifique', val: '64 Units' },
-                                { title: 'Échange Étudiant', val: '48 Units' },
-                                { title: 'Transfert Industriel', val: '18 Units' },
-                                { title: 'Affaires Culturelles', val: '12 Units' }
-                            ].map((type) => (
-                                <div key={type.title} className="flex justify-between text-sm py-1">
-                                    <span className="font-bold text-gray-600">{type.title}</span>
-                                    <span className="font-black">{type.val}</span>
+                            {stats.cooperation_types.map((type) => (
+                                <div key={type.type} className="flex justify-between text-sm py-1">
+                                    <span className="font-bold text-gray-600 capitalize">{type.type}</span>
+                                    <span className="font-black">{type.count} Projets</span>
                                 </div>
                             ))}
                         </div>
@@ -294,15 +288,11 @@ const Dashboard = () => {
                             </tr>
                         </thead>
                         <tbody className="text-[11px] font-medium text-gray-600">
-                            {[
-                                { title: 'Partenariat Formalisé', desc: 'L\'UIDT & King\'s College London ont signé l\'accord de mobilité.', time: 'HIER' },
-                                { title: 'Fonds Alloués', desc: '450 000 € débloqués pour le cluster de recherche Horizon Europe.', time: '12 OCT 2026' },
-                                { title: 'Proposition Soumise', desc: 'Le Dr Aris Thorne a soumis un nouveau cadre avec la NUS Singapour.', time: '10 OCT 2026' }
-                            ].map((act, i) => (
+                            {stats.recent_activity.map((act, i) => (
                                 <tr key={i} className="border-t border-gray-100">
-                                    <td className="p-4 font-black text-[#001D3D] uppercase">{act.title}</td>
-                                    <td className="p-4 group-hover:text-[#8B7355]">{act.desc}</td>
-                                    <td className="p-4 font-black">{act.time}</td>
+                                    <td className="p-4 font-black text-[#001D3D] uppercase">{act.action}</td>
+                                    <td className="p-4 group-hover:text-[#8B7355]">{act.comment} - {act.convention.name}</td>
+                                    <td className="p-4 font-black">{new Date(act.created_at).toLocaleDateString('fr-FR')}</td>
                                 </tr>
                             ))}
                         </tbody>

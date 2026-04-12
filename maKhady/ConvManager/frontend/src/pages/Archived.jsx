@@ -5,10 +5,29 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearch } from '../context/SearchContext';
 import { useLanguage } from '../context/LanguageContext';
 
+const Toast = ({ message, type, onClose }) => (
+    <motion.div 
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 50, opacity: 0 }}
+        className={`fixed bottom-10 right-10 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 ${
+            type === 'success' ? 'bg-[#001D3D] text-white' : 'bg-red-500 text-white'
+        }`}
+    >
+        <span className="material-symbols-outlined">{type === 'success' ? 'check_circle' : 'error'}</span>
+        <span className="text-xs font-bold uppercase tracking-widest">{message}</span>
+        <button onClick={onClose} className="opacity-50 hover:opacity-100 transition-opacity ml-auto">
+            <span className="material-symbols-outlined text-sm">close</span>
+        </button>
+    </motion.div>
+);
+
 const Archived = () => {
     const [conventions, setConventions] = useState([]);
     const { searchQuery, setSearchQuery } = useSearch();
     const [loading, setLoading] = useState(true);
+    const [confirmConfig, setConfirmConfig] = useState({ open: false, type: '', id: null, title: '' });
+    const [toast, setToast] = useState(null);
     const { t } = useLanguage();
 
     useEffect(() => {
@@ -19,8 +38,8 @@ const Archived = () => {
         setLoading(true);
         try {
             const res = await api.get('/conventions');
-            // Filter only archived or completed conventions
-            const archivedOnly = res.data.filter(c => c.status === 'termine' || c.status === 'archived');
+            const archivedOnly = res.data.filter(c => c.status === 'archive');
+
             setConventions(archivedOnly);
         } catch (err) {
             console.error(err);
@@ -29,23 +48,41 @@ const Archived = () => {
         }
     };
 
-    const handleRestore = async (id) => {
-        if (!window.confirm('Voulez-vous restaurer cette convention ? Elle redeviendra active.')) return;
-        try {
-            await api.put(`/conventions/${id}`, { status: 'en cours' });
-            fetchConventions();
-        } catch (err) {
-            alert('Restauration impossible.');
-        }
+    const handleRestore = (id) => {
+        setConfirmConfig({
+            open: true,
+            type: 'restore',
+            id: id,
+            title: 'Restaurer le Dossier',
+            message: 'Ce projet sera replacé dans la liste des Projets de Coopération actifs.'
+        });
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Voulez-vous supprimer définitivement cette archive ?')) return;
+    const handleDelete = (id) => {
+        setConfirmConfig({
+            open: true,
+            type: 'delete',
+            id: id,
+            title: 'Suppression Définitive',
+            message: 'Attention : Cette action supprimera définitivement le dossier de la base de données.'
+        });
+    };
+
+    const executeConfirmedAction = async () => {
+        const { type, id } = confirmConfig;
+        setConfirmConfig({ ...confirmConfig, open: false });
+        
         try {
-            await api.delete(`/conventions/${id}`);
+            if (type === 'delete') {
+                await api.delete(`/conventions/${id}`);
+                setToast({ message: 'Archive supprimée définitivement', type: 'success' });
+            } else if (type === 'restore') {
+                await api.put(`/conventions/${id}`, { status: 'termine' }); // Restore to Signed status
+                setToast({ message: 'Dossier restauré avec succès', type: 'success' });
+            }
             fetchConventions();
         } catch (err) {
-            alert('Suppression impossible.');
+            setToast({ message: 'Une erreur est survenue', type: 'error' });
         }
     };
 
@@ -151,7 +188,7 @@ const Archived = () => {
                                             <td className="px-8 py-7 text-xs font-bold text-gray-400">{conv.year || '-'}</td>
                                             <td className="px-8 py-7 text-xs font-bold text-[#8B7355]">{conv.duration || '-'}</td>
                                             <td className="px-8 py-7">
-                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${conv.status === 'signe_recteur' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
+                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${conv.status === 'termine' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
                                                     {conv.status.replace('_', ' ')}
                                                 </span>
                                             </td>
@@ -173,6 +210,62 @@ const Archived = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Premium Confirmation Modal */}
+            <AnimatePresence>
+                {confirmConfig.open && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setConfirmConfig({ ...confirmConfig, open: false })}
+                            className="absolute inset-0 bg-[#001D3D]/40 backdrop-blur-md"
+                        />
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="relative w-full max-w-sm bg-white rounded-[2rem] shadow-2xl p-8 text-center"
+                        >
+                            <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 ${
+                                confirmConfig.type === 'delete' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'
+                            }`}>
+                                <span className="material-symbols-outlined text-4xl">
+                                    {confirmConfig.type === 'delete' ? 'delete_forever' : 'unarchive'}
+                                </span>
+                            </div>
+                            <h3 className="text-xl font-black text-[#001D3D] mb-2 uppercase tracking-tight">{confirmConfig.title}</h3>
+                            <p className="text-xs font-bold text-gray-400 leading-relaxed mb-8">{confirmConfig.message}</p>
+                            
+                            <div className="flex gap-3">
+                                <button 
+                                    onClick={() => setConfirmConfig({ ...confirmConfig, open: false })}
+                                    className="flex-1 px-6 py-4 bg-gray-50 text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-100"
+                                >
+                                    Annuler
+                                </button>
+                                <button 
+                                    onClick={executeConfirmedAction}
+                                    className={`flex-1 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white shadow-lg transition-all ${
+                                        confirmConfig.type === 'delete' ? 'bg-red-500 hover:bg-red-600 shadow-red-500/20' : 'bg-green-600 hover:bg-green-700 shadow-green-600/20'
+                                    }`}
+                                >
+                                    Confirmer
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+
+                {toast && (
+                    <Toast 
+                        message={toast.message} 
+                        type={toast.type} 
+                        onClose={() => setToast(null)} 
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };

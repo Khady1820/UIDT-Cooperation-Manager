@@ -125,7 +125,7 @@ const Topnav = () => {
                                                 {!n.read_at && <div className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-blue-500 rounded-full shadow-sm"></div>}
                                                 <div className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-[#001D3D] shrink-0 shadow-sm">
                                                     <span className="material-symbols-outlined text-[18px]">
-                                                        {n.data.status === 'rejete' ? 'cancel' : n.data.status === 'signe_recteur' ? 'verified' : 'assignment'}
+                                                        {n.data.status === 'rejete' ? 'cancel' : n.data.status === 'termine' ? 'verified' : 'assignment'}
                                                     </span>
                                                 </div>
                                                 <div className="flex-1 space-y-1">

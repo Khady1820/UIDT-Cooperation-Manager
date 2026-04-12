@@ -35,15 +35,14 @@ const PartnerDashboard = () => {
 
     const stats = {
         total: conventions.length,
-        active: conventions.filter(c => c.status === 'signe_recteur').length,
+        active: conventions.filter(c => c.status === 'termine').length,
         completed: conventions.filter(c => c.status === 'termine').length,
         archived: conventions.filter(c => c.status === 'archive').length,
     };
 
     const getStatusStyles = (status) => {
         switch (status) {
-            case 'signe_recteur': return 'text-green-500 bg-green-50 dark:bg-green-500/10 border-green-100 dark:border-green-500/20';
-            case 'termine': return 'text-secondary bg-secondary/10 border-secondary/10';
+            case 'termine': return 'text-green-500 bg-green-50 dark:bg-green-500/10 border-green-100 dark:border-green-500/20';
             case 'archive': return 'text-surface-400 bg-surface-50 dark:bg-surface-800 border-surface-100 dark:border-surface-700';
             default: return 'text-blue-500 bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20';
         }
@@ -51,8 +50,7 @@ const PartnerDashboard = () => {
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case 'signe_recteur': return <CheckCircle2 className="w-3.5 h-3.5" />;
-            case 'termine': return <PlayCircle className="w-3.5 h-3.5" />;
+            case 'termine': return <CheckCircle2 className="w-3.5 h-3.5" />;
             case 'archive': return <Clock className="w-3.5 h-3.5" />;
             default: return <Handshake className="w-3.5 h-3.5" />;
         }

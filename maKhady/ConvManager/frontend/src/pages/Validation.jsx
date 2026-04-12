@@ -6,6 +6,23 @@ import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
+const Toast = ({ message, type, onClose }) => (
+    <motion.div 
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 50, opacity: 0 }}
+        className={`fixed bottom-10 right-10 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 ${
+            type === 'success' ? 'bg-[#001D3D] text-white' : 'bg-red-500 text-white'
+        }`}
+    >
+        <span className="material-symbols-outlined">{type === 'success' ? 'check_circle' : 'error'}</span>
+        <span className="text-xs font-bold uppercase tracking-widest">{message}</span>
+        <button onClick={onClose} className="opacity-50 hover:opacity-100 transition-opacity ml-auto">
+            <span className="material-symbols-outlined text-sm">close</span>
+        </button>
+    </motion.div>
+);
+
 const Validation = () => {
     const { t } = useLanguage();
     const { user } = useAuth();
@@ -15,6 +32,7 @@ const Validation = () => {
     const [loading, setLoading] = useState(false);
     const [pendingDossiers, setPendingDossiers] = useState([]);
     const [fetching, setFetching] = useState(false);
+    const [toast, setToast] = useState(null);
     
     const [formData, setFormData] = useState({
         name: '',
@@ -30,10 +48,10 @@ const Validation = () => {
         observations: '',
         start_date: '',
         end_date: '',
-        status: 'soumis'
+        status: 'en attente'
     });
 
-    const isValidator = user?.role?.name === 'directeur_cooperation' || user?.role?.name === 'recteur';
+    const isValidator = user?.role?.name === 'directeur_cooperation' || user?.role?.name === 'recteur' || user?.role?.name === 'admin';
 
     useEffect(() => {
         if (isValidator) {
@@ -63,10 +81,10 @@ const Validation = () => {
         try {
             const res = await api.post('/conventions', formData);
             await api.post(`/conventions/${res.data.id}/submit`);
-            alert('Projet soumis avec succès pour validation.');
-            navigate('/conventions');
+            setToast({ message: 'Projet soumis avec succès pour validation !', type: 'success' });
+            setTimeout(() => navigate('/conventions'), 2000);
         } catch (err) {
-            alert('Erreur lors de la soumission. Veuillez vérifier tous les champs.');
+            setToast({ message: 'Erreur lors de la soumission. Vérifiez les champs.', type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -152,6 +170,10 @@ const Validation = () => {
                         </div>
                     )}
                 </div>
+                
+                <AnimatePresence>
+                    {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+                </AnimatePresence>
             </div>
         );
     }
@@ -368,6 +390,10 @@ const Validation = () => {
                     box-shadow: 0 10px 20px -10px #B68F4020;
                 }
             `}} />
+
+            <AnimatePresence>
+                {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+            </AnimatePresence>
         </div>
     );
 };

@@ -36,13 +36,13 @@ class ConventionStatusChanged extends Notification
             ->line('Le statut du dossier de coopération "' . $this->convention->name . '" a évolué.');
 
         switch ($this->status) {
-            case 'soumis':
+            case 'en attente':
                 $message->line('Un nouveau dossier a été soumis par ' . $this->actor->name . ' et est en attente de votre instruction.');
                 break;
-            case 'valide_dir':
+            case 'en cours':
                 $message->line('Le dossier a été validé par la Direction de la Coopération et est prêt pour signature Rectorale.');
                 break;
-            case 'signe_recteur':
+            case 'termine':
                 $message->line('Félicitations, le protocole a été officiellement signé par le Recteur.');
                 break;
             case 'brouillon':
@@ -70,9 +70,9 @@ class ConventionStatusChanged extends Notification
     protected function getNotificationMessage()
     {
         switch ($this->status) {
-            case 'soumis': return 'Un nouveau dossier est en attente de votre instruction.';
-            case 'valide_dir': return 'Dossier validé par la Direction, en attente de signature.';
-            case 'signe_recteur': return 'Le dossier a été signé par le Recteur.';
+            case 'en attente': return 'Un nouveau dossier est en attente de votre instruction.';
+            case 'en cours': return 'Dossier validé par la Direction, en attente de signature.';
+            case 'termine': return 'Le dossier a été signé par le Recteur.';
             case 'brouillon': return 'Le dossier a été rejeté pour correction.';
             default: return 'Le statut du dossier a été mis à jour.';
         }

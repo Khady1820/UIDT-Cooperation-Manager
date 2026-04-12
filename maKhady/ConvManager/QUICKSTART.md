@@ -1,6 +1,6 @@
-# ConvManager - Guide de Démarrage Rapide
+# CoopManager - Guide de Démarrage Rapide
 
-ConvManager est une application Fullstack (Laravel 11 + React/Vite) pour la gestion des conventions et de leurs KPIs, basée sur une interface "Analytical Atelier" (Shadcn/UI).
+CoopManager est une application Fullstack (Laravel 11 + React/Vite) pour la gestion des conventions et de leurs KPIs, basée sur une interface "Analytical Atelier" (Shadcn/UI).
 
 ## Prérequis
 - PHP 8.2+

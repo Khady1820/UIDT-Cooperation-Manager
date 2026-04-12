@@ -5,6 +5,23 @@ import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const Toast = ({ message, type, onClose }) => (
+    <motion.div 
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 50, opacity: 0 }}
+        className={`fixed bottom-10 right-10 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 ${
+            type === 'success' ? 'bg-[#001D3D] text-white' : 'bg-red-500 text-white'
+        }`}
+    >
+        <span className="material-symbols-outlined">{type === 'success' ? 'check_circle' : 'error'}</span>
+        <span className="text-xs font-black uppercase tracking-widest">{message}</span>
+        <button onClick={onClose} className="opacity-50 hover:opacity-100 transition-opacity ml-auto">
+            <span className="material-symbols-outlined text-sm">close</span>
+        </button>
+    </motion.div>
+);
+
 const ConventionDetails = () => {
     const { id } = useParams();
     const { user } = useAuth();
@@ -12,6 +29,7 @@ const ConventionDetails = () => {
     const [convention, setConvention] = useState(null);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [toast, setToast] = useState(null);
 
     const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
@@ -52,9 +70,17 @@ const ConventionDetails = () => {
             setIsRejectionModalOpen(false);
             setRejectionReason('');
             fetchConvention();
-            alert('Action effectuée avec succès.');
+            
+            // Map actions to descriptive messages
+            const messages = {
+                'submit': 'Le dossier a été soumis avec succès.',
+                'validate': 'Félicitations ! Le dossier a été validé par la Direction.',
+                'sign': 'Opération réussie ! Le protocole a été officiellement signé.',
+                'reject': 'Le dossier a été renvoyé pour corrections.'
+            };
+            setToast({ message: messages[action] || 'Action effectuée avec succès.', type: 'success' });
         } catch (err) {
-            alert('Erreur lors de l\'action du workflow.');
+            setToast({ message: 'Une erreur est survenue lors du traitement.', type: 'error' });
         } finally {
             setSubmitting(false);
         }
@@ -74,9 +100,9 @@ const ConventionDetails = () => {
 
     const steps = [
         { id: 'brouillon', label: 'Brouillon', icon: 'edit_square' },
-        { id: 'soumis', label: 'Instruction (Coopération)', icon: 'account_balance' },
-        { id: 'valide_dir', label: 'Approbation (Direction)', icon: 'verified_user' },
-        { id: 'signe_recteur', label: 'Signature (Rectorat)', icon: 'ink_pen' }
+        { id: 'en attente', label: 'Instruction (Coopération)', icon: 'account_balance' },
+        { id: 'en cours', label: 'Approbation (Direction)', icon: 'verified_user' },
+        { id: 'termine', label: 'Signature (Rectorat)', icon: 'ink_pen' }
     ];
 
     const currentStepIndex = steps.findIndex(s => s.id === convention.status);
@@ -113,14 +139,14 @@ const ConventionDetails = () => {
                         </button>
                     )}
 
-                    {(user?.role?.name === 'directeur_cooperation' || user?.role?.name === 'admin') && convention.status === 'soumis' && (
+                    {(user?.role?.name === 'directeur_cooperation' || user?.role?.name === 'admin') && convention.status === 'en attente' && (
                         <div className="flex gap-4">
                             <button onClick={() => handleWorkflowAction('validate')} disabled={submitting} className="px-10 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-green-600/20 hover:bg-green-700 transition-all">Valider le Dossier</button>
                             <button onClick={() => setIsRejectionModalOpen(true)} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Rejeter</button>
                         </div>
                     )}
 
-                    {(user?.role?.name === 'recteur' || user?.role?.name === 'admin') && convention.status === 'valide_dir' && (
+                    {(user?.role?.name === 'recteur' || user?.role?.name === 'admin') && convention.status === 'en cours' && (
                         <div className="flex gap-4">
                             <button onClick={() => handleWorkflowAction('sign')} disabled={submitting} className="px-10 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-green-600/20 hover:bg-green-700 transition-all">Apposer Signature</button>
                             <button onClick={() => setIsRejectionModalOpen(true)} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Rejeter Protocol</button>
@@ -338,6 +364,14 @@ const ConventionDetails = () => {
                             </div>
                         </motion.div>
                     </div>
+                )}
+
+                {toast && (
+                    <Toast 
+                        message={toast.message} 
+                        type={toast.type} 
+                        onClose={() => setToast(null)} 
+                    />
                 )}
             </AnimatePresence>
         </motion.div>

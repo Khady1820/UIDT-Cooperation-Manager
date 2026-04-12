@@ -6,6 +6,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearch } from '../context/SearchContext';
 import { useLanguage } from '../context/LanguageContext';
 
+// Simple Alert/Toast component for feedback
+const Toast = ({ message, type, onClose }) => (
+    <motion.div 
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 50, opacity: 0 }}
+        className={`fixed bottom-10 right-10 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 ${
+            type === 'success' ? 'bg-[#001D3D] text-white' : 'bg-red-500 text-white'
+        }`}
+    >
+        <span className="material-symbols-outlined">{type === 'success' ? 'check_circle' : 'error'}</span>
+        <span className="text-xs font-bold uppercase tracking-widest leading-tight">{message}</span>
+        <button onClick={onClose} className="opacity-50 hover:opacity-100 transition-opacity ml-auto">
+            <span className="material-symbols-outlined text-sm">close</span>
+        </button>
+    </motion.div>
+);
+
 const Conventions = () => {
     const [conventions, setConventions] = useState([]);
     const { searchQuery, setSearchQuery } = useSearch();
@@ -13,6 +31,8 @@ const Conventions = () => {
     const { t } = useLanguage();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [confirmConfig, setConfirmConfig] = useState({ open: false, type: '', id: null, title: '' });
+    const [toast, setToast] = useState(null);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({ 
         name: '', 
@@ -103,13 +123,41 @@ const Conventions = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Voulez-vous vraiment supprimer ce dossier ?')) return;
+    const handleDelete = (id) => {
+        setConfirmConfig({
+            open: true,
+            type: 'delete',
+            id: id,
+            title: 'Suppression Définitive',
+            message: 'Attention : Cette action est irréversible. Toutes les données liées à cette convention seront perdues.'
+        });
+    };
+
+    const handleArchive = (id) => {
+        setConfirmConfig({
+            open: true,
+            type: 'archive',
+            id: id,
+            title: 'Archivage du Dossier',
+            message: 'Ce projet sera déplacé vers la section Archives. Il ne sera plus visible dans la liste active mais pourra être restauré.'
+        });
+    };
+
+    const executeConfirmedAction = async () => {
+        const { type, id } = confirmConfig;
+        setConfirmConfig({ ...confirmConfig, open: false });
+        
         try {
-            await api.delete(`/conventions/${id}`);
+            if (type === 'delete') {
+                await api.delete(`/conventions/${id}`);
+                setToast({ message: 'Projet supprimé avec succès', type: 'success' });
+            } else if (type === 'archive') {
+                await api.put(`/conventions/${id}`, { status: 'archive' });
+                setToast({ message: 'Projet déplacé vers les archives', type: 'success' });
+            }
             fetchConventions();
         } catch (err) {
-            alert('Suppression impossible.');
+            setToast({ message: 'Une erreur est survenue', type: 'error' });
         }
     };
 
@@ -160,7 +208,7 @@ const Conventions = () => {
     };
 
     const filteredConventions = conventions.filter(c => 
-        c.status !== 'termine' && c.status !== 'archived'
+        c.status !== 'archive'
     ).filter(c => 
         (c.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
         (c.partners || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -200,7 +248,7 @@ const Conventions = () => {
                     </div>
                     <div className="flex items-center gap-2 text-[10px] font-black text-gray-300 uppercase tracking-widest bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
                         <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        {filteredConventions.length} Dossiers Actifs
+                        {filteredConventions.length} Projets Identifiés
                     </div>
                 </div>
 
@@ -261,8 +309,11 @@ const Conventions = () => {
                                                 </Link>
                                             </td>
                                             <td className="px-8 py-7">
-                                                <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${conv.type === 'international' ? 'bg-indigo-50 text-indigo-500 border-indigo-100' : 'bg-emerald-50 text-emerald-500 border-emerald-100'}`}>
-                                                    {conv.type}
+                                                <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${
+                                                    conv.status === 'termine' ? 'bg-green-50 text-green-600 border-green-100' :
+                                                    conv.type === 'international' ? 'bg-indigo-50 text-indigo-500 border-indigo-100' : 'bg-emerald-50 text-emerald-500 border-emerald-100'
+                                                }`}>
+                                                    {conv.status === 'termine' ? 'SIGNÉ / ACTIF' : conv.type}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-7 text-xs font-bold text-gray-500">{conv.partner_type || '-'}</td>
@@ -302,18 +353,13 @@ const Conventions = () => {
                                                     <button onClick={() => openModal(conv)} title="Modifier" className="w-9 h-9 flex items-center justify-center bg-white border border-gray-100 text-gray-400 hover:text-[#001D3D] hover:shadow-lg hover:shadow-[#001D3D]/10 rounded-xl transition-all">
                                                         <span className="material-symbols-outlined text-[18px]">edit</span>
                                                     </button>
-                                                    {(conv.status === 'signe_recteur') && (
-                                                        <button 
-                                                            onClick={async () => {
-                                                                await api.put(`/conventions/${conv.id}`, { status: 'termine' });
-                                                                fetchConventions();
-                                                            }} 
-                                                            title="Archiver"
-                                                            className="w-9 h-9 flex items-center justify-center bg-white border border-gray-100 text-gray-400 hover:text-amber-600 hover:shadow-lg rounded-xl transition-all"
-                                                        >
-                                                            <span className="material-symbols-outlined text-[18px]">archive</span>
-                                                        </button>
-                                                    )}
+                                                    <button 
+                                                        onClick={() => handleArchive(conv.id)} 
+                                                        title="Archiver"
+                                                        className="w-9 h-9 flex items-center justify-center bg-white border border-gray-100 text-gray-400 hover:text-amber-600 hover:shadow-lg rounded-xl transition-all"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[18px]">archive</span>
+                                                    </button>
                                                     <button onClick={() => handleDelete(conv.id)} title="Supprimer" className="w-9 h-9 flex items-center justify-center bg-white border border-gray-100 text-gray-400 hover:text-red-500 hover:shadow-lg hover:shadow-red-500/10 rounded-xl transition-all">
                                                         <span className="material-symbols-outlined text-[18px]">delete</span>
                                                     </button>
@@ -392,7 +438,7 @@ const Conventions = () => {
                                         <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D] ml-1">{t('status_badge') || 'Statut Activité'}</label>
                                         <select className="uidt-input w-full appearance-none cursor-pointer border-indigo-100" value={formData.status} onChange={e => handleInputChange('status', e.target.value)}>
                                             <option value="brouillon">Brouillon</option>
-                                            <option value="soumis">Soumis</option>
+                                            <option value="en attente">Soumis / En attente</option>
                                             <option value="en cours">En Cours d'Exécution</option>
                                             <option value="termine">Terminé / Clos</option>
                                         </select>
@@ -536,6 +582,62 @@ const Conventions = () => {
                     background: #001D3D20;
                 }
             `}} />
+
+            {/* Premium Confirmation Modal */}
+            <AnimatePresence>
+                {confirmConfig.open && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setConfirmConfig({ ...confirmConfig, open: false })}
+                            className="absolute inset-0 bg-[#001D3D]/40 backdrop-blur-md"
+                        />
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="relative w-full max-w-sm bg-white rounded-[2rem] shadow-2xl p-8 text-center"
+                        >
+                            <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 ${
+                                confirmConfig.type === 'delete' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-500'
+                            }`}>
+                                <span className="material-symbols-outlined text-4xl">
+                                    {confirmConfig.type === 'delete' ? 'delete_forever' : 'archive'}
+                                </span>
+                            </div>
+                            <h3 className="text-xl font-black text-[#001D3D] mb-2 uppercase tracking-tight">{confirmConfig.title}</h3>
+                            <p className="text-xs font-bold text-gray-400 leading-relaxed mb-8">{confirmConfig.message}</p>
+                            
+                            <div className="flex gap-3">
+                                <button 
+                                    onClick={() => setConfirmConfig({ ...confirmConfig, open: false })}
+                                    className="flex-1 px-6 py-4 bg-gray-50 text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-100"
+                                >
+                                    Annuler
+                                </button>
+                                <button 
+                                    onClick={executeConfirmedAction}
+                                    className={`flex-1 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white shadow-lg transition-all ${
+                                        confirmConfig.type === 'delete' ? 'bg-red-500 hover:bg-red-600 shadow-red-500/20' : 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20'
+                                    }`}
+                                >
+                                    Confirmer
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+
+                {toast && (
+                    <Toast 
+                        message={toast.message} 
+                        type={toast.type} 
+                        onClose={() => setToast(null)} 
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };

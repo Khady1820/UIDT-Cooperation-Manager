@@ -51,7 +51,7 @@ const Notifications = () => {
         switch (status) {
             case 'soumis': return 'assignment';
             case 'valide_dir': return 'task_alt';
-            case 'signe_recteur': return 'verified';
+            case 'termine': return 'verified';
             case 'brouillon': return 'error_outline';
             default: return 'notifications';
         }
@@ -61,7 +61,7 @@ const Notifications = () => {
         switch (status) {
             case 'soumis': return 'text-blue-500 bg-blue-50';
             case 'valide_dir': return 'text-amber-500 bg-amber-50';
-            case 'signe_recteur': return 'text-emerald-500 bg-emerald-50';
+            case 'termine': return 'text-emerald-500 bg-emerald-50';
             case 'brouillon': return 'text-rose-500 bg-rose-50';
             default: return 'text-gray-500 bg-gray-50';
         }

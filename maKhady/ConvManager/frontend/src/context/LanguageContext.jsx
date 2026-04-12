@@ -63,9 +63,9 @@ const translations = {
         
         // Statuses
         'status_brouillon': 'Brouillon',
-        'status_soumis': 'Soumis',
-        'status_valide_dir': 'Validé par la Direction',
-        'status_signe_recteur': 'Signé par le Recteur',
+        'status_en_attente': 'En attente',
+        'status_en_cours': 'En cours de validation',
+        'status_termine': 'Terminé',
         'status_rejete': 'Rejeté',
         
         // Institutional Table Fields
@@ -148,9 +148,9 @@ const translations = {
         
         // Statuses
         'status_brouillon': 'Draft',
-        'status_soumis': 'Submitted',
-        'status_valide_dir': 'Director Validated',
-        'status_signe_recteur': 'Rector Signed',
+        'status_en_attente': 'Pending',
+        'status_en_cours': 'In Validation',
+        'status_termine': 'Completed',
         'status_rejete': 'Rejected',
 
         // Institutional Table Fields

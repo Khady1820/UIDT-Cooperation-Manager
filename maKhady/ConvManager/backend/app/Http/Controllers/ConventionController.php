@@ -23,21 +23,21 @@ class ConventionController extends Controller
 
         if ($role === 'porteur_projet' || $role === 'responsable') {
             $query->where('user_id', $user->id);
-        } elseif ($role === 'directeur_cooperation') {
-            // For the Director, show everything in the list but we will filter in the Validation page
+        } elseif ($role === 'directeur_cooperation' || $role === 'admin') {
+            // Admin and Director see pending dossiers
             if ($request->has('pending')) {
-                $query->where('status', 'soumis');
+                $query->where('status', 'en attente');
             }
         } elseif ($role === 'recteur') {
             // Rector only sees dossiers after Director validation
             if ($request->has('pending')) {
-                $query->where('status', 'valide_dir');
+                $query->where('status', 'en cours');
             } else {
-                $query->whereIn('status', ['valide_dir', 'signe_recteur']);
+                $query->whereIn('status', ['en cours', 'termine']);
             }
         } elseif ($role === 'partenaire') {
             $query->where('partners', 'like', '%' . $user->name . '%')
-                  ->where('status', 'signe_recteur');
+                  ->where('status', 'termine');
         }
 
         return response()->json($query->get());
@@ -114,6 +114,8 @@ class ConventionController extends Controller
             'end_date' => 'sometimes|date|after_or_equal:start_date',
             'observations' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf,jpg,png,docx|max:10240',
+            'status' => 'sometimes|string|in:brouillon,soumis,valide_dir,signe_recteur,rejete,termine,archive,en cours,en attente',
+
         ]);
 
         $data = $request->all();
@@ -131,14 +133,27 @@ class ConventionController extends Controller
             $data['file_path'] = $path;
         }
 
+        $oldStatus = $convention->status;
         $convention->update($data);
+
+        // Audit Logging for status changes
+        if (isset($data['status']) && $data['status'] !== $oldStatus) {
+            $action = $data['status'] === 'archive' ? 'archivage' : 'restauration';
+            $comment = $data['status'] === 'archive' ? 'Dossier déplacé vers les archives' : 'Dossier restauré vers les projets actifs';
+            
+            $convention->logs()->create([
+                'user_id' => $request->user()->id,
+                'action' => $action,
+                'comment' => $comment
+            ]);
+        }
         return response()->json($convention);
     }
 
     public function submit(Request $request, $id)
     {
         $convention = Convention::findOrFail($id);
-        $convention->update(['status' => 'soumis']);
+        $convention->update(['status' => 'en attente']);
 
         $convention->logs()->create([
             'user_id' => $request->user()->id,
@@ -150,7 +165,7 @@ class ConventionController extends Controller
         $directors = User::whereHas('role', function($q) {
             $q->where('name', 'directeur_cooperation');
         })->get();
-        Notification::send($directors, new ConventionStatusChanged($convention, 'soumis', $request->user()));
+        Notification::send($directors, new ConventionStatusChanged($convention, 'en attente', $request->user()));
 
         return response()->json($convention);
     }
@@ -158,7 +173,7 @@ class ConventionController extends Controller
     public function validateByDirector(Request $request, $id)
     {
         $convention = Convention::findOrFail($id);
-        $convention->update(['status' => 'valide_dir']);
+        $convention->update(['status' => 'en cours']);
 
         $convention->logs()->create([
             'user_id' => $request->user()->id,
@@ -170,7 +185,7 @@ class ConventionController extends Controller
         $recteurs = User::whereHas('role', function($q) {
             $q->where('name', 'recteur');
         })->get();
-        Notification::send($recteurs, new ConventionStatusChanged($convention, 'valide_dir', $request->user()));
+        Notification::send($recteurs, new ConventionStatusChanged($convention, 'en cours', $request->user()));
 
         return response()->json($convention);
     }
@@ -178,7 +193,7 @@ class ConventionController extends Controller
     public function signByRector(Request $request, $id)
     {
         $convention = Convention::findOrFail($id);
-        $convention->update(['status' => 'signe_recteur']);
+        $convention->update(['status' => 'termine']);
 
         $convention->logs()->create([
             'user_id' => $request->user()->id,
@@ -187,7 +202,7 @@ class ConventionController extends Controller
         ]);
 
         // Notify Porteur
-        $convention->user->notify(new ConventionStatusChanged($convention, 'signe_recteur', $request->user()));
+        $convention->user->notify(new ConventionStatusChanged($convention, 'termine', $request->user()));
 
         return response()->json($convention);
     }
@@ -214,6 +229,58 @@ class ConventionController extends Controller
         $convention->user->notify(new ConventionStatusChanged($convention, 'brouillon', $request->user()));
 
         return response()->json($convention);
+    }
+
+    public function getDashboardStats(Request $request)
+    {
+        $user = $request->user();
+        $role = $user->role->name;
+        
+        $query = Convention::query();
+        
+        if ($role === 'porteur_projet' || $role === 'responsable') {
+            $query->where('user_id', $user->id);
+        } elseif ($role === 'partenaire') {
+            $query->where('partners', 'like', '%' . $user->name . '%')
+                  ->where('status', 'termine');
+        }
+
+        $activeCount = (clone $query)->where('status', 'termine')->count();
+        $pendingCount = (clone $query)->whereIn('status', ['en attente', 'en cours'])->count();
+        $avgEfficiency = (clone $query)->avg('completion_rate') ?? 0;
+        
+        // Distribution by type
+        $types = (clone $query)
+            ->select('type', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
+            ->groupBy('type')
+            ->get();
+
+        // Recent Activity
+        $activityQuery = \App\Models\ConventionLog::with(['convention', 'user'])->latest();
+        if ($role !== 'admin' && $role !== 'directeur_cooperation' && $role !== 'recteur') {
+            $activityQuery->whereHas('convention', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        }
+        $recentActivity = $activityQuery->take(4)->get();
+
+        // Pending Actions for the "Urgentes" section
+        $pendingActions = (clone $query)
+            ->whereIn('status', ['en attente', 'en cours'])
+            ->with('user')
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return response()->json([
+            'active_conventions' => $activeCount,
+            'efficiency_index' => round($avgEfficiency, 1),
+            'pending_validations' => $pendingCount,
+            'cooperation_types' => $types,
+            'recent_activity' => $recentActivity,
+            'pending_actions' => $pendingActions,
+            'total_conventions' => (clone $query)->count()
+        ]);
     }
 
     public function logIndex()

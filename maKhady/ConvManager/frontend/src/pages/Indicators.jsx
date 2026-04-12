@@ -179,7 +179,7 @@ const Indicators = () => {
                                     <td className="px-8 py-7 text-center">
                                         {k.convention?.status && (
                                             <span className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-full border shadow-sm ${
-                                                k.convention.status === 'signe_recteur' ? 'bg-green-50 text-green-600 border-green-100' : 
+                                                k.convention.status === 'termine' ? 'bg-green-50 text-green-600 border-green-100' : 
                                                 k.convention.status === 'rejete' ? 'bg-red-50 text-red-500 border-red-100' : 
                                                 'bg-gray-50 text-gray-500 border-gray-200'
                                             }`}>
