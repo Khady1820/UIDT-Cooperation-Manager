@@ -16,6 +16,11 @@ import Timeline from './pages/Timeline';
 import Help from './pages/Help';
 import Notifications from './pages/Notifications';
 import Archived from './pages/Archived';
+import ManageUsers from './pages/ManageUsers';
+import ManagePartners from './pages/ManagePartners';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+
 
 import { ThemeProvider } from './context/ThemeContext';
 import { SearchProvider } from './context/SearchContext';
@@ -30,6 +35,9 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+
               <Route path="/" element={
                 <ProtectedRoute>
                   <Layout>
@@ -105,6 +113,20 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <Archived />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/manage-users" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ManageUsers />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/manage-partners" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ManagePartners />
                   </Layout>
                 </ProtectedRoute>
               } />

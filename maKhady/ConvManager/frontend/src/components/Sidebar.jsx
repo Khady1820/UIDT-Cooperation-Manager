@@ -25,48 +25,73 @@ const Sidebar = () => {
             </div>
             
             {/* Navigation Links */}
-            <nav className="flex-1 px-4 space-y-1.5">
-                <Link to="/" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
-                    <span className="material-symbols-outlined text-[20px]">dashboard</span>
-                    <span className="text-[13px]">{t('dashboard')}</span>
-                </Link>
-                
-                <Link to="/conventions" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/conventions' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
-                    <span className="material-symbols-outlined text-[20px]">folder_shared</span>
-                    <span className="text-[13px]">{t('conventions')}</span>
-                </Link>
+            <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+                {user?.role?.name === 'admin' ? (
+                    <>
+                        <Link to="/manage-users" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/manage-users' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-50: hover:bg-surface-100'}`}>
+                            <span className="material-symbols-outlined text-[20px]">group</span>
+                            <span className="text-[13px]">{t('manage_users')}</span>
+                        </Link>
+                        
+                        <Link to="/manage-partners" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/manage-partners' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                            <span className="material-symbols-outlined text-[20px]">corporate_fare</span>
+                            <span className="text-[13px]">{t('manage_partners')}</span>
+                        </Link>
 
-                <Link to="/validation" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/validation' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
-                    <span className="material-symbols-outlined text-[20px]">fact_check</span>
-                    <span className="text-[13px]">{t('validation')}</span>
-                </Link>
+                        <Link to="/settings" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/settings' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                            <span className="material-symbols-outlined text-[20px]">settings</span>
+                            <span className="text-[13px]">{t('settings')}</span>
+                        </Link>
 
-                <Link to="/indicators" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/indicators' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
-                    <span className="material-symbols-outlined text-[20px]">insights</span>
-                    <span className="text-[13px]">{t('indicators')}</span>
-                </Link>
+                        <Link to="/archived" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/archived' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                            <span className="material-symbols-outlined text-[20px]">archive</span>
+                            <span className="text-[13px]">{t('archived')}</span>
+                        </Link>
+                    </>
+                ) : (
+                    <>
+                        <Link to="/" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                            <span className="material-symbols-outlined text-[20px]">dashboard</span>
+                            <span className="text-[13px]">{t('dashboard')}</span>
+                        </Link>
+                        
+                        <Link to="/conventions" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/conventions' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                            <span className="material-symbols-outlined text-[20px]">folder_shared</span>
+                            <span className="text-[13px]">{t('conventions')}</span>
+                        </Link>
 
-                <Link to="/timeline" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/timeline' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
-                    <span className="material-symbols-outlined text-[20px]">account_tree</span>
-                    <span className="text-[13px]">{t('timeline')}</span>
-                </Link>
+                        <Link to="/validation" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/validation' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                            <span className="material-symbols-outlined text-[20px]">fact_check</span>
+                            <span className="text-[13px]">{t('validation')}</span>
+                        </Link>
+
+                        <Link to="/indicators" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/indicators' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                            <span className="material-symbols-outlined text-[20px]">insights</span>
+                            <span className="text-[13px]">{t('indicators')}</span>
+                        </Link>
+
+                        <Link to="/timeline" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/timeline' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                            <span className="material-symbols-outlined text-[20px]">account_tree</span>
+                            <span className="text-[13px]">{t('timeline')}</span>
+                        </Link>
+
+                        <div className="pt-4 mt-4 border-t border-outline-variant">
+                            <Link to="/settings" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-surface-500 hover:bg-surface-100 ${location.pathname === '/settings' ? 'text-primary font-bold' : ''}`}>
+                                <span className="material-symbols-outlined text-[20px]">settings</span>
+                                <span className="text-[13px]">{t('settings')}</span>
+                            </Link>
+                            <Link to="/archived" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-surface-500 hover:bg-surface-100 ${location.pathname === '/archived' ? 'text-primary font-bold' : ''}`}>
+                                <span className="material-symbols-outlined text-[20px]">archive</span>
+                                <span className="text-[13px]">{t('archived')}</span>
+                            </Link>
+                            <Link to="/help" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-surface-500 hover:bg-surface-100 ${location.pathname === '/help' ? 'text-primary font-bold' : ''}`}>
+                                <span className="material-symbols-outlined text-[20px]">help_center</span>
+                                <span className="text-[13px]">Centre d'Aide</span>
+                            </Link>
+                        </div>
+                    </>
+                )}
             </nav>
-
-            {/* Bottom Links */}
-            <div className="p-4 border-t border-outline-variant space-y-1">
-                <Link to="/settings" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-surface-500 hover:bg-surface-100 ${location.pathname === '/settings' ? 'text-primary font-bold' : ''}`}>
-                    <span className="material-symbols-outlined text-[20px]">settings</span>
-                    <span className="text-[13px]">{t('settings')}</span>
-                </Link>
-                <Link to="/archived" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-surface-500 hover:bg-surface-100 ${location.pathname === '/archived' ? 'text-primary font-bold' : ''}`}>
-                    <span className="material-symbols-outlined text-[20px]">archive</span>
-                    <span className="text-[13px]">{t('archived')}</span>
-                </Link>
-                <Link to="/help" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-surface-500 hover:bg-surface-100 ${location.pathname === '/help' ? 'text-primary font-bold' : ''}`}>
-                    <span className="material-symbols-outlined text-[20px]">help_center</span>
-                    <span className="text-[13px]">Centre d'Aide</span>
-                </Link>
-            </div>
 
             {/* Active Session Profile */}
             <div className="p-4 bg-surface-100 m-4 rounded-xl border border-outline-variant">

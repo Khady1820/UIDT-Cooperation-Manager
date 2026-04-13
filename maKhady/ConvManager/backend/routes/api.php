@@ -5,15 +5,26 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConventionController;
 use App\Http\Controllers\KpiController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PartenaireController;
 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'sendResetLink']);
+Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'reset']);
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::post('/update-profile', [AuthController::class, 'updateProfile']);
+
+    // Admin Specific Routes (Users & Partners)
+    Route::middleware('role:admin')->group(function () {
+        Route::apiResource('/users', UserController::class);
+        Route::apiResource('/partners', PartenaireController::class);
+    });
 
     // Routes for Porteur de Projet / Responsable (Project Leads)
     Route::middleware('role:admin,responsable,porteur_projet')->group(function () {
