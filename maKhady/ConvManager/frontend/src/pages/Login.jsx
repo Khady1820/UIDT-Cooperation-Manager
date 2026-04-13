@@ -70,7 +70,7 @@ const Login = () => {
                                 className="w-full bg-gray-50/50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-xl px-6 py-4 text-sm font-medium outline-none transition-all"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="administrateur@uidt.sn"
+                                placeholder="admin@convmanager.com"
                             />
                         </div>
                         <div className="relative">

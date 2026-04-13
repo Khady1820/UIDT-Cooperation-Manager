@@ -12,7 +12,9 @@ const ManageUsers = () => {
     
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(null); 
+    const [userToDelete, setUserToDelete] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
     
     // Form State
@@ -91,11 +93,18 @@ const ManageUsers = () => {
         }
     };
 
-    const handleDeleteUser = async (id) => {
-        if (!window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) return;
+    const handleDeleteUser = (user) => {
+        setUserToDelete(user);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!userToDelete) return;
         try {
-            await api.delete(`/users/${id}`);
+            await api.delete(`/users/${userToDelete.id}`);
             fetchUsers();
+            setIsDeleteModalOpen(false);
+            setUserToDelete(null);
         } catch (error) {
             alert(error.response?.data?.message || "Une erreur est survenue");
         }
@@ -163,7 +172,7 @@ const ManageUsers = () => {
                                             <Edit2 className="w-4 h-4" />
                                         </button>
                                         <button 
-                                            onClick={() => handleDeleteUser(user.id)}
+                                            onClick={() => handleDeleteUser(user)}
                                             className="p-2 text-surface-300 hover:text-red-500 transition-colors"
                                         >
                                             <Trash2 className="w-4 h-4" />
@@ -281,6 +290,38 @@ const ManageUsers = () => {
                         </button>
                     </div>
                 </form>
+            </AdminModal>
+
+            {/* Delete Confirmation Modal */}
+            <AdminModal 
+                isOpen={isDeleteModalOpen} 
+                onClose={() => setIsDeleteModalOpen(false)} 
+                title="Confirmer la suppression"
+            >
+                <div className="space-y-6 text-center">
+                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Trash2 className="w-10 h-10 text-red-500" />
+                    </div>
+                    <p className="text-surface-600 font-medium">
+                        Êtes-vous sûr de vouloir supprimer l'utilisateur <span className="font-black text-surface-900 uppercase tracking-tight">{userToDelete?.name}</span> ? 
+                        <br />Cette action est irréversible.
+                    </p>
+                    <div className="flex gap-4 pt-4">
+                        <button 
+                            type="button"
+                            onClick={() => setIsDeleteModalOpen(false)}
+                            className="flex-1 px-8 py-4 text-[10px] font-black uppercase tracking-widest text-surface-500 hover:bg-surface-50 rounded-xl transition-all"
+                        >
+                            Annuler
+                        </button>
+                        <button 
+                            onClick={confirmDelete}
+                            className="flex-1 px-8 py-4 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-red-500/20 hover:scale-105 transition-all"
+                        >
+                            Supprimer
+                        </button>
+                    </div>
+                </div>
             </AdminModal>
         </motion.div>
     );
