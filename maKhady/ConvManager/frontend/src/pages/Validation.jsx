@@ -51,7 +51,7 @@ const Validation = () => {
         status: 'en attente'
     });
 
-    const isValidator = user?.role?.name === 'directeur_cooperation' || user?.role?.name === 'recteur' || user?.role?.name === 'admin';
+    const isValidator = user?.role?.name === 'directeur_cooperation' || user?.role?.name === 'recteur' || user?.role?.name === 'admin' || user?.role?.name === 'service_juridique' || user?.role?.name === 'chef_division';
 
     useEffect(() => {
         if (isValidator) {
@@ -101,7 +101,10 @@ const Validation = () => {
                         <div>
                             <h1 className="text-2xl font-black text-[#001D3D] tracking-tight">Espace de Validation</h1>
                             <p className="text-[10px] font-bold text-[#8B7355] uppercase tracking-[0.3em] mt-1">
-                                {user?.role?.name === 'directeur_cooperation' ? 'Directeur de la Coopération' : 'Rectorat - UIDT'}
+                                {user?.role?.name === 'directeur_cooperation' ? 'Directeur de la Coopération' : 
+                                 user?.role?.name === 'chef_division' ? 'Chef de Division - UIDT' :
+                                 user?.role?.name === 'service_juridique' ? 'Service Juridique UIDT' :
+                                 user?.role?.name === 'recteur' ? 'Rectorat - UIDT' : 'Administration'}
                             </p>
                         </div>
                     </div>

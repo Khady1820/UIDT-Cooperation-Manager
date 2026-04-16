@@ -23,17 +23,29 @@ class ConventionController extends Controller
 
         if ($role === 'porteur_projet' || $role === 'responsable') {
             $query->where('user_id', $user->id);
-        } elseif ($role === 'directeur_cooperation' || $role === 'admin') {
-            // Admin and Director see pending dossiers
+        } elseif ($role === 'chef_division') {
+            // Chef sees dossiers at 'soumis' stage
             if ($request->has('pending')) {
-                $query->where('status', 'en attente');
+                $query->where('status', 'soumis');
+            }
+        } elseif ($role === 'directeur_cooperation' || $role === 'admin') {
+            // Admin and Director see pending dossiers at 'valide_chef_division' and 'valide_juridique'
+            if ($request->has('pending')) {
+                $query->whereIn('status', ['valide_chef_division', 'valide_juridique']);
+            }
+        } elseif ($role === 'service_juridique') {
+            // Legal sees dossiers after initial director validation
+            if ($request->has('pending')) {
+                $query->where('status', 'valide_dir_initial');
+            } else {
+                $query->whereIn('status', ['valide_dir_initial', 'valide_juridique']);
             }
         } elseif ($role === 'recteur') {
-            // Rector only sees dossiers after Director validation
+            // Rector only sees dossiers after final validation
             if ($request->has('pending')) {
-                $query->where('status', 'en cours');
+                $query->where('status', 'pret_pour_signature');
             } else {
-                $query->whereIn('status', ['en cours', 'termine']);
+                $query->whereIn('status', ['pret_pour_signature', 'termine']);
             }
         } elseif ($role === 'partenaire') {
             $query->where('partners', 'like', '%' . $user->name . '%')
@@ -153,19 +165,43 @@ class ConventionController extends Controller
     public function submit(Request $request, $id)
     {
         $convention = Convention::findOrFail($id);
-        $convention->update(['status' => 'en attente']);
+        $convention->update(['status' => 'soumis']);
 
         $convention->logs()->create([
             'user_id' => $request->user()->id,
             'action' => 'soumission',
-            'comment' => 'Convention soumise pour validation'
+            'comment' => 'Convention soumise pour première validation (Direction)'
+        ]);
+
+        // Notify Chef de Division (instead of Director)
+        $chefs = User::whereHas('role', function($q) {
+            $q->where('name', 'chef_division');
+        })->get();
+        Notification::send($chefs, new ConventionStatusChanged($convention, 'soumis', $request->user()));
+
+        return response()->json($convention);
+    }
+
+    public function preValidateByChef(Request $request, $id)
+    {
+        $request->validate([
+            'comment' => 'required|string'
+        ]);
+
+        $convention = Convention::findOrFail($id);
+        $convention->update(['status' => 'valide_chef_division']);
+
+        $convention->logs()->create([
+            'user_id' => $request->user()->id,
+            'action' => 'pre_validation_chef',
+            'comment' => 'Pré-validation effectuée par le Chef de Division. Avis : ' . $request->comment
         ]);
 
         // Notify Directors
         $directors = User::whereHas('role', function($q) {
             $q->where('name', 'directeur_cooperation');
         })->get();
-        Notification::send($directors, new ConventionStatusChanged($convention, 'en attente', $request->user()));
+        Notification::send($directors, new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
 
         return response()->json($convention);
     }
@@ -173,19 +209,65 @@ class ConventionController extends Controller
     public function validateByDirector(Request $request, $id)
     {
         $convention = Convention::findOrFail($id);
-        $convention->update(['status' => 'en cours']);
+        
+        // Ensure it has been pre-validated by Chef if coming from submitted state
+        if ($convention->status !== 'valide_chef_division' && $request->user()->id !== 1) { // 1 is admin bypass
+             // response()->json(['error' => 'Le dossier doit être pré-validé par le Chef de Division.'], 403);
+        }
+
+        $convention->update(['status' => 'valide_dir_initial']);
 
         $convention->logs()->create([
             'user_id' => $request->user()->id,
-            'action' => 'validation_directeur',
-            'comment' => 'Validé par le Directeur de la Coopération'
+            'action' => 'validation_directeur_initial',
+            'comment' => 'Première validation effectuée. Dossier transmis au Service Juridique.'
+        ]);
+
+        // Notify Legal
+        $legalUsers = User::whereHas('role', function($q) {
+            $q->where('name', 'service_juridique');
+        })->get();
+        Notification::send($legalUsers, new ConventionStatusChanged($convention, 'valide_dir_initial', $request->user()));
+
+        return response()->json($convention);
+    }
+
+    public function validateByLegal(Request $request, $id)
+    {
+        $convention = Convention::findOrFail($id);
+        $convention->update(['status' => 'valide_juridique']);
+
+        $convention->logs()->create([
+            'user_id' => $request->user()->id,
+            'action' => 'validation_juridique',
+            'comment' => 'Conformité visée par le Service Juridique. Renvoi à la Direction pour contrôle final.'
+        ]);
+
+        // Notify Directors
+        $directors = User::whereHas('role', function($q) {
+            $q->where('name', 'directeur_cooperation');
+        })->get();
+        Notification::send($directors, new ConventionStatusChanged($convention, 'valide_juridique', $request->user()));
+
+        return response()->json($convention);
+    }
+
+    public function finalizeByDirector(Request $request, $id)
+    {
+        $convention = Convention::findOrFail($id);
+        $convention->update(['status' => 'pret_pour_signature']);
+
+        $convention->logs()->create([
+            'user_id' => $request->user()->id,
+            'action' => 'finalisation_directeur',
+            'comment' => 'Contrôle final effectué. Dossier transmis au Rectorat pour signature.'
         ]);
 
         // Notify Recteurs
         $recteurs = User::whereHas('role', function($q) {
             $q->where('name', 'recteur');
         })->get();
-        Notification::send($recteurs, new ConventionStatusChanged($convention, 'en cours', $request->user()));
+        Notification::send($recteurs, new ConventionStatusChanged($convention, 'pret_pour_signature', $request->user()));
 
         return response()->json($convention);
     }
@@ -213,20 +295,40 @@ class ConventionController extends Controller
             'reason' => 'required|string'
         ]);
 
+        $user = $request->user();
         $convention = Convention::findOrFail($id);
+        
+        $newStatus = 'brouillon'; // Default: back to porteur
+        $actionDescription = 'Rejeté. Motif : ' . $request->reason;
+
+        if ($user->role->name === 'chef_division') {
+            $newStatus = 'brouillon'; 
+            $actionDescription = 'Examen Chef de Division : Rejeté pour modifications. Motif : ' . $request->reason;
+        } elseif ($user->role->name === 'service_juridique') {
+            $newStatus = 'valide_chef_division'; // Back to director for arbitration after chef's visa
+            $actionDescription = 'Visa Juridique Refusé. Retour à la Direction. Motif : ' . $request->reason;
+        }
+
         $convention->update([
-            'status' => 'brouillon', // Back to draft for correction
+            'status' => $newStatus,
             'rejection_reason' => $request->reason
         ]);
 
         $convention->logs()->create([
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
             'action' => 'rejet',
-            'comment' => 'Rejeté. Motif : ' . $request->reason
+            'comment' => $actionDescription
         ]);
 
-        // Notify Porteur
-        $convention->user->notify(new ConventionStatusChanged($convention, 'brouillon', $request->user()));
+        // Notify 
+        if ($newStatus === 'soumis') {
+            $directors = User::whereHas('role', function($q) {
+                $q->where('name', 'directeur_cooperation');
+            })->get();
+            Notification::send($directors, new ConventionStatusChanged($convention, 'soumis', $user));
+        } else {
+            $convention->user->notify(new ConventionStatusChanged($convention, 'brouillon', $user));
+        }
 
         return response()->json($convention);
     }
@@ -246,7 +348,8 @@ class ConventionController extends Controller
         }
 
         $activeCount = (clone $query)->where('status', 'termine')->count();
-        $pendingCount = (clone $query)->whereIn('status', ['en attente', 'en cours'])->count();
+        $pendingStatuses = ['soumis', 'valide_dir_initial', 'valide_juridique', 'pret_pour_signature', 'en attente', 'en cours'];
+        $pendingCount = (clone $query)->whereIn('status', $pendingStatuses)->count();
         $avgEfficiency = (clone $query)->avg('completion_rate') ?? 0;
         
         // Distribution by type
@@ -254,19 +357,19 @@ class ConventionController extends Controller
             ->select('type', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
             ->groupBy('type')
             ->get();
-
+ 
         // Recent Activity
         $activityQuery = \App\Models\ConventionLog::with(['convention', 'user'])->latest();
-        if ($role !== 'admin' && $role !== 'directeur_cooperation' && $role !== 'recteur') {
+        if ($role !== 'admin' && $role !== 'directeur_cooperation' && $role !== 'recteur' && $role !== 'service_juridique') {
             $activityQuery->whereHas('convention', function($q) use ($user) {
                 $q->where('user_id', $user->id);
             });
         }
         $recentActivity = $activityQuery->take(4)->get();
-
+ 
         // Pending Actions for the "Urgentes" section
         $pendingActions = (clone $query)
-            ->whereIn('status', ['en attente', 'en cours'])
+            ->whereIn('status', $pendingStatuses)
             ->with('user')
             ->latest()
             ->take(3)

@@ -31,7 +31,8 @@ const ManageUsers = () => {
         { id: 3, name: 'porteur_projet' },
         { id: 4, name: 'directeur_cooperation' },
         { id: 5, name: 'recteur' },
-        { id: 6, name: 'partenaire' }
+        { id: 6, name: 'partenaire' },
+        { id: 7, name: 'service_juridique' }
     ]);
 
     const fetchUsers = async () => {

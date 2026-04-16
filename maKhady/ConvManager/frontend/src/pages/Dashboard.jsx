@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import AdminDashboard from '../components/AdminDashboard';
 
 const Dashboard = () => {
     const [stats, setStats] = useState(null);
@@ -11,7 +12,18 @@ const Dashboard = () => {
     const { user } = useAuth();
     const { t } = useLanguage();
 
+    // Check if the user is an admin
+    const isAdmin = user?.role?.name === 'admin';
+
     useEffect(() => {
+        // If user is admin, we don't necessarily need to fetch the standard stats here
+        // as the AdminDashboard component has its own fetch logic.
+        // However, we'll keep the logic if we want to toggle views later.
+        if (isAdmin) {
+            setLoading(false);
+            return;
+        }
+
         const fetchStats = async () => {
             try {
                 const res = await api.get('/dashboard/stats');
@@ -23,7 +35,7 @@ const Dashboard = () => {
             }
         };
         fetchStats();
-    }, []);
+    }, [isAdmin]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -35,11 +47,18 @@ const Dashboard = () => {
         visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
     };
 
-    if (loading || !stats) return (
+    if (loading) return (
         <div className="flex items-center justify-center min-h-[60vh]">
             <div className="w-8 h-8 border-4 border-[#001D3D]/20 border-t-[#001D3D] rounded-full animate-spin"></div>
         </div>
     );
+
+    // Render Admin Dashboard if user is admin
+    if (isAdmin) {
+        return <AdminDashboard />;
+    }
+
+    if (!stats) return null;
 
     return (
         <motion.div 
@@ -193,7 +212,11 @@ const Dashboard = () => {
             <motion.div variants={itemVariants} className="bg-white rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-gray-100">
                 <div className="flex justify-between items-end mb-10">
                     <h2 className="text-xl font-black text-[#001D3D]">Actions Urgentes</h2>
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border border-gray-100 px-3 py-1 rounded-full">Vue Rectorat</span>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border border-gray-100 px-3 py-1 rounded-full">
+                        {user?.role?.name === 'directeur_cooperation' ? 'Vue Direction' : 
+                         user?.role?.name === 'service_juridique' ? 'Vue Juridique' :
+                         user?.role?.name === 'recteur' ? 'Vue Rectorat' : 'Vue Admin'}
+                    </span>
                 </div>
 
                 <div className="space-y-4">
@@ -202,13 +225,18 @@ const Dashboard = () => {
                             <Link to={`/conventions/${task.id}`} key={index} className="flex items-center gap-6 p-6 border border-gray-50 bg-[#FBFBFB] hover:bg-white hover:shadow-xl transition-all rounded-3xl group">
                                 <div className="w-14 h-14 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-sm">
                                     <span className="material-symbols-outlined text-[#8B7355] text-3xl opacity-60 group-hover:scale-110 transition-transform">
-                                        {task.status === 'en attente' ? 'signature' : 'gavel'}
+                                        {task.status === 'soumis' ? 'account_balance' : 
+                                         task.status === 'valide_dir_initial' ? 'gavel' : 
+                                         task.status === 'valide_juridique' ? 'verified_user' : 'ink_pen'}
                                     </span>
                                 </div>
                                 <div className="flex-1">
                                     <h4 className="text-base font-black text-[#001D3D] line-clamp-1">{task.name}</h4>
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
-                                        {task.status === 'en attente' ? 'ATTENTE VALIDATION DIRECTION' : 'ATTENTE SIGNATURE RECTEUR'}
+                                        {task.status === 'soumis' ? 'EN ATTENTE D’INSTRUCTION (DIRECTION)' : 
+                                         task.status === 'valide_dir_initial' ? 'EN ATTENTE DE VISA JURIDIQUE' :
+                                         task.status === 'valide_juridique' ? 'EN ATTENTE DE CONTRÔLE FINAL' :
+                                         task.status === 'pret_pour_signature' ? 'EN ATTENTE DE SIGNATURE RECTORALE' : 'TRAITEMENT EN COURS'}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-2">

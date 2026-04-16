@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Lock, CheckCircle2, ArrowRight } from 'lucide-react';
 import axios from 'axios';
 
 const ResetPassword = () => {
@@ -45,92 +45,121 @@ const ResetPassword = () => {
 
     if (!token || !email) {
         return (
-            <div className="flex min-h-screen items-center justify-center p-6 text-center">
-                <div className="bg-white p-12 rounded-[2.5rem] shadow-premium max-w-sm border border-gray-100">
-                    <p className="text-red-500 font-bold mb-4">Lien de réinitialisation invalide.</p>
-                    <Link to="/login" className="text-[#001D3D] font-black uppercase text-[10px] tracking-widest">Retour</Link>
+            <div className="flex min-h-screen items-center justify-center p-6 mesh-bg text-center font-sans">
+                <div className="auth-glass p-12 rounded-[3.5rem] shadow-2xl max-w-md border border-gray-100">
+                    <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-red-500">
+                        <span className="material-symbols-outlined text-3xl">error</span>
+                    </div>
+                    <h3 className="text-xl font-black text-[#001D3D] mb-4 text-balance">Lien de réinitialisation invalide ou expiré.</h3>
+                    <p className="text-sm font-bold text-gray-400 mb-8 lowercase tracking-tight">Veuillez effectuer une nouvelle demande de récupération.</p>
+                    <Link to="/login" className="px-8 py-4 bg-[#001D3D] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#001D3D]/20 hover:bg-[#002b5c] transition-all inline-block">Retour à la connexion</Link>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#F8F9FA] overflow-hidden font-sans p-6">
-            <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-10 text-center"
-            >
-                <div className="w-16 h-16 bg-[#001D3D] rounded-lg flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#001D3D]/20">
-                    <span className="material-symbols-outlined text-white text-4xl">lock_open</span>
-                </div>
-                <h1 className="text-2xl font-black text-[#001D3D] tracking-tight mb-1 uppercase">Réinitialisation</h1>
-                <p className="text-[10px] font-bold text-[#8B7355] tracking-[0.2em] uppercase opacity-80">Nouveau mot de passe</p>
-            </motion.div>
+        <div className="relative min-h-screen flex items-center justify-center p-6 mesh-bg overflow-hidden font-sans">
+            {/* Ambient Background Elements */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#001D3D]/5 rounded-full blur-[100px] animate-pulse"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#8B7355]/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }}></div>
 
             <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-[440px] bg-white p-10 rounded-[2.5rem] shadow-premium border border-gray-100"
+                transition={{ duration: 0.8 }}
+                className="relative z-10 w-full max-w-[480px]"
             >
-                {message && (
-                    <div className="mb-8 p-4 bg-green-50 border border-green-100 rounded-xl text-green-600 text-[11px] font-black uppercase text-center tracking-widest">
-                        {message}. Redirection...
+                <div className="auth-glass p-10 md:p-14 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.08)]">
+                    <div className="mb-10 text-center">
+                        <div className="w-20 h-20 bg-[#001D3D] rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-[#001D3D]/20">
+                            <span className="material-symbols-outlined text-white text-4xl">lock_open</span>
+                        </div>
+                        <h2 className="text-3xl font-black text-[#001D3D] tracking-tight mb-2">Réinitialisation</h2>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-loose">Définissez votre nouveau mot de passe</p>
                     </div>
-                )}
 
-                {error && (
-                    <div className="mb-8 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-[11px] font-black uppercase text-center tracking-widest">
-                        {error}
-                    </div>
-                )}
+                    <AnimatePresence>
+                        {message && (
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="mb-8 p-4 bg-green-50 border border-green-100 rounded-2xl text-green-600 text-[11px] font-black uppercase text-center tracking-widest flex items-center justify-center gap-3"
+                            >
+                                <CheckCircle2 className="w-4 h-4" />
+                                {message}. Redirection...
+                            </motion.div>
+                        )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                   <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-50 pb-2">
-                       Compte : <span className="text-[#8B7355]">{email}</span>
-                   </div>
+                        {error && (
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-[11px] font-black uppercase text-center tracking-wider"
+                            >
+                                {error}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Nouveau mot de passe</label>
-                        <div className="relative">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-8 border-b border-gray-100 pb-4 text-center">
+                            Compte : <span className="text-[#8B7355] ml-2">{email}</span>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Nouveau mot de passe</label>
+                            <div className="relative group">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    required
+                                    className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-5 text-sm font-bold text-[#001D3D] outline-none transition-all pr-14 shadow-sm group-hover:shadow-md"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#001D3D] transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Confirmation</label>
                             <input
                                 type={showPassword ? "text" : "password"}
                                 required
-                                className="w-full bg-gray-50/50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-xl px-6 py-4 text-sm font-medium outline-none transition-all pr-12"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-5 text-sm font-bold text-[#001D3D] outline-none transition-all shadow-sm focus:bg-white"
+                                value={passwordConfirmation}
+                                onChange={(e) => setPasswordConfirmation(e.target.value)}
                                 placeholder="••••••••"
                             />
+                        </div>
+
+                        <div className="pt-6">
                             <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#001D3D] transition-colors"
+                                type="submit"
+                                disabled={loading}
+                                className="group relative w-full bg-[#001D3D] text-white py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-[#001D3D]/20 hover:bg-[#002b5c] transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-4 overflow-hidden"
                             >
-                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                <Lock className="w-4 h-4 relative z-10" />
+                                <span className="relative z-10">{loading ? "Chargement..." : "Réinitialiser maintenant"}</span>
+                                <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-2 transition-transform" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                             </button>
                         </div>
-                    </div>
+                    </form>
+                </div>
 
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Confirmation</label>
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            required
-                            className="w-full bg-gray-50/50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-xl px-6 py-4 text-sm font-medium outline-none transition-all"
-                            value={passwordConfirmation}
-                            onChange={(e) => setPasswordConfirmation(e.target.value)}
-                            placeholder="••••••••"
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-[#001D3D] text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-[#001D3D]/20 hover:bg-[#002b5c] transition-all disabled:opacity-50"
-                    >
-                        {loading ? "Chargement..." : "Réinitialiser maintenant"}
-                    </button>
-                </form>
+                <div className="mt-16 text-center opacity-30">
+                    <p className="text-[9px] font-black text-[#001D3D] uppercase tracking-[0.4em]">
+                        Sécurité Institutionnelle UIDT • Thiès
+                    </p>
+                </div>
             </motion.div>
         </div>
     );

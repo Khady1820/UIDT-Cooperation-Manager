@@ -19,6 +19,10 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             UIDTInstitutionalSeeder::class,
+            GooglePartnerSeeder::class,
+            HuaweiPartnerSeeder::class,
+            OrangePartnerSeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }

@@ -10,30 +10,44 @@ const Help = () => {
             icon: "account_tree",
             content: "CoopManager suit un circuit institutionnel rigoureux pour garantir la conformité des conventions.",
             steps: [
-                { label: "Brouillon", desc: "Le porteur de projet prépare les données et les indicateurs du dossier." },
-                { label: "Soumission", desc: "Le dossier est envoyé à la Direction de la Coopération pour instruction." },
-                { label: "Validation Direction", desc: "Le Directeur examine et valide la faisabilité stratégique du projet." },
-                { label: "Signature Rectorale", desc: "Le Recteur appose la validation finale numérique pour activation." }
+                { label: "1. Brouillon / Edition", desc: "Le porteur de projet prépare les données stratégiques et les indicateurs." },
+                { label: "2. Pré-validation (Chef)", desc: "Examen par le Chef de Division pour vérifier la cohérence et la complétude." },
+                { label: "3. Instruction (Direction)", desc: "Le dossier est envoyé à la Direction de la Coopération pour première instruction." },
+                { label: "4. Visa Juridique", desc: "Le Service Juridique certifie la conformité légale et le respect des règlementations." },
+                { label: "5. Contrôle Final", desc: "La Direction effectue une vérification finale avant transmission au Rectorat." },
+                { label: "6. Signature Rectorale", desc: "Le Recteur appose la validation finale pour l'officialisation de l'accord." }
             ]
         },
         {
-            title: "Glossaire des Indicateurs (KPI)",
+            title: "Glossaire & KPIs",
             icon: "analytics",
-            content: "Chaque convention est pilotée par des indicateurs de performance clés.",
+            content: "Indicateurs de performance pour le pilotage stratégique.",
             items: [
                 { label: "Cible (Target)", desc: "L'objectif numérique à atteindre d'ici la fin de la convention." },
-                { label: "Valeur Actuelle", desc: "Le niveau de réalisation constaté sur le terrain par le porteur." },
-                { label: "Taux de Réalisation", desc: "Calculé automatiquement : (Valeur Actuelle / Cible) * 100." }
+                { label: "Identifiant UIDT", desc: "Numéro de dossier unique (ex: UIDT-2026-001) généré automatiquement." },
+                { label: "Taux de Réalisation", desc: "Indice automatique mesurant l'état d'avancement des objectifs." }
             ]
         },
         {
             title: "Guide des Acteurs",
             icon: "groups",
-            content: "Comprendre les responsabilités de chaque intervenant dans l'application.",
+            content: "Comprendre les responsabilités de chaque pôle institutionnel.",
             roles: [
                 { name: "Porteur de Projet", desc: "Initialise les dossiers, définit les KPIs et gère les documents." },
-                { name: "Directeur Coopération", desc: "Instruit les dossiers, vérifie l'alignement stratégique et valide la première étape." },
-                { name: "Recteur", desc: "Assure la signature institutionnelle finale et le pilotage de haut niveau." }
+                { name: "Chef de Division", desc: "Vérifie la pertinence académique et pré-valide le dossier." },
+                { name: "Directeur Coopération", desc: "Instruit les dossiers, assure l'arbitrage et le contrôle final." },
+                { name: "Service Juridique", desc: "Garantit la conformité et la sécurité juridique des partenariats." },
+                { name: "Recteur", desc: "Assure la signature institutionnelle et le pilotage de haut niveau." }
+            ]
+        },
+        {
+            title: "Questions Fréquentes",
+            icon: "quiz",
+            content: "Réponses aux questions courantes sur le fonctionnement du système.",
+            items: [
+                { label: "Pourquoi justifier chaque décision ?", desc: "Les commentaires sont obligatoires pour garantir la transparence et l'auditabilité du circuit." },
+                { label: "Que signifie un retour 'Visa Refusé' ?", desc: "Le dossier présente des non-conformités juridiques. Il retourne à l'instruction pour correction." },
+                { label: "Qui génère le numéro de dossier ?", desc: "Le système attribue le numéro UIDT-YYYY-XXX dès que le porteur soumet le projet." }
             ]
         }
     ];
@@ -109,6 +123,34 @@ const Help = () => {
                         </div>
                     </div>
                 ))}
+            </div>
+
+            {/* Feature Highlight: Notifications */}
+            <div className="bg-gradient-to-r from-white to-gray-50 p-10 rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden relative group">
+                <div className="absolute right-0 top-0 w-1/3 h-full bg-indigo-50/30 -skew-x-12 translate-x-1/2"></div>
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-10 items-center">
+                    <div className="lg:col-span-1 flex flex-col items-center lg:items-start text-center lg:text-left gap-4">
+                        <div className="w-16 h-16 bg-[#001D3D] text-white rounded-2xl flex items-center justify-center shadow-xl">
+                            <span className="material-symbols-outlined text-[32px]">notifications_active</span>
+                        </div>
+                        <h3 className="text-lg font-black text-[#001D3D] uppercase tracking-tight">Système de<br/>Notification</h3>
+                    </div>
+                    <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {[
+                            { title: "Alertes Temps Réel", desc: "Soyez notifié instantanément lors d'un changement de statut de dossier.", icon: "bolt" },
+                            { title: "Rapports Hebdo", desc: "Recevez un résumé des performances KPI par e-mail chaque lundi.", icon: "mail" },
+                            { title: "Historique d’Audit", desc: "Consultez le fil d'activité pour tracer chaque action effectuée.", icon: "history" }
+                        ].map((item, i) => (
+                            <div key={i} className="space-y-3">
+                                <div className="flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-[#B68F40] text-sm">{item.icon}</span>
+                                    <h4 className="text-[11px] font-black text-[#001D3D] uppercase tracking-widest">{item.title}</h4>
+                                </div>
+                                <p className="text-[10px] text-gray-400 font-medium leading-relaxed">{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
 
             {/* Assistance Section */}

@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, CheckCircle2, ArrowLeft } from 'lucide-react';
 
 const Register = () => {
     const { t } = useLanguage();
@@ -15,6 +15,7 @@ const Register = () => {
         role_id: '4' // Default to Porteur de Projet
     });
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { register } = useAuth();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
@@ -26,176 +27,191 @@ const Register = () => {
             setError('Les mots de passe ne correspondent pas');
             return;
         }
+        setIsSubmitting(true);
         try {
             await register(formData);
             navigate('/');
         } catch (err) {
             setError(err.response?.data?.message || 'Erreur lors de l’inscription');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="relative min-h-screen flex items-center justify-center bg-[#F8F9FA] p-6 overflow-hidden">
-            {/* Background Decorative Elements */}
-            <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#001D3D]/5 rounded-full blur-[120px]"></div>
-            <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#8B7355]/5 rounded-full blur-[120px]"></div>
-
-            <div className="relative z-10 w-full max-w-[1000px] grid grid-cols-1 lg:grid-cols-2 bg-white rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
-                
-                {/* Visual Side */}
-                <div className="hidden lg:flex flex-col justify-between p-16 bg-[#001D3D] text-white relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                    
-                    <div className="relative z-10">
-                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-8 shadow-2xl">
-                             <span className="material-symbols-outlined text-[#001D3D] text-4xl">account_balance</span>
-                        </div>
-                        <h2 className="text-4xl font-black tracking-tight leading-tight mb-6">
-                            Rejoignez la <br/> Plateforme UIDT
-                        </h2>
-                        <p className="text-[#8B7355] font-bold text-sm uppercase tracking-[0.2em] mb-12">Portail de Coopération</p>
-                        
-                        <div className="space-y-8">
-                            <div className="flex items-start gap-4">
-                                <span className="material-symbols-outlined text-[#8B7355]">check_circle</span>
-                                <div>
-                                    <p className="font-bold text-sm uppercase tracking-wide">Gestion de Projet</p>
-                                    <p className="text-gray-400 text-xs mt-1">Soumettez et suivez vos conventions en temps réel.</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-4">
-                                <span className="material-symbols-outlined text-[#8B7355]">check_circle</span>
-                                <div>
-                                    <p className="font-bold text-sm uppercase tracking-wide">Audit & Transparence</p>
-                                    <p className="text-gray-400 text-xs mt-1">Suivi complet des validations hiérarchiques.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="relative z-10 pt-10 border-t border-white/10">
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.3em]">© 2026 UIDT THIÈS</p>
-                    </div>
-                </div>
-
-                {/* Form Side */}
-                <div className="p-10 md:p-16">
-                    <div className="mb-10 text-center lg:text-left">
-                        <h1 className="text-3xl font-black text-[#001D3D] tracking-tight">{t('register')}</h1>
-                        <p className="text-xs font-bold text-gray-400 mt-2 uppercase tracking-widest leading-loose">Création de profil institutionnel</p>
-                    </div>
-
-                    <AnimatePresence>
-                        {error && (
-                            <motion.div 
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-[11px] font-black uppercase text-center"
-                            >
-                                {error}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Nom complet</label>
-                            <input
-                                type="text"
-                                required
-                                className="w-full bg-gray-50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-medium outline-none transition-all"
-                                value={formData.name}
-                                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                placeholder="Dr. Prénom Nom"
-                            />
+        <div className="flex min-h-screen bg-white font-sans overflow-hidden">
+            {/* Right Side: Authentication form (Flipped order for variety but maintaining style) */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 mesh-bg order-2 lg:order-1">
+                <motion.div 
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="w-full max-w-[540px]"
+                >
+                    <div className="auth-glass p-10 md:p-14 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.08)]">
+                        <div className="mb-10">
+                            <Link to="/login" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#8B7355] hover:text-[#001D3D] transition-colors mb-6 group">
+                                <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
+                                Retour à la connexion
+                            </Link>
+                            <h3 className="text-3xl font-black text-[#001D3D] tracking-tight mb-2">{t('register')}</h3>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-loose">Création de profil institutionnel UIDT</p>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Adresse Email</label>
-                            <input
-                                type="email"
-                                required
-                                className="w-full bg-gray-50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-medium outline-none transition-all"
-                                value={formData.email}
-                                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                placeholder="nom@uidt.sn"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Mot de passe</label>
-                                <div className="relative">
-                                    <input
-                                        type={showPassword ? "text" : "password"}
-                                        required
-                                        className="w-full bg-gray-50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-medium outline-none transition-all pr-14"
-                                        value={formData.password}
-                                        onChange={(e) => setFormData({...formData, password: e.target.value})}
-                                        placeholder="••••••••"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#001D3D] transition-colors"
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            <AnimatePresence>
+                                {error && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-[11px] font-black uppercase tracking-wider text-center"
                                     >
-                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                                    </button>
-                                </div>
+                                        {error}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <div className="space-y-1.5">
+                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Nom complet</label>
+                                <input
+                                    type="text"
+                                    required
+                                    className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none transition-all shadow-sm"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                    placeholder="Prénom Nom"
+                                />
                             </div>
-                            <div className="space-y-2">
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Confirmation</label>
-                                <div className="relative">
+
+                            <div className="space-y-1.5">
+                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Adresse Email</label>
+                                <input
+                                    type="email"
+                                    required
+                                    className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none transition-all shadow-sm"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                    placeholder="nom@uidt.sn"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div className="space-y-1.5">
+                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Mot de passe</label>
+                                    <div className="relative">
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            required
+                                            className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none transition-all pr-14 shadow-sm"
+                                            value={formData.password}
+                                            onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                            placeholder="••••••••"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#001D3D] transition-colors"
+                                        >
+                                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Confirmation</label>
                                     <input
                                         type={showPassword ? "text" : "password"}
                                         required
-                                        className="w-full bg-gray-50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-medium outline-none transition-all pr-14"
+                                        className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none transition-all shadow-sm"
                                         value={formData.password_confirmation}
                                         onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
                                         placeholder="••••••••"
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#001D3D] transition-colors"
-                                    >
-                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                                    </button>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="space-y-2">
-                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Rôle souhaité</label>
-                            <select
-                                className="w-full bg-gray-50 border border-transparent focus:border-[#001D3D]/10 focus:bg-white focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-medium outline-none transition-all appearance-none cursor-pointer"
-                                value={formData.role_id}
-                                onChange={(e) => setFormData({...formData, role_id: e.target.value})}
-                            >
-                                <option value="4">Porteur de Projet</option>
-                                <option value="3">Partenaire Externe</option>
-                            </select>
-                        </div>
+                            <div className="space-y-1.5">
+                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Rôle souhaité</label>
+                                <select
+                                    className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none transition-all appearance-none cursor-pointer shadow-sm"
+                                    value={formData.role_id}
+                                    onChange={(e) => setFormData({...formData, role_id: e.target.value})}
+                                >
+                                    <option value="4">Porteur de Projet</option>
+                                    <option value="3">Partenaire Externe</option>
+                                </select>
+                            </div>
 
-                        <div className="pt-6">
-                            <button
-                                type="submit"
-                                className="w-full bg-[#001D3D] text-white py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-[#002b5c] transition-all shadow-2xl shadow-[#001D3D]/30 active:scale-95"
-                            >
-                                Créer mon Compte
-                            </button>
-                        </div>
-                    </form>
-
-                    <div className="mt-12 text-center pt-8 border-t border-gray-50">
-                        <p className="text-[13px] text-gray-400 font-bold">
-                            Déjà membre ?{' '}
-                            <Link to="/login" className="text-[#8B7355] hover:text-[#001D3D] transition-colors">
-                                Se connecter
-                            </Link>
-                        </p>
+                            <div className="pt-6">
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="w-full bg-[#001D3D] text-white py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-[#002b5c] transition-all shadow-2xl shadow-[#001D3D]/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-4"
+                                >
+                                    <UserPlus className="w-4 h-4" />
+                                    {isSubmitting ? 'Création...' : 'Créer mon Profil'}
+                                </button>
+                            </div>
+                        </form>
                     </div>
+                </motion.div>
+            </div>
+
+            {/* Left Side: Visual Experience */}
+            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#001D3D] order-1 lg:order-2">
+                <motion.div 
+                    initial={{ scale: 1.1, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
+                    className="absolute inset-0 z-0"
+                >
+                    <img 
+                        src="/auth-bg.png" 
+                        alt="UIDT Architecture" 
+                        className="w-full h-full object-cover opacity-60 mix-blend-overlay rotate-180" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#001D3D] via-transparent to-transparent opacity-80"></div>
+                </motion.div>
+
+                <div className="relative z-20 flex flex-col justify-center p-20 w-full h-full text-white">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5, duration: 0.8 }}
+                        className="space-y-10"
+                    >
+                        <div className="w-20 h-20 bg-white/10 backdrop-blur-3xl rounded-[2rem] flex items-center justify-center border border-white/20">
+                            <span className="material-symbols-outlined text-4xl text-[#8B7355]">how_to_reg</span>
+                        </div>
+                        
+                        <div>
+                            <h2 className="text-5xl font-black leading-[1.1] mb-6">
+                                Construisons l'avenir <br/> de la <span className="text-[#8B7355]">coopération</span>.
+                            </h2>
+                            <p className="text-gray-300 text-base max-w-sm leading-relaxed font-medium opacity-80">
+                                Rejoignez plus de 50 porteurs de projets et partenaires institutionnels qui façonnent le rayonnement de l'UIDT à travers le monde.
+                            </p>
+                        </div>
+
+                        <div className="space-y-6">
+                            {[
+                                "Soumission simplifiée",
+                                "Suivi transparent",
+                                "Archives centralisées"
+                            ].map((text, i) => (
+                                <motion.div 
+                                    key={i}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.8 + (i * 0.2) }}
+                                    className="flex items-center gap-4 group"
+                                >
+                                    <CheckCircle2 className="w-5 h-5 text-[#8B7355]" />
+                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-white/70">{text}</span>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.div>
                 </div>
             </div>
         </div>

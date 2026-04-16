@@ -28,7 +28,12 @@ const Sidebar = () => {
             <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
                 {user?.role?.name === 'admin' ? (
                     <>
-                        <Link to="/manage-users" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/manage-users' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-50: hover:bg-surface-100'}`}>
+                        <Link to="/" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                            <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+                            <span className="text-[13px]">{t('admin_portal')}</span>
+                        </Link>
+                        
+                        <Link to="/manage-users" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/manage-users' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
                             <span className="material-symbols-outlined text-[20px]">group</span>
                             <span className="text-[13px]">{t('manage_users')}</span>
                         </Link>
@@ -60,10 +65,15 @@ const Sidebar = () => {
                             <span className="text-[13px]">{t('conventions')}</span>
                         </Link>
 
-                        <Link to="/validation" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/validation' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
-                            <span className="material-symbols-outlined text-[20px]">fact_check</span>
-                            <span className="text-[13px]">{t('validation')}</span>
-                        </Link>
+                        {(user?.role?.name === 'chef_division' || 
+                          user?.role?.name === 'directeur_cooperation' || 
+                          user?.role?.name === 'service_juridique' || 
+                          user?.role?.name === 'recteur') && (
+                            <Link to="/validation" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/validation' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
+                                <span className="material-symbols-outlined text-[20px]">fact_check</span>
+                                <span className="text-[13px]">{t('validation')}</span>
+                            </Link>
+                        )}
 
                         <Link to="/indicators" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${location.pathname === '/indicators' ? 'bg-surface-100 text-primary font-bold shadow-sm border border-outline-variant' : 'text-surface-500 hover:bg-surface-100'}`}>
                             <span className="material-symbols-outlined text-[20px]">insights</span>
@@ -86,7 +96,7 @@ const Sidebar = () => {
                             </Link>
                             <Link to="/help" className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-surface-500 hover:bg-surface-100 ${location.pathname === '/help' ? 'text-primary font-bold' : ''}`}>
                                 <span className="material-symbols-outlined text-[20px]">help_center</span>
-                                <span className="text-[13px]">Centre d'Aide</span>
+                                <span className="text-[13px]">{t('help_center')}</span>
                             </Link>
                         </div>
                     </>

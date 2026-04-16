@@ -37,8 +37,16 @@ class ConventionStatusChanged extends Notification
 
         switch ($this->status) {
             case 'en attente':
+            case 'soumis':
                 $message->line('Un nouveau dossier a été soumis par ' . $this->actor->name . ' et est en attente de votre instruction.');
                 break;
+            case 'valide_dir_initial':
+                $message->line('Le Directeur de la Coopération a validé la première étape. Le dossier est maintenant en attente de votre avis juridique.');
+                break;
+            case 'valide_juridique':
+                $message->line('Le Service Juridique a certifié la conformité. Le dossier est retourné à la Direction pour contrôle final.');
+                break;
+            case 'pret_pour_signature':
             case 'en cours':
                 $message->line('Le dossier a été validé par la Direction de la Coopération et est prêt pour signature Rectorale.');
                 break;
@@ -70,7 +78,11 @@ class ConventionStatusChanged extends Notification
     protected function getNotificationMessage()
     {
         switch ($this->status) {
+            case 'soumis':
             case 'en attente': return 'Un nouveau dossier est en attente de votre instruction.';
+            case 'valide_dir_initial': return 'Dossier en attente de visa juridique.';
+            case 'valide_juridique': return 'Visa juridique accordé, retour à la Direction.';
+            case 'pret_pour_signature':
             case 'en cours': return 'Dossier validé par la Direction, en attente de signature.';
             case 'termine': return 'Le dossier a été signé par le Recteur.';
             case 'brouillon': return 'Le dossier a été rejeté pour correction.';

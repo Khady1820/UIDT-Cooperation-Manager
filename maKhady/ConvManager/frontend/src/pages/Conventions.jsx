@@ -253,12 +253,13 @@ const Conventions = () => {
                 </div>
 
                 <div className="overflow-x-auto min-h-[400px]">
-                    <table className="w-full text-left border-collapse table-fixed min-w-[1800px]">
+                    <table className="w-full text-left border-collapse table-fixed min-w-[2000px]">
                         <thead>
                             <tr className="bg-[#F1F3F5]/30 text-[10px] text-gray-400 uppercase font-black tracking-[0.2em] border-b border-gray-100">
-                                <th className="px-8 py-6 w-20">{t('num_short')}</th>
+                                <th className="px-8 py-6 w-40">{t('num_dossier')}</th>
                                 <th className="px-8 py-6 w-80">{t('project_title_short')}</th>
-                                <th className="px-8 py-6 w-40">{t('cooperation_type')}</th>
+                                <th className="px-8 py-6 w-32">{t('cooperation_type')}</th>
+                                <th className="px-8 py-6 w-48">{t('status_label')}</th>
                                 <th className="px-8 py-6 w-48">{t('partner_type')}</th>
                                 <th className="px-8 py-6 w-64">{t('partner_institution')}</th>
                                 <th className="px-8 py-6 w-24">{t('year')}</th>
@@ -302,18 +303,34 @@ const Conventions = () => {
                                             key={conv.id} 
                                             className="hover:bg-[#F8F9FA]/80 transition-all group"
                                         >
-                                            <td className="px-8 py-7 text-[11px] font-black text-gray-300">#{conv.id}</td>
+                                            <td className="px-8 py-7 text-[11px] font-black text-[#001D3D] bg-[#001D3D]/5 border-r border-gray-50">{conv.num_dossier || conv.id}</td>
                                             <td className="px-8 py-7">
                                                 <Link to={`/conventions/${conv.id}`} className="font-black text-[#001D3D] tracking-tight group-hover:text-[#8B7355] transition-colors line-clamp-1 text-sm block">
                                                     {conv.name}
                                                 </Link>
                                             </td>
                                             <td className="px-8 py-7">
-                                                <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${
-                                                    conv.status === 'termine' ? 'bg-green-50 text-green-600 border-green-100' :
-                                                    conv.type === 'international' ? 'bg-indigo-50 text-indigo-500 border-indigo-100' : 'bg-emerald-50 text-emerald-500 border-emerald-100'
+                                                <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border transition-all ${
+                                                    conv.type === 'international' ? 'bg-indigo-50 text-indigo-500 border-indigo-100 shadow-sm shadow-indigo-100/50' : 'bg-emerald-50 text-emerald-500 border-emerald-100 shadow-sm shadow-emerald-100/50'
                                                 }`}>
-                                                    {conv.status === 'termine' ? 'SIGNÉ / ACTIF' : conv.type}
+                                                    {conv.type}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-7">
+                                                <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border shadow-sm transition-all ${
+                                                    conv.status === 'termine' ? 'bg-green-50 text-green-600 border-green-100 shadow-green-100/50' :
+                                                    conv.status === 'soumis' || conv.status === 'en attente' ? 'bg-amber-50 text-amber-500 border-amber-100 shadow-amber-100/50' : 
+                                                    conv.status === 'valide_dir_initial' ? 'bg-purple-50 text-purple-600 border-purple-100 shadow-purple-100/50' :
+                                                    conv.status === 'valide_juridique' ? 'bg-indigo-50 text-indigo-600 border-indigo-100 shadow-indigo-100/50' :
+                                                    conv.status === 'pret_pour_signature' || conv.status === 'en cours' ? 'bg-blue-50 text-blue-500 border-blue-100 shadow-blue-100/50' : 
+                                                    'bg-gray-50 text-gray-400 border-gray-100'
+                                                }`}>
+                                                    {conv.status === 'termine' ? 'SIGNÉ / ACTIF' : 
+                                                     conv.status === 'soumis' || conv.status === 'en attente' ? 'En Attente Direction' :
+                                                     conv.status === 'valide_dir_initial' ? 'Visé / Attente Juridique' :
+                                                     conv.status === 'valide_juridique' ? 'Visa Juridique Accordé' :
+                                                     conv.status === 'pret_pour_signature' || conv.status === 'en cours' ? 'Validé / Signature' : 
+                                                     (conv.status || 'Brouillon').toUpperCase()}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-7 text-xs font-bold text-gray-500">{conv.partner_type || '-'}</td>

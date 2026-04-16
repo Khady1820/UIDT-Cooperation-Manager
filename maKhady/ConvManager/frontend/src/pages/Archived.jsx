@@ -134,7 +134,7 @@ const Archived = () => {
                     <table className="w-full text-left border-collapse table-fixed min-w-[1500px]">
                         <thead>
                             <tr className="bg-[#F1F3F5]/30 text-[10px] text-gray-400 uppercase font-black tracking-[0.2em] border-b border-gray-100">
-                                <th className="px-8 py-6 w-20">{t('num_short')}</th>
+                                <th className="px-8 py-6 w-40">{t('num_dossier')}</th>
                                 <th className="px-8 py-6 w-80">{t('project_title_short')}</th>
                                 <th className="px-8 py-6 w-40">{t('cooperation_type')}</th>
                                 <th className="px-8 py-6 w-64">{t('partner_institution')}</th>
@@ -173,7 +173,7 @@ const Archived = () => {
                                             key={conv.id} 
                                             className="hover:bg-gray-50 transition-all group grayscale hover:grayscale-0 transition-grayscale duration-500"
                                         >
-                                            <td className="px-8 py-7 text-[11px] font-black text-gray-300">#{conv.id}</td>
+                                            <td className="px-8 py-7 text-[11px] font-black text-[#001D3D] bg-[#001D3D]/5 border-r border-gray-50">{conv.num_dossier || conv.id}</td>
                                             <td className="px-8 py-7">
                                                 <Link to={`/conventions/${conv.id}`} className="font-black text-[#001D3D] tracking-tight group-hover:text-[#8B7355] transition-colors line-clamp-1 text-sm block">
                                                     {conv.name}

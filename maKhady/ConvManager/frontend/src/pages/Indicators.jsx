@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const Indicators = () => {
     const { t } = useLanguage();
     const [kpis, setKpis] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -26,6 +27,12 @@ const Indicators = () => {
         fetchKpis();
     }, []);
 
+    const filteredKpis = kpis.filter(k => 
+        (k.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (k.convention?.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (k.responsable || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     if (loading) return (
         <div className="flex items-center justify-center min-h-[60vh]">
             <div className="flex flex-col items-center gap-4">
@@ -35,15 +42,15 @@ const Indicators = () => {
         </div>
     );
 
-    const radarData = kpis.slice(0, 6).map(k => ({
+    const radarData = filteredKpis.slice(0, 6).map(k => ({
         subject: k.name.length > 15 ? k.name.substring(0, 15) + '...' : k.name,
-        A: k.value,
+        A: parseFloat(k.valeur_atteinte) || k.value || 0,
         fullMark: 100,
     }));
 
-    const barData = kpis.map(k => ({
+    const barData = filteredKpis.map(k => ({
         name: k.name,
-        value: k.value,
+        value: parseFloat(k.valeur_atteinte) || k.value || 0,
         convention: k.convention?.name || 'N/A'
     }));
 
@@ -139,7 +146,7 @@ const Indicators = () => {
 
             {/* Detailed Table */}
             <motion.div variants={itemVariants} className="bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden">
-                <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-[#FBFBFB]">
+                <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-center gap-6 bg-[#FBFBFB]">
                     <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-[#001D3D] text-white flex items-center justify-center shadow-lg shadow-[#001D3D]/20">
                             <span className="material-symbols-outlined text-[20px]">analytics</span>
@@ -149,62 +156,58 @@ const Indicators = () => {
                             <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1.5">Données auditées en temps réel</p>
                         </div>
                     </div>
-                    <span className="text-[10px] bg-[#001D3D] text-white px-4 py-1.5 rounded-full font-black uppercase tracking-widest shadow-md">{kpis.length} Actifs</span>
+                    
+                    <div className="relative w-full max-w-md group">
+                        <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#001D3D] transition-colors text-[20px]">search</span>
+                        <input 
+                            type="text" 
+                            placeholder="Rechercher par nom, projet ou responsable..." 
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                            className="w-full bg-white border border-gray-100 text-[#001D3D] rounded-2xl pl-14 pr-6 py-4 text-[10px] font-black placeholder:text-gray-200 focus:outline-none focus:ring-8 focus:ring-[#001D3D]/5 focus:border-[#001D3D]/10 transition-all shadow-sm"
+                        />
+                    </div>
+
+                    <span className="text-[10px] bg-[#001D3D] text-white px-4 py-1.5 rounded-full font-black uppercase tracking-widest shadow-md whitespace-nowrap">{filteredKpis.length} Identifiés</span>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left min-w-[1200px]">
                         <thead>
                             <tr className="bg-[#F1F3F5]/30">
-                                <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Indicateur de Performance</th>
-                                <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Projet Associé</th>
-                                <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Niveau d'Action</th>
-                                <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Progression Globale</th>
-                                <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-right">Taux (%)</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Indicateur</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Projet</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Réf.</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Cible</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-[#8B7355] uppercase tracking-widest border-b border-gray-100">Atteint</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Fréquence</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Responsable</th>
                             </tr>
                         </thead>
                         <tbody className="text-sm">
-                            {kpis.map((k, idx) => (
+                            {filteredKpis.map((k, idx) => (
                                 <tr key={k.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-all group">
                                     <td className="px-8 py-7">
-                                        <p className="text-sm font-black text-[#001D3D] group-hover:text-[#8B7355] transition-colors">{k.name}</p>
-                                        <p className="text-[10px] text-gray-400 font-bold truncate max-w-[200px] mt-1 italic leading-none">{k.description}</p>
+                                        <p className="text-[11px] font-black text-[#001D3D] group-hover:text-[#8B7355] transition-colors">{k.name}</p>
+                                        <p className="text-[9px] text-gray-400 font-bold truncate max-w-[200px] mt-1 italic leading-none">{k.description}</p>
                                     </td>
                                     <td className="px-8 py-7">
-                                        <div className="flex flex-col gap-1.5">
-                                            <span className="text-[10px] font-black text-[#001D3D] uppercase tracking-tight bg-[#001D3D]/5 px-3 py-1 rounded-lg w-fit border border-[#001D3D]/10">
-                                                {k.convention?.name}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-7 text-center">
-                                        {k.convention?.status && (
-                                            <span className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-full border shadow-sm ${
-                                                k.convention.status === 'termine' ? 'bg-green-50 text-green-600 border-green-100' : 
-                                                k.convention.status === 'rejete' ? 'bg-red-50 text-red-500 border-red-100' : 
-                                                'bg-gray-50 text-gray-500 border-gray-200'
-                                            }`}>
-                                                {k.convention.status.replace('_', ' ')}
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-8 py-7">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-32 h-2.5 bg-gray-100 rounded-full overflow-hidden p-[2px]">
-                                                <motion.div 
-                                                    initial={{ width: 0 }}
-                                                    whileInView={{ width: `${k.value}%` }}
-                                                    transition={{ duration: 1.2, delay: 0.2 + (idx * 0.05) }}
-                                                    viewport={{ once: true }}
-                                                    className="h-full bg-gradient-to-r from-[#001D3D] to-[#8B7355] rounded-full shadow-[0_0_10px_rgba(0,29,61,0.2)]"
-                                                ></motion.div>
-                                            </div>
-                                            <span className="text-[10px] font-black text-[#001D3D]/40">{k.value}%</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-7 text-right">
-                                        <span className={`text-[13px] font-black px-3 py-1 rounded-lg ${k.value >= 75 ? 'bg-green-50 text-green-600' : k.value >= 50 ? 'bg-amber-50 text-amber-500' : 'bg-red-50 text-red-500'}`}>
-                                            {k.value}.0
+                                        <span className="text-[9px] font-black text-[#001D3D] uppercase tracking-tight bg-[#001D3D]/5 px-3 py-1 rounded-lg w-fit border border-[#001D3D]/10 block">
+                                            {k.convention?.num_dossier || 'N/A'} - {k.convention?.name?.substring(0, 30)}...
                                         </span>
+                                    </td>
+                                    <td className="px-8 py-7 text-[11px] font-bold text-gray-400">{k.valeur_reference || '0'}</td>
+                                    <td className="px-8 py-7 text-[11px] font-bold text-gray-400">{k.valeur_cible || '0'}</td>
+                                    <td className="px-8 py-7">
+                                        <span className="text-[11px] font-black text-[#8B7355] bg-[#8B7355]/5 px-3 py-1 rounded-lg">{k.valeur_atteinte || '0'}</span>
+                                    </td>
+                                    <td className="px-8 py-7">
+                                         <span className="text-[9px] font-black text-[#001D3D] uppercase border border-gray-100 px-2 py-1 rounded-md">{k.frequence_mesure || 'Annuel'}</span>
+                                    </td>
+                                    <td className="px-8 py-7 text-[11px] font-black text-[#001D3D] opacity-60">
+                                        <div className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-sm">person</span>
+                                            {k.responsable || 'Non assigné'}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

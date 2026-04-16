@@ -13,6 +13,8 @@ const translations = {
         'archived': 'Archives',
         'manage_users': 'Gestion des utilisateurs',
         'manage_partners': 'Gestion des partenaires',
+        'help_center': 'Centre d\'Aide',
+        'admin_portal': 'Portail Administration',
         'logout': 'Se déconnecter',
         'search': 'Rechercher un dossier...',
         'active_session': 'Session Active',
@@ -22,7 +24,14 @@ const translations = {
         'role_porteur_projet': 'Porteur de Projet',
         'role_directeur_cooperation': 'Directeur de Coopération',
         'role_recteur': 'Recteur',
-        'role_partenaire': 'Partenaire Stratégique',
+        'role_service_juridique': 'Service Juridique',
+        'num_dossier': 'N° Dossier',
+        'valeur_reference': 'Valeur de Référence',
+        'valeur_cible': 'Valeur Cible',
+        'valeur_atteinte': 'Valeur Atteinte',
+        'frequence_mesure': 'Fréquence de Mesure',
+        'responsable_suivi': 'Responsable du Suivi',
+        'ajouter_indicateur': 'Ajouter un Indicateur',
         'nouvelle_convention': 'Nouvelle-Convention',
         'ouvrir_ticket': 'Ouvrir-un-ticket',
         
@@ -65,6 +74,10 @@ const translations = {
         
         // Statuses
         'status_brouillon': 'Brouillon',
+        'status_soumis': 'En attente Direction',
+        'status_valide_dir_initial': 'Attente Visa Juridique',
+        'status_valide_juridique': 'Contrôle Final Coopération',
+        'status_pret_pour_signature': 'Attente Signature Recteur',
         'status_en_attente': 'En attente',
         'status_en_cours': 'En cours de validation',
         'status_termine': 'Terminé',
@@ -81,6 +94,7 @@ const translations = {
         'completion_rate': 'Taux de réalisation (%)',
         'observations': 'Observations',
         'project_title_short': 'Titre du projet / Convention',
+        'status_label': 'Statut',
         
         // General
         'loading': 'Chargement...',
@@ -100,6 +114,8 @@ const translations = {
         'archived': 'Archives',
         'manage_users': 'Manage Users',
         'manage_partners': 'Manage Partners',
+        'help_center': 'Help Center',
+        'admin_portal': 'Admin Portal',
         'logout': 'Logout',
         'search': 'Search archive...',
         'active_session': 'Active Session',
@@ -110,6 +126,14 @@ const translations = {
         'role_directeur_cooperation': 'Cooperation Director',
         'role_recteur': 'Rector',
         'role_partenaire': 'Strategic Partner',
+        'role_service_juridique': 'Legal Service',
+        'num_dossier': 'File No.',
+        'valeur_reference': 'Baseline Value',
+        'valeur_cible': 'Target Value',
+        'valeur_atteinte': 'Attained Value',
+        'frequence_mesure': 'Measurement Frequency',
+        'responsable_suivi': 'Tracking Responsible',
+        'ajouter_indicateur': 'Add Indicator',
         'nouvelle_convention': 'New-Convention',
         'ouvrir_ticket': 'Open-a-ticket',
         
@@ -152,6 +176,10 @@ const translations = {
         
         // Statuses
         'status_brouillon': 'Draft',
+        'status_soumis': 'Pending Director',
+        'status_valide_dir_initial': 'Await Legal Visa',
+        'status_valide_juridique': 'Final Coop Check',
+        'status_pret_pour_signature': 'Await Rector Signature',
         'status_en_attente': 'Pending',
         'status_en_cours': 'In Validation',
         'status_termine': 'Completed',
@@ -168,6 +196,7 @@ const translations = {
         'completion_rate': 'Completion Rate (%)',
         'observations': 'Observations',
         'project_title_short': 'Project Title / Convention',
+        'status_label': 'Status',
         
         // General
         'loading': 'Loading...',
