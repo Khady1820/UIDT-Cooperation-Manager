@@ -42,17 +42,24 @@ const Indicators = () => {
         </div>
     );
 
-    const radarData = filteredKpis.slice(0, 6).map(k => ({
-        subject: k.name.length > 15 ? k.name.substring(0, 15) + '...' : k.name,
-        A: parseFloat(k.valeur_atteinte) || k.value || 0,
-        fullMark: 100,
-    }));
+    const radarData = filteredKpis
+        .filter(k => k.valeur_cible > 0 && !k.name.match(/^[zda-z]{4,}$/i)) // Filter out garbage test data
+        .slice(0, 6)
+        .map(k => ({
+            subject: k.name.length > 15 ? k.name.substring(0, 15) + '...' : k.name,
+            A: Math.min(100, Math.round((parseFloat(k.valeur_atteinte) / parseFloat(k.valeur_cible)) * 100)),
+            fullMark: 100,
+        }));
 
-    const barData = filteredKpis.map(k => ({
-        name: k.name,
-        value: parseFloat(k.valeur_atteinte) || k.value || 0,
-        convention: k.convention?.name || 'N/A'
-    }));
+    const barData = filteredKpis
+        .filter(k => k.valeur_cible > 0 && !k.name.match(/^[zda-z]{4,}$/i))
+        .map(k => ({
+            name: k.name.length > 20 ? k.name.substring(0, 20) + '...' : k.name,
+            value: Math.min(100, Math.round((parseFloat(k.valeur_atteinte) / parseFloat(k.valeur_cible)) * 100)),
+            realValue: k.valeur_atteinte,
+            target: k.valeur_cible,
+            convention: k.convention?.name || 'N/A'
+        }));
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -73,7 +80,7 @@ const Indicators = () => {
         >
             <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-black text-[#001D3D] tracking-tight">{t('indicators')}</h1>
-                <p className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-wider">{t('institutional_sub')} • Pilotage Stratégique</p>
+                <p className="text-sm font-bold text-slate-600 mt-1 uppercase tracking-wider">{t('institutional_sub')} • Pilotage Stratégique</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -85,7 +92,7 @@ const Indicators = () => {
                         </div>
                         <div>
                             <h3 className="text-lg font-black text-[#001D3D] tracking-tight">Performance Multidimensionnelle</h3>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Équilibre des axes stratégiques</p>
+                            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Taux d'atteinte des objectifs (%)</p>
                         </div>
                     </div>
                     <div className="h-[360px] w-full">
@@ -104,11 +111,18 @@ const Indicators = () => {
                                     animationDuration={1500}
                                 />
                                 <Tooltip 
+                                    formatter={(value) => [`${value}%`, 'Atteinte']}
                                     contentStyle={{backgroundColor: '#fff', borderRadius: '20px', border: 'none', boxShadow: '0 20px 50px rgba(0,0,0,0.1)'}}
                                     itemStyle={{color: '#001D3D', fontWeight: 900, fontSize: '11px'}}
                                 />
                             </RadarChart>
                         </ResponsiveContainer>
+                    </div>
+                    <div className="mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p className="text-[10px] font-bold text-slate-500 leading-relaxed uppercase tracking-wider">
+                            <span className="text-[#001D3D] font-black mr-2">Interprétation :</span>
+                            Ce radar compare le taux de succès de vos 6 indicateurs principaux. Une zone étendue vers les bords (100%) indique que les objectifs stratégiques de ces axes sont quasiment atteints.
+                        </p>
                     </div>
                 </motion.div>
 
@@ -120,7 +134,7 @@ const Indicators = () => {
                         </div>
                         <div>
                             <h3 className="text-lg font-black text-[#001D3D] tracking-tight">Analyse Comparative</h3>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Atteinte des objectifs par indicateur</p>
+                            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Atteinte des objectifs par indicateur</p>
                         </div>
                     </div>
                     <div className="h-[360px] w-full">
@@ -130,6 +144,10 @@ const Indicators = () => {
                                 <YAxis dataKey="name" type="category" width={100} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 800}} axisLine={false} tickLine={false} />
                                 <Tooltip 
                                     cursor={{fill: '#f8fafc'}}
+                                    formatter={(value, name, props) => [
+                                        `${value}% (${props.payload.realValue} / ${props.payload.target})`, 
+                                        'Progression'
+                                    ]}
                                     contentStyle={{backgroundColor: '#fff', borderRadius: '20px', border: 'none', boxShadow: '0 20px 50px rgba(0,0,0,0.1)'}}
                                     itemStyle={{color: '#001D3D', fontWeight: 900, fontSize: '11px'}}
                                 />
@@ -140,6 +158,12 @@ const Indicators = () => {
                                 </Bar>
                             </BarChart>
                         </ResponsiveContainer>
+                    </div>
+                    <div className="mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p className="text-[10px] font-bold text-slate-500 leading-relaxed uppercase tracking-wider">
+                            <span className="text-[#8B7355] font-black mr-2">Interprétation :</span>
+                            Chaque barre représente la progression d'un indicateur spécifique. Les barres sombres et dorées alternées permettent de visualiser l'écart restant jusqu'à la cible de 100%.
+                        </p>
                     </div>
                 </motion.div>
             </div>
@@ -153,12 +177,12 @@ const Indicators = () => {
                         </div>
                         <div>
                             <h3 className="text-sm font-black text-[#001D3D] uppercase tracking-widest leading-none">Registre des Indicateurs</h3>
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1.5">Données auditées en temps réel</p>
+                            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mt-1.5">Données auditées en temps réel</p>
                         </div>
                     </div>
                     
                     <div className="relative w-full max-w-md group">
-                        <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#001D3D] transition-colors text-[20px]">search</span>
+                        <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#001D3D] transition-colors text-[20px]">search</span>
                         <input 
                             type="text" 
                             placeholder="Rechercher par nom, projet ou responsable..." 
@@ -174,13 +198,13 @@ const Indicators = () => {
                     <table className="w-full text-left min-w-[1200px]">
                         <thead>
                             <tr className="bg-[#F1F3F5]/30">
-                                <th className="px-8 py-6 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Indicateur</th>
-                                <th className="px-8 py-6 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Projet</th>
-                                <th className="px-8 py-6 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Réf.</th>
-                                <th className="px-8 py-6 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Cible</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-slate-600 uppercase tracking-widest border-b border-gray-100">Indicateur</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-slate-600 uppercase tracking-widest border-b border-gray-100">Projet</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-slate-600 uppercase tracking-widest border-b border-gray-100">Réf.</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-slate-600 uppercase tracking-widest border-b border-gray-100">Cible</th>
                                 <th className="px-8 py-6 text-[9px] font-black text-[#8B7355] uppercase tracking-widest border-b border-gray-100">Atteint</th>
-                                <th className="px-8 py-6 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Fréquence</th>
-                                <th className="px-8 py-6 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Responsable</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-slate-600 uppercase tracking-widest border-b border-gray-100">Fréquence</th>
+                                <th className="px-8 py-6 text-[9px] font-black text-slate-600 uppercase tracking-widest border-b border-gray-100">Responsable</th>
                             </tr>
                         </thead>
                         <tbody className="text-sm">
@@ -188,15 +212,15 @@ const Indicators = () => {
                                 <tr key={k.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-all group">
                                     <td className="px-8 py-7">
                                         <p className="text-[11px] font-black text-[#001D3D] group-hover:text-[#8B7355] transition-colors">{k.name}</p>
-                                        <p className="text-[9px] text-gray-400 font-bold truncate max-w-[200px] mt-1 italic leading-none">{k.description}</p>
+                                        <p className="text-[9px] text-slate-600 font-bold truncate max-w-[200px] mt-1 italic leading-none">{k.description}</p>
                                     </td>
                                     <td className="px-8 py-7">
                                         <span className="text-[9px] font-black text-[#001D3D] uppercase tracking-tight bg-[#001D3D]/5 px-3 py-1 rounded-lg w-fit border border-[#001D3D]/10 block">
                                             {k.convention?.num_dossier || 'N/A'} - {k.convention?.name?.substring(0, 30)}...
                                         </span>
                                     </td>
-                                    <td className="px-8 py-7 text-[11px] font-bold text-gray-400">{k.valeur_reference || '0'}</td>
-                                    <td className="px-8 py-7 text-[11px] font-bold text-gray-400">{k.valeur_cible || '0'}</td>
+                                    <td className="px-8 py-7 text-[11px] font-bold text-slate-600">{k.valeur_reference || '0'}</td>
+                                    <td className="px-8 py-7 text-[11px] font-bold text-slate-600">{k.valeur_cible || '0'}</td>
                                     <td className="px-8 py-7">
                                         <span className="text-[11px] font-black text-[#8B7355] bg-[#8B7355]/5 px-3 py-1 rounded-lg">{k.valeur_atteinte || '0'}</span>
                                     </td>

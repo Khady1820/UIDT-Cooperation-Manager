@@ -87,7 +87,7 @@ const Help = () => {
                             </div>
                             <h3 className="text-lg font-black text-[#001D3D] tracking-tight">{section.title}</h3>
                         </div>
-                        <p className="text-[11px] font-medium text-gray-400 mb-8 leading-relaxed uppercase tracking-widest">{section.content}</p>
+                        <p className="text-xs font-black text-slate-500 mb-8 leading-relaxed uppercase tracking-[0.2em]">{section.content}</p>
                         
                         <div className="space-y-6 flex-1">
                             {section.steps && section.steps.map((step, sidx) => (
@@ -95,19 +95,19 @@ const Help = () => {
                                     {sidx < section.steps.length - 1 && <div className="absolute left-[9px] top-6 bottom-[-24px] w-[2px] bg-gray-50"></div>}
                                     <div className="w-5 h-5 rounded-full border-2 border-[#B68F40] bg-white z-10 flex items-center justify-center text-[9px] font-black text-[#B68F40]">{sidx + 1}</div>
                                     <div className="space-y-1 pt-0.5">
-                                        <h4 className="text-[11px] font-black text-[#001D3D] uppercase tracking-wide">{step.label}</h4>
-                                        <p className="text-[10px] text-gray-400 font-medium leading-relaxed">{step.desc}</p>
+                                        <h4 className="text-[12px] font-black text-[#001D3D] uppercase tracking-wide">{step.label}</h4>
+                                        <p className="text-xs text-slate-600 font-bold leading-relaxed">{step.desc}</p>
                                     </div>
                                 </div>
                             ))}
 
                             {section.items && section.items.map((item, iidx) => (
                                 <div key={iidx} className="bg-gray-50/50 p-4 rounded-xl border border-gray-50">
-                                    <h4 className="text-[11px] font-black text-[#001D3D] uppercase tracking-wide mb-1 flex items-center gap-2">
+                                    <h4 className="text-[12px] font-black text-[#001D3D] uppercase tracking-wide mb-1 flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-[#B68F40]"></div>
                                         {item.label}
                                     </h4>
-                                    <p className="text-[10px] text-gray-400 font-medium leading-relaxed">{item.desc}</p>
+                                    <p className="text-xs text-slate-600 font-bold leading-relaxed">{item.desc}</p>
                                 </div>
                             ))}
 
@@ -115,8 +115,8 @@ const Help = () => {
                                 <div key={ridx} className="flex gap-4 items-start py-2">
                                     <span className="material-symbols-outlined text-[18px] text-gray-300">verified_user</span>
                                     <div className="space-y-1">
-                                        <h4 className="text-[11px] font-black text-[#001D3D] uppercase tracking-wide">{role.name}</h4>
-                                        <p className="text-[10px] text-gray-400 font-medium leading-relaxed">{role.desc}</p>
+                                        <h4 className="text-[12px] font-black text-[#001D3D] uppercase tracking-wide">{role.name}</h4>
+                                        <p className="text-xs text-slate-600 font-bold leading-relaxed">{role.desc}</p>
                                     </div>
                                 </div>
                             ))}
@@ -144,9 +144,9 @@ const Help = () => {
                             <div key={i} className="space-y-3">
                                 <div className="flex items-center gap-3">
                                     <span className="material-symbols-outlined text-[#B68F40] text-sm">{item.icon}</span>
-                                    <h4 className="text-[11px] font-black text-[#001D3D] uppercase tracking-widest">{item.title}</h4>
+                                    <h4 className="text-[12px] font-black text-[#001D3D] uppercase tracking-widest">{item.title}</h4>
                                 </div>
-                                <p className="text-[10px] text-gray-400 font-medium leading-relaxed">{item.desc}</p>
+                                <p className="text-xs text-slate-600 font-bold leading-relaxed">{item.desc}</p>
                             </div>
                         ))}
                     </div>

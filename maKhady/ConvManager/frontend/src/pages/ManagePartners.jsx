@@ -26,6 +26,30 @@ const ManagePartners = () => {
 
     const partnerTypes = ['Académique', 'Privé', 'Public', 'ONG', 'International'];
 
+    const countries = [
+        { name: 'Sénégal', dial: '+221', code: 'SN' },
+        { name: 'France', dial: '+33', code: 'FR' },
+        { name: 'États-Unis', dial: '+1', code: 'US' },
+        { name: 'Canada', dial: '+1', code: 'CA' },
+        { name: 'Maroc', dial: '+212', code: 'MA' },
+        { name: 'Côte d\'Ivoire', dial: '+225', code: 'CI' },
+        { name: 'Mali', dial: '+223', code: 'ML' },
+        { name: 'Burkina Faso', dial: '+226', code: 'BF' },
+        { name: 'Bénin', dial: '+229', code: 'BJ' },
+        { name: 'Guinée', dial: '+224', code: 'GN' },
+        { name: 'Togo', dial: '+228', code: 'TG' },
+        { name: 'Gabon', dial: '+241', code: 'GA' },
+        { name: 'Cameroun', dial: '+237', code: 'CM' },
+        { name: 'Mauritanie', dial: '+222', code: 'MR' },
+        { name: 'Espagne', dial: '+34', code: 'ES' },
+        { name: 'Italie', dial: '+39', code: 'IT' },
+        { name: 'Allemagne', dial: '+49', code: 'DE' },
+        { name: 'Royaume-Uni', dial: '+44', code: 'GB' },
+        { name: 'Chine', dial: '+86', code: 'CN' },
+        { name: 'Turquie', dial: '+90', code: 'TR' },
+        { name: 'Brésil', dial: '+55', code: 'BR' },
+    ];
+
     const fetchPartners = async () => {
         try {
             const res = await api.get('/partners');
@@ -267,15 +291,32 @@ const ManagePartners = () => {
                         </div>
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest">Téléphone</label>
-                            <div className="relative">
-                                <input 
-                                    type="text"
-                                    value={formData.telephone}
-                                    onChange={(e) => setFormData({...formData, telephone: e.target.value})}
-                                    className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-secondary transition-all text-sm font-bold"
-                                    placeholder="+33 1 23 45 67 89"
-                                />
-                                <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-300" />
+                            <div className="flex gap-2">
+                                <select 
+                                    className="w-28 px-4 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-secondary transition-all text-[10px] font-black uppercase appearance-none cursor-pointer"
+                                    onChange={(e) => {
+                                        const prefix = e.target.value;
+                                        const parts = formData.telephone.split(' ');
+                                        const currentNumber = parts.length > 1 ? parts.slice(1).join(' ') : parts[0];
+                                        setFormData({...formData, telephone: `${prefix} ${currentNumber}`});
+                                    }}
+                                    value={formData.telephone.split(' ')[0].startsWith('+') ? formData.telephone.split(' ')[0] : '+221'}
+                                >
+                                    {countries.map(c => <option key={c.code} value={c.dial}>{c.dial} ({c.code})</option>)}
+                                </select>
+                                <div className="relative flex-1">
+                                    <input 
+                                        type="text"
+                                        value={formData.telephone.split(' ').length > 1 ? formData.telephone.split(' ').slice(1).join(' ') : formData.telephone}
+                                        onChange={(e) => {
+                                            const prefix = formData.telephone.split(' ')[0].startsWith('+') ? formData.telephone.split(' ')[0] : '+221';
+                                            setFormData({...formData, telephone: `${prefix} ${e.target.value}`});
+                                        }}
+                                        className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-secondary transition-all text-sm font-bold"
+                                        placeholder="123 45 67 89"
+                                    />
+                                    <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-300" />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -284,14 +325,22 @@ const ManagePartners = () => {
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest">Pays</label>
                             <div className="relative">
-                                <input 
-                                    type="text"
+                                <select 
                                     value={formData.country}
-                                    onChange={(e) => setFormData({...formData, country: e.target.value})}
-                                    className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-secondary transition-all text-sm font-bold"
-                                    placeholder="ex: France"
-                                />
-                                <Globe className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-300" />
+                                    onChange={(e) => {
+                                        const selected = countries.find(c => c.name === e.target.value);
+                                        setFormData({
+                                            ...formData, 
+                                            country: e.target.value,
+                                            telephone: selected ? `${selected.dial} ${formData.telephone.split(' ').slice(1).join(' ')}` : formData.telephone
+                                        });
+                                    }}
+                                    className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-secondary transition-all text-sm font-bold appearance-none cursor-pointer"
+                                >
+                                    <option value="">Choisir un pays</option>
+                                    {countries.map(c => <option key={c.code} value={c.name}>{c.name}</option>)}
+                                </select>
+                                <Globe className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-300 pointer-events-none" />
                             </div>
                         </div>
                         <div className="space-y-2">

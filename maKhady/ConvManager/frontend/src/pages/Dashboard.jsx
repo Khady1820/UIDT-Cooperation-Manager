@@ -5,6 +5,22 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import AdminDashboard from '../components/AdminDashboard';
+import StatusBadge from '../components/StatusBadge';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+
+const STATUS_COLORS = {
+    'brouillon': '#94a3b8',
+    'soumis': '#3b82f6',
+    'en attente': '#f59e0b',
+    'en cours': '#8b5cf6',
+    'valide_dir_initial': '#6366f1',
+    'valide_juridique': '#06b6d4',
+    'pret_pour_signature': '#10b981',
+    'signe_recteur': '#059669',
+    'archive': '#64748b',
+    'rejete': '#ef4444',
+    'termine': '#1e293b'
+};
 
 const Dashboard = () => {
     const [stats, setStats] = useState(null);
@@ -49,7 +65,7 @@ const Dashboard = () => {
 
     if (loading) return (
         <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="w-8 h-8 border-4 border-[#001D3D]/20 border-t-[#001D3D] rounded-full animate-spin"></div>
+            <div className="w-8 h-8 border-4 border-[#001D3D]/20 border-t-[#001D3D] dark:border-white/10 dark:border-t-white rounded-full animate-spin"></div>
         </div>
     );
 
@@ -70,149 +86,278 @@ const Dashboard = () => {
             {/* Header */}
             <div className="flex justify-between items-center mb-10">
                 <div>
-                    <h1 className="text-3xl font-black text-[#001D3D] tracking-tight">{t('dashboard')}</h1>
-                    <p className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-wider">{t('institutional_sub')} • {new Date().toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }).toUpperCase()}</p>
+                    <h1 className="text-3xl font-black text-[#001D3D] dark:text-white tracking-tight">{t('dashboard')}</h1>
+                    <p className="text-sm font-bold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wider">{t('institutional_sub')} • {new Date().toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }).toUpperCase()}</p>
                 </div>
                 <div className="flex gap-4 no-print">
                     <button 
                         onClick={() => window.print()}
-                        className="px-6 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-black text-[#001D3D] uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm"
+                        className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-[11px] font-black text-[#001D3D] dark:text-white uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm"
                     >
                         Exporter Rapport
                     </button>
-                    <Link to="/validation" className="px-6 py-2.5 bg-[#001D3D] border border-[#001D3D] rounded-xl text-[11px] font-black text-white uppercase tracking-widest hover:bg-[#002b5c] transition-all shadow-xl shadow-[#001D3D]/20 flex items-center gap-2">
-                        {t('submit_project')}
-                        <span className="material-symbols-outlined text-[16px]">add</span>
-                    </Link>
+                    {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
+                        <Link to="/conventions" className="px-6 py-2.5 bg-[#001D3D] dark:bg-indigo-600 border border-[#001D3D] dark:border-indigo-600 rounded-xl text-[11px] font-black text-white uppercase tracking-widest hover:bg-[#002b5c] dark:hover:bg-indigo-700 transition-all shadow-xl shadow-[#001D3D]/20 dark:shadow-indigo-600/20 flex items-center gap-2">
+                            NOUVEAU PROJET
+                            <span className="material-symbols-outlined text-[16px]">add</span>
+                        </Link>
+                    )}
                 </div>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
                 {/* Active Conventions */}
-                <motion.div variants={itemVariants} className="bg-white p-8 rounded-[2rem] border-l-[6px] border-l-[#8B7355] shadow-[0_20px_50px_rgba(0,0,0,0.03)] flex flex-col justify-between h-52 group">
+                <motion.div variants={itemVariants} className="premium-card p-8 bg-white border-l-[12px] border-l-[#0F172A] flex flex-col justify-between h-48 group shadow-sm hover:shadow-md transition-shadow">
                     <div>
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Conventions Actives</h3>
-                            <span className="text-[10px] font-bold text-[#8B7355] bg-[#E8E3D9] px-2 py-1 rounded">Mise à jour</span>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Conventions Actives</h3>
+                            <span className="material-symbols-outlined text-slate-500">folder_open</span>
                         </div>
-                        <div className="flex items-baseline gap-3">
-                            <span className="text-5xl font-black text-[#001D3D]">{stats.active_conventions}</span>
-                            <span className="text-sm font-bold text-gray-400">Accords Valides</span>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-5xl font-black text-institutional">{stats.active_conventions}</span>
+                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Total</span>
                         </div>
-                    </div>
-                    <div className="w-full bg-gray-100 h-1 rounded-full overflow-hidden mt-6">
-                        <div className="bg-[#8B7355] h-full w-3/4"></div>
                     </div>
                 </motion.div>
 
-                {/* Completion Rate */}
-                <motion.div variants={itemVariants} className="bg-white p-8 rounded-[2rem] border-l-[6px] border-l-[#001D3D] shadow-[0_20px_50px_rgba(0,0,0,0.03)] flex flex-col justify-between h-52">
+                {/* Efficiency Index */}
+                <motion.div variants={itemVariants} className="premium-card p-8 border-l-[12px] border-l-emerald-500 flex flex-col justify-between h-48 group shadow-sm hover:shadow-md transition-shadow">
                     <div>
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">{t('indicators')}</h3>
-                            <span className="text-[11px] font-black text-[#8B7355] uppercase tracking-widest">Vérifié</span>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Efficacité</h3>
+                            <span className="material-symbols-outlined text-emerald-300">trending_up</span>
                         </div>
-                        <div className="flex items-baseline gap-3">
-                            <span className="text-5xl font-black text-[#001D3D]">{stats.efficiency_index}%</span>
-                            <span className="text-sm font-bold text-gray-400">Indice d'Efficacité</span>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-5xl font-black text-institutional">{stats.efficiency_index}%</span>
+                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Performance</span>
                         </div>
-                    </div>
-                    <div className="flex gap-1 mt-6">
-                        <div className="h-1 bg-[#001D3D] flex-1 rounded-full"></div>
-                        <div className="h-1 bg-[#001D3D] flex-1 rounded-full"></div>
-                        <div className="h-1 bg-[#001D3D] flex-1 rounded-full"></div>
-                        <div className="h-1 bg-gray-200 flex-1 rounded-full"></div>
                     </div>
                 </motion.div>
 
-                {/* Pending Validations */}
-                <motion.div variants={itemVariants} className="bg-white p-8 rounded-[2rem] border-l-[6px] border-l-red-500 shadow-[0_20px_50px_rgba(0,0,0,0.03)] flex flex-col justify-between h-52">
+                {/* Pending Actions */}
+                <motion.div variants={itemVariants} className="premium-card p-8 border-l-[12px] border-l-rose-500 flex flex-col justify-between h-48 group shadow-sm hover:shadow-md transition-shadow">
                     <div>
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">{t('validation')}</h3>
-                            <span className="text-[10px] font-bold text-white bg-red-400 px-2 py-1 rounded">Action Requise</span>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Urgences</h3>
+                            <span className="material-symbols-outlined text-rose-300">error_outline</span>
                         </div>
-                        <div className="flex items-baseline gap-3">
-                            <span className="text-5xl font-black text-[#001D3D]">{stats.pending_validations}</span>
-                            <span className="text-sm font-bold text-gray-400">Dossiers Urgents</span>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-5xl font-black text-institutional">{stats.pending_validations}</span>
+                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Dossiers</span>
                         </div>
                     </div>
-                    <div className="mt-4">
-                        <p className="text-[10px] font-bold text-gray-400 flex items-center gap-1 uppercase tracking-tight">
-                            <span className="material-symbols-outlined text-xs">schedule</span> Temps de traitement optimisé
-                        </p>
+                    <div>
+                         <Link to="/validation" className="text-[10px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-1 hover:underline">
+                            Traiter <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                        </Link>
                     </div>
                 </motion.div>
             </div>
 
+            {/* Expiration Alerts */}
+            {stats.upcoming_deadlines && stats.upcoming_deadlines.length > 0 && (
+                <motion.div variants={itemVariants} className="mb-10">
+                    <div className="bg-amber-50 border border-amber-200 rounded-[2rem] p-8 flex items-center gap-6 shadow-sm">
+                        <div className="w-14 h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30">
+                            <span className="material-symbols-outlined text-3xl">notification_important</span>
+                        </div>
+                        <div className="flex-1">
+                            <h2 className="text-lg font-black text-amber-900 uppercase tracking-tight">Alertes d'Échéance (Moins de 90 jours)</h2>
+                            <p className="text-xs font-bold text-amber-700 uppercase tracking-widest mt-1">Les conventions suivantes arrivent bientôt à terme. Veuillez anticiper les renouvellements.</p>
+                        </div>
+                        <div className="flex gap-3">
+                            {stats.upcoming_deadlines.map((conv, idx) => (
+                                <Link 
+                                    key={idx} 
+                                    to={`/conventions/${conv.id}`}
+                                    className="px-6 py-3 bg-white border border-amber-200 rounded-xl text-[10px] font-black text-amber-900 uppercase tracking-widest hover:bg-amber-100 transition-all shadow-sm flex items-center gap-2"
+                                >
+                                    {conv.name.substring(0, 15)}...
+                                    <span className="text-red-500">{new Date(conv.end_date).toLocaleDateString()}</span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+
             {/* Main Content Sections */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-10">
+                {/* Status Distribution Chart */}
+                <motion.div variants={itemVariants} className="lg:col-span-2 premium-card p-10 bg-white shadow-sm border border-slate-100">
+                    <div className="flex justify-between items-start mb-10">
+                        <div>
+                            <h2 className="text-2xl font-black text-[#0F172A] tracking-tight">Répartition par Statut</h2>
+                            <p className="text-[11px] font-bold text-slate-600 uppercase tracking-widest mt-1">Cycle de Vie</p>
+                        </div>
+                        <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-full border border-slate-100">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span className="text-[10px] font-black text-slate-500 uppercase">Live</span>
+                        </div>
+                    </div>
+                    <div className="h-[350px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={stats.status_distribution}
+                                    cx="40%"
+                                    cy="50%"
+                                    innerRadius={80}
+                                    outerRadius={120}
+                                    paddingAngle={8}
+                                    dataKey="count"
+                                    nameKey="status"
+                                    stroke="none"
+                                >
+                                    {stats.status_distribution.map((entry, index) => (
+                                        <Cell 
+                                            key={`cell-${index}`} 
+                                            fill={STATUS_COLORS[entry.status] || '#CBD5E1'} 
+                                            className="hover:opacity-80 transition-opacity cursor-pointer shadow-xl"
+                                        />
+                                    ))}
+                                </Pie>
+                                <Tooltip 
+                                    contentStyle={{ 
+                                        borderRadius: '1.5rem', 
+                                        border: '1px solid #f1f5f9', 
+                                        boxShadow: '0 20px 40px rgba(0,0,0,0.05)', 
+                                        fontSize: '11px', 
+                                        fontWeight: '900',
+                                        textTransform: 'uppercase',
+                                        padding: '15px'
+                                    }}
+                                    cursor={{ fill: 'transparent' }}
+                                />
+                                <Legend 
+                                    layout="vertical" 
+                                    align="right" 
+                                    verticalAlign="middle"
+                                    iconType="circle"
+                                    iconSize={8}
+                                    formatter={(value, entry) => (
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 ml-2">
+                                            {value} <span className="text-slate-500 ml-1">({entry.payload.count})</span>
+                                        </span>
+                                    )}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </motion.div>
+
                 {/* Types of Cooperation */}
-                <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-gray-100">
+                <motion.div variants={itemVariants} className="lg:col-span-1 premium-card p-10 bg-white shadow-sm border border-slate-100">
                     <div className="flex justify-between items-end mb-10">
-                        <h2 className="text-xl font-black text-[#001D3D]">Types de Coopération</h2>
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Portfolio Global</span>
+                        <div>
+                            <h2 className="text-xl font-black text-[#0F172A]">Types</h2>
+                            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1">Classification</p>
+                        </div>
                     </div>
 
-                    <div className="space-y-8">
+                    <div className="space-y-10">
                         {stats.cooperation_types.map((type, index) => (
                             <div key={index} className="group cursor-pointer">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-[#001D3D]/5 transition-colors">
-                                            <span className="material-symbols-outlined text-[#8B7355] text-2xl opacity-60 group-hover:opacity-100 transition-opacity">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                                            type.type === 'international' ? 'bg-indigo-50 text-indigo-500' : 
+                                            (type.type === 'national' ? 'bg-emerald-50 text-emerald-500' : 'bg-amber-50 text-amber-500')
+                                        }`}>
+                                            <span className="material-symbols-outlined text-lg">
                                                 {type.type === 'international' ? 'public' : (type.type === 'national' ? 'flag' : 'location_on')}
                                             </span>
                                         </div>
-                                        <div>
-                                            <h4 className="text-sm font-black text-[#001D3D] tracking-tight capitalize">{type.type}</h4>
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{type.count} Projets</p>
-                                        </div>
+                                        <h4 className="text-[11px] font-black text-[#0F172A] uppercase tracking-wider">{type.type}</h4>
                                     </div>
-                                    <span className="text-2xl font-black text-[#001D3D]">{type.count}</span>
+                                    <span className="text-lg font-black text-[#0F172A]">{type.count}</span>
                                 </div>
-                                <div className="w-full bg-gray-100 h-[3px] rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#001D3D] rounded-full" style={{ width: `${(type.count / stats.total_conventions) * 100}%` }}></div>
+                                <div className="w-full bg-slate-50 h-[6px] rounded-full overflow-hidden">
+                                    <div 
+                                        className={`h-full rounded-full transition-all duration-1000 ${
+                                            type.type === 'international' ? 'bg-indigo-500' : 
+                                            (type.type === 'national' ? 'bg-emerald-500' : 'bg-amber-500')
+                                        }`} 
+                                        style={{ width: `${(type.count / stats.total_conventions) * 100}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="mt-12 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1 text-center">Volume Global</p>
+                        <p className="text-2xl font-black text-[#0F172A] text-center">{stats.total_conventions}</p>
+                    </div>
+                </motion.div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-10">
+                {/* Recent Activity / Flux de Suivi */}
+                <motion.div variants={itemVariants} className="lg:col-span-2 premium-card p-10 flex flex-col">
+                    <div className="flex justify-between items-end mb-10">
+                        <div>
+                            <h2 className="text-xl font-black text-[#001D3D]">Flux de Suivi</h2>
+                            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1">Dernières étapes franchies</p>
+                        </div>
+                        <Link to="/timeline" className="text-[10px] font-black text-[#8B7355] hover:text-[#001D3D] uppercase tracking-[0.2em] flex items-center gap-1 transition-colors">
+                            Journal Complet <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                        </Link>
+                    </div>
+
+                    <div className="space-y-8 relative flex-1">
+                        <div className="absolute left-[23px] top-2 bottom-0 w-[1px] bg-gray-100"></div>
+                        
+                        {stats.recent_activity.slice(0, 5).map((act, index) => (
+                            <div key={index} className="relative pl-14 group">
+                                <div className="absolute left-0 top-0 w-12 h-12 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all z-10">
+                                    <span className="material-symbols-outlined text-[#001D3D] text-[20px]">
+                                        {act.action === 'creation' ? 'add' : act.action.includes('valide') ? 'verified' : 'history_edu'}
+                                    </span>
+                                </div>
+                                <div className="space-y-1">
+                                    <h4 className="text-[12px] font-black text-[#0F172A] uppercase tracking-wider line-clamp-1">{act.convention?.name}</h4>
+                                    <p className="text-[11px] font-bold text-slate-500 italic">"{act.comment || 'Mise à jour du statut'}"</p>
+                                    <div className="flex items-center gap-3 mt-3">
+                                        <span className="text-[10px] font-black text-[#8B7355] uppercase bg-[#8B7355]/5 px-2 py-0.5 rounded-md">
+                                            {new Date(act.created_at).toLocaleDateString('fr-FR')}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">Par {act.user?.name}</span>
+                                    </div>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </motion.div>
 
-                {/* Recent Activity */}
-                <motion.div variants={itemVariants} className="bg-white rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col">
+                {/* Tâches Urgentes Mini-view or something else */}
+                <motion.div variants={itemVariants} className="premium-card p-10">
                     <div className="flex justify-between items-end mb-10">
-                        <h2 className="text-xl font-black text-[#001D3D]">Fil d'Activité</h2>
-                        <Link to="/timeline" className="text-[10px] font-black text-gray-400 hover:text-[#001D3D] uppercase tracking-[0.2em] flex items-center gap-1">
-                            Tout Voir <span className="material-symbols-outlined text-xs">arrow_forward</span>
-                        </Link>
+                        <h2 className="text-xl font-black text-[#001D3D]">Urgences</h2>
+                        <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em]">Priorité</span>
                     </div>
-
-                    <div className="space-y-8 relative flex-1">
-                        <div className="absolute left-[3px] top-2 bottom-0 w-[1px] bg-gray-100"></div>
-                        
-                        {stats.recent_activity.map((act, index) => (
-                            <div key={index} className="relative pl-8">
-                                <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full border-2 border-white shadow-sm ring-4 ring-white" style={{ backgroundColor: '#001D3D' }}></div>
-                                <h4 className="text-[11px] font-black text-[#001D3D] uppercase tracking-wider">{act.action}</h4>
-                                <p className="text-[11px] font-bold text-gray-500 leading-relaxed mt-1">
-                                    {act.comment} - {act.convention.name}
-                                </p>
-                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-2 block">
-                                    {new Date(act.created_at).toLocaleString('fr-FR')}
-                                </span>
-                            </div>
+                    <div className="space-y-4">
+                        {stats.pending_actions && stats.pending_actions.slice(0, 3).map((task, index) => (
+                            <Link to={`/conventions/${task.id}`} key={index} className="flex items-center gap-4 p-4 bg-[#FBFBFB] rounded-2xl hover:bg-white hover:shadow-lg transition-all border border-gray-50">
+                                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
+                                    <span className="material-symbols-outlined text-[#8B7355] text-xl">priority_high</span>
+                                </div>
+                                <div className="flex-1 overflow-hidden">
+                                    <h4 className="text-[12px] font-black text-[#0F172A] truncate">{task.name}</h4>
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter truncate">{task.status}</p>
+                                </div>
+                            </Link>
                         ))}
                     </div>
                 </motion.div>
             </div>
 
             {/* Tâches Urgentes */}
-            <motion.div variants={itemVariants} className="bg-white rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-gray-100">
+            <motion.div variants={itemVariants} className="premium-card p-10">
                 <div className="flex justify-between items-end mb-10">
                     <h2 className="text-xl font-black text-[#001D3D]">Actions Urgentes</h2>
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border border-gray-100 px-3 py-1 rounded-full">
+                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] border border-gray-100 px-3 py-1 rounded-full">
                         {user?.role?.name === 'directeur_cooperation' ? 'Vue Direction' : 
                          user?.role?.name === 'service_juridique' ? 'Vue Juridique' :
                          user?.role?.name === 'recteur' ? 'Vue Rectorat' : 'Vue Admin'}
@@ -232,7 +377,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="flex-1">
                                     <h4 className="text-base font-black text-[#001D3D] line-clamp-1">{task.name}</h4>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">
                                         {task.status === 'soumis' ? 'EN ATTENTE D’INSTRUCTION (DIRECTION)' : 
                                          task.status === 'valide_dir_initial' ? 'EN ATTENTE DE VISA JURIDIQUE' :
                                          task.status === 'valide_juridique' ? 'EN ATTENTE DE CONTRÔLE FINAL' :
@@ -248,7 +393,7 @@ const Dashboard = () => {
                         ))
                     ) : (
                         <div className="p-10 text-center bg-[#FBFBFB] rounded-3xl border border-dashed border-gray-200">
-                             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Aucune action urgente en attente</p>
+                             <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">Aucune action urgente en attente</p>
                         </div>
                     )}
                 </div>
@@ -267,7 +412,7 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Rapport de Situation</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Rapport de Situation</p>
                         <p className="text-sm font-black mt-1">GÉNÉRÉ LE {new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase()}</p>
                         <p className="text-[10px] font-bold text-[#8B7355] mt-1">REF: DCI/RPT/2026-Q4/001</p>
                     </div>
@@ -278,15 +423,15 @@ const Dashboard = () => {
                         <h2 className="text-lg font-black uppercase tracking-widest border-l-4 border-[#8B7355] pl-4">Résumé des Métriques</h2>
                         <div className="space-y-4">
                             <div className="flex justify-between items-center py-3 border-b border-gray-100 italic">
-                                <span className="text-sm text-gray-500">Conventions Actives :</span>
+                                <span className="text-sm text-slate-700">Conventions Actives :</span>
                                 <span className="text-lg font-black text-[#001D3D]">{stats.active_conventions}</span>
                             </div>
                             <div className="flex justify-between items-center py-3 border-b border-gray-100 italic">
-                                <span className="text-sm text-gray-500">Dossiers en Attente :</span>
+                                <span className="text-sm text-slate-700">Dossiers en Attente :</span>
                                 <span className="text-lg font-black text-red-600">{stats.pending_validations}</span>
                             </div>
                             <div className="flex justify-between items-center py-3 border-b border-gray-100 italic">
-                                <span className="text-sm text-gray-500">Indice d'Efficacité Globale :</span>
+                                <span className="text-sm text-slate-700">Indice d'Efficacité Globale :</span>
                                 <span className="text-lg font-black text-green-600">{stats.efficiency_index}%</span>
                             </div>
                         </div>
@@ -310,9 +455,9 @@ const Dashboard = () => {
                     <table className="w-full text-left border-collapse border border-gray-100 rounded-xl overflow-hidden shadow-sm">
                         <thead className="bg-[#f8fafc]">
                             <tr>
-                                <th className="p-4 text-[10px] font-black uppercase text-gray-400 tracking-widest">Événement</th>
-                                <th className="p-4 text-[10px] font-black uppercase text-gray-400 tracking-widest">Description</th>
-                                <th className="p-4 text-[10px] font-black uppercase text-gray-400 tracking-widest">Horodatage</th>
+                                <th className="p-4 text-[10px] font-black uppercase text-slate-600 tracking-widest">Événement</th>
+                                <th className="p-4 text-[10px] font-black uppercase text-slate-600 tracking-widest">Description</th>
+                                <th className="p-4 text-[10px] font-black uppercase text-slate-600 tracking-widest">Horodatage</th>
                             </tr>
                         </thead>
                         <tbody className="text-[11px] font-medium text-gray-600">
@@ -330,9 +475,9 @@ const Dashboard = () => {
                 <div className="absolute bottom-10 left-10 right-10 flex justify-between items-end border-t border-gray-100 pt-10">
                     <div className="space-y-1">
                         <p className="text-[9px] font-black uppercase tracking-widest text-[#8B7355]">Certifié Conforme par la Direction de la Coopération</p>
-                        <p className="text-[8px] font-medium text-gray-400">© 2026 CoopManager UIDT - Système de Gestion du Patrimoine Conventionnel</p>
+                        <p className="text-[8px] font-medium text-slate-600">© 2026 CoopManager UIDT - Système de Gestion du Patrimoine Conventionnel</p>
                     </div>
-                    <div className="w-32 h-32 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center text-gray-300 text-[10px] font-black uppercase rotate-[-15deg]">
+                    <div className="w-32 h-32 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center text-slate-500 text-[10px] font-black uppercase rotate-[-15deg]">
                         Cachet Institutionnel
                     </div>
                 </div>

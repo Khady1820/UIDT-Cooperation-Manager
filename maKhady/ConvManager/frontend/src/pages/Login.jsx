@@ -40,7 +40,7 @@ const Login = () => {
                     className="absolute inset-0 z-0"
                 >
                     <img 
-                        src="/auth-bg.png" 
+                        src="/img_uidt.jpg" 
                         alt="UIDT Architecture" 
                         className="w-full h-full object-cover opacity-60 mix-blend-overlay"
                     />
@@ -78,15 +78,15 @@ const Login = () => {
                                 <span className="material-symbols-outlined text-[#001D3D] text-3xl">account_balance</span>
                             </div>
                             <div>
-                                <h1 className="text-xl font-black text-white tracking-widest uppercase">UIDT</h1>
-                                <p className="text-[9px] font-bold text-[#8B7355] tracking-[0.4em] uppercase">Excellence & Innovation</p>
+                                <h1 className="text-2xl font-black text-white tracking-widest uppercase">UIDT</h1>
+                                <p className="text-[11px] font-black text-[#8B7355] tracking-[0.4em] uppercase">Excellence & Innovation</p>
                             </div>
                         </div>
 
                         <h2 className="text-5xl font-black text-white leading-[1.1] mb-8 max-w-md">
                             Gérez vos conventions avec une <span className="text-[#8B7355]">précision</span> institutionnelle.
                         </h2>
-                        <p className="text-gray-300 text-sm max-w-sm leading-relaxed mb-10 font-medium opacity-80">
+                        <p className="text-white text-lg max-w-sm leading-relaxed mb-10 font-bold opacity-100">
                             Plateforme centralisée pour la gestion, le suivi et la validation des accords de coopération de l'Université Iba Der Thiam.
                         </p>
 
@@ -142,8 +142,8 @@ const Login = () => {
                             >
                                 Portail Institutionnel
                             </motion.span>
-                            <h3 className="text-3xl font-black text-[#001D3D] tracking-tight mb-2">Bon retour parmi nous</h3>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-loose">Authentification sécurisée requise</p>
+                            <h3 className="text-4xl font-black text-black tracking-tight mb-4">Bienvenue dans votre espace de gestion</h3>
+                            <p className="text-sm font-black text-gray-600 uppercase tracking-widest leading-loose">Authentification sécurisée requise</p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-8">
@@ -152,14 +152,14 @@ const Login = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.6 }}
                             >
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 mb-3 ml-1">
+                                <label className="block text-[12px] font-black uppercase tracking-[0.2em] text-black mb-3 ml-1">
                                     Identifiant Professionnel
                                 </label>
                                 <div className="group relative">
                                     <input
                                         required
                                         type="email"
-                                        className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-5 text-sm font-bold text-[#001D3D] outline-none transition-all shadow-sm group-hover:shadow-md"
+                                        className="w-full bg-white border-2 border-gray-200 focus:border-black focus:ring-8 focus:ring-black/5 rounded-2xl px-6 py-6 text-base font-black text-black outline-none transition-all shadow-sm group-hover:shadow-md"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="admin@convmanager.com"
@@ -176,16 +176,16 @@ const Login = () => {
                                 transition={{ delay: 0.7 }}
                             >
                                 <div className="flex justify-between items-center mb-3">
-                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">
+                                    <label className="block text-[12px] font-black uppercase tracking-[0.2em] text-black ml-1">
                                         Mot de passe
                                     </label>
-                                    <Link to="/forgot-password" size="sm" className="text-[10px] font-black text-[#8B7355] hover:text-[#001D3D] transition-colors uppercase tracking-widest">Oublié ?</Link>
+                                    <Link to="/forgot-password" size="sm" className="text-[12px] font-black text-[#8B7355] hover:text-black transition-colors uppercase tracking-widest">Oublié ?</Link>
                                 </div>
                                 <div className="group relative">
                                     <input
                                         required
                                         type={showPassword ? "text" : "password"}
-                                        className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-5 text-sm font-bold text-[#001D3D] outline-none transition-all pr-14 shadow-sm group-hover:shadow-md"
+                                        className="w-full bg-white border-2 border-gray-200 focus:border-black focus:ring-8 focus:ring-black/5 rounded-2xl px-6 py-6 text-base font-black text-black outline-none transition-all pr-14 shadow-sm group-hover:shadow-md"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••••••"

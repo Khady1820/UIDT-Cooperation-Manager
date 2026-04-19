@@ -7,11 +7,13 @@ import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 const Topnav = () => {
     const { searchQuery, setSearchQuery } = useSearch();
     const { logout, user } = useAuth();
     const { t } = useLanguage();
+    const { darkMode, toggleDarkMode } = useTheme();
     const navigate = useNavigate();
 
     const [notifications, setNotifications] = useState([]);
@@ -63,14 +65,14 @@ const Topnav = () => {
     };
 
     return (
-        <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-card-bg border-b border-outline-variant flex justify-between items-center px-10 transition-colors duration-300">
+        <header className="fixed top-0 right-0 w-[calc(100%-18rem)] h-20 z-40 bg-institutional flex justify-between items-center px-10 transition-all duration-300 shadow-2xl border-b border-white/10">
             <div className="flex items-center gap-8">
-                <h2 className="text-lg font-bold text-surface-900 tracking-tight">{t('app_name')}</h2>
+                <h2 className="text-lg font-black text-white tracking-tight uppercase">{t('app_name')}</h2>
                 
-                <div className="flex items-center bg-surface-100 px-4 py-2 rounded-lg w-64 border border-transparent focus-within:border-primary/30 focus-within:bg-card-bg transition-all duration-200">
-                    <span className="material-symbols-outlined text-surface-400 mr-2 text-[20px]">search</span>
+                <div className="flex items-center bg-white/10 px-6 py-3 rounded-2xl w-80 border border-white/10 focus-within:border-white/30 focus-within:bg-white/20 focus-within:shadow-xl focus-within:shadow-black/5 transition-all duration-300">
+                    <span className="material-symbols-outlined text-white/60 mr-3 text-[20px]">search</span>
                     <input 
-                        className="bg-transparent border-none focus:ring-0 text-xs w-full p-0 outline-none placeholder:text-gray-400 font-medium" 
+                        className="bg-transparent border-none focus:ring-0 text-sm w-full p-0 outline-none placeholder:text-white/40 font-bold text-white" 
                         placeholder={t('search')} 
                         type="text"
                         value={searchQuery}
@@ -81,6 +83,17 @@ const Topnav = () => {
             
             <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2 relative">
+                    {/* Theme Toggle */}
+                    <button 
+                        onClick={toggleDarkMode}
+                        className="p-2 text-white/80 hover:text-white transition-all rounded-xl hover:bg-white/10"
+                        title={darkMode ? "Passer au mode clair" : "Passer au mode sombre"}
+                    >
+                        <span className="material-symbols-outlined text-[24px]">
+                            {darkMode ? 'light_mode' : 'dark_mode'}
+                        </span>
+                    </button>
+
                     {/* Notification Bell */}
                     <button 
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -88,7 +101,7 @@ const Topnav = () => {
                     >
                         <span className="material-symbols-outlined text-[24px]">notifications</span>
                         {unreadCount > 0 && (
-                            <span className="absolute top-1.5 right-1.5 w-5 h-5 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white shadow-sm ring-2 ring-red-500/10">
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-[#001D3D] shadow-lg">
                                 {unreadCount > 9 ? '9+' : unreadCount}
                             </span>
                         )}
@@ -111,7 +124,7 @@ const Topnav = () => {
                                 </div>
                                 <div className="max-h-[400px] overflow-y-auto scrollbar-hide">
                                     {notifications.length === 0 ? (
-                                        <div className="p-12 text-center text-gray-400 italic">
+                                        <div className="p-12 text-center text-slate-600 italic">
                                             <span className="material-symbols-outlined text-4xl block mb-2 opacity-20">notifications_off</span>
                                             <p className="text-[10px] font-bold uppercase tracking-widest">Aucune alerte pour l'instant</p>
                                         </div>
@@ -135,7 +148,7 @@ const Topnav = () => {
                                                     <p className="text-[9px] font-black text-[#B68F40] uppercase tracking-tighter truncate w-48">
                                                         {n.data.convention_name}
                                                     </p>
-                                                    <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest mt-2">
+                                                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-2">
                                                         {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
                                                     </p>
                                                 </div>
@@ -152,26 +165,27 @@ const Topnav = () => {
 
                     <button 
                         onClick={() => navigate('/help')}
-                        className="p-2 text-gray-400 hover:text-[#001D3D] transition-colors"
+                        className="p-2 text-white/85 hover:text-white transition-colors"
                     >
                         <span className="material-symbols-outlined text-[24px]">help_outline</span>
                     </button>
                 </div>
 
-                <div className="h-6 w-px bg-gray-200"></div>
+                <div className="h-6 w-px bg-white/10"></div>
 
                 <div className="flex items-center gap-3">
                     <div className="text-right">
-                        <p className="text-[11px] font-bold text-surface-900 uppercase tracking-wider">{user?.role?.name === 'admin' ? t('chief_curator') : user?.name}</p>
+                        <p className="text-[11px] font-black text-white uppercase tracking-wider">{user?.role?.name === 'admin' ? t('chief_curator') : user?.name}</p>
                         <button 
                             onClick={logout}
-                            className="text-[10px] font-bold text-surface-400 uppercase tracking-widest hover:text-red-500 transition-colors"
+                            className="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1.5"
                         >
+                            <span className="material-symbols-outlined text-[16px]">logout</span>
                             {t('logout')}
                         </button>
                     </div>
-                    <div className="w-10 h-10 rounded-full bg-surface-100 border border-outline-variant overflow-hidden flex items-center justify-center">
-                         <img src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=random`} alt="" />
+                    <div className="w-11 h-11 rounded-full bg-white/10 border border-white/20 overflow-hidden flex items-center justify-center p-0.5 shadow-inner">
+                         <img src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=random`} alt="" className="w-full h-full rounded-full" />
                     </div>
                 </div>
             </div>

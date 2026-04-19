@@ -27,8 +27,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/dashboard-stats', [\App\Http\Controllers\AdminDashboardController::class, 'stats']);
     });
 
-    // Routes for Porteur de Projet / Responsable (Project Leads)
-    Route::middleware('role:admin,responsable,porteur_projet')->group(function () {
+    // Routes for Porteur de Projet (Project Leads)
+    Route::middleware('role:admin,porteur_projet')->group(function () {
         Route::post('/conventions', [ConventionController::class, 'store']);
         Route::put('/conventions/{id}', [ConventionController::class, 'update']);
         Route::delete('/conventions/{id}', [ConventionController::class, 'destroy']);

@@ -60,7 +60,7 @@ class ConventionStatusChanged extends Notification
         }
 
         return $message
-            ->action('Voir le dossier', url('/conventions/' . $this->convention->id))
+            ->action('Voir le dossier', config('app.frontend_url') . '/conventions/' . $this->convention->id)
             ->line('Merci d\'utiliser CoopManager UIDT.');
     }
 

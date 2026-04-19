@@ -88,215 +88,156 @@ const Settings = () => {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="space-y-8"
+            className="space-y-12 max-w-6xl mx-auto pb-20"
         >
-            <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-black text-surface-900 tracking-tight">{t('settings')}</h1>
-                <p className="text-surface-500 font-medium italic">Personnalisez votre expérience et sécurisez votre accès.</p>
-            </div>
-
+            {/* Success Toast */}
             <AnimatePresence>
                 {showSuccess && (
                     <motion.div 
                         initial={{ opacity: 0, y: -20, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -20, scale: 0.9 }}
-                        className="fixed top-24 right-8 z-[100] bg-secondary text-white px-6 py-3 rounded-2xl shadow-premium border border-secondary/20 flex items-center gap-3"
+                        className="fixed top-24 right-8 z-[100] bg-[#001D3D] text-white px-8 py-4 rounded-3xl shadow-2xl border border-white/10 flex items-center gap-4"
                     >
-                        <CheckCircle className="w-5 h-5" />
-                        <p className="font-bold text-sm uppercase tracking-widest italic">Modifications enregistrées !</p>
+                        <div className="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center">
+                            <CheckCircle className="w-5 h-5" />
+                        </div>
+                        <p className="font-black text-[10px] uppercase tracking-[0.2em] dark:text-white">Configuration mise à jour</p>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            <AnimatePresence>
-                {showPasswordModal && (
-                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-                        <motion.div 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-surface-900/40 backdrop-blur-sm"
-                            onClick={() => setShowPasswordModal(false)}
-                        ></motion.div>
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative z-10 w-full max-w-md overflow-hidden flex flex-col shadow-2xl bg-card-bg border border-outline-variant rounded-3xl transition-colors duration-300"
-                        >
-                            <div className="p-6 border-b border-outline-variant bg-surface-alt/50 flex justify-between items-center transition-colors duration-300">
-                                <h2 className="text-xl font-bold text-surface-900 leading-none">{t('change_password')}</h2>
-                                <button onClick={() => setShowPasswordModal(false)} className="p-2 hover:bg-surface-200 rounded-full transition-colors text-surface-400">
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
+            {/* Header Section */}
+            <div className="relative p-12 rounded-[3.5rem] bg-[#001D3D] text-white overflow-hidden shadow-2xl shadow-[#001D3D]/20">
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#8B7355]/10 rounded-full -mr-48 -mt-48 blur-[100px]"></div>
+                <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/10 rounded-full -ml-24 -mb-24 blur-[80px]"></div>
+                
+                <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-10">
+                    <div className="flex items-center gap-8">
+                        <div className="w-20 h-20 bg-white/10 backdrop-blur-xl rounded-3xl flex items-center justify-center border border-white/20 shadow-inner">
+                            <span className="material-symbols-outlined text-4xl">settings_suggest</span>
+                        </div>
+                        <div>
+                            <h1 className="text-4xl font-black tracking-tight">{t('settings')}</h1>
+                            <p className="text-white/60 font-bold uppercase tracking-[0.3em] text-[10px] mt-2 italic">Centre de Configuration Institutionnel</p>
+                        </div>
+                    </div>
+                    <div className="flex gap-4">
+                        <div className="px-6 py-3 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 text-center">
+                            <p className="text-[9px] font-black text-[#8B7355] uppercase tracking-widest mb-1">Dernière Connexion</p>
+                            <p className="text-xs font-bold">{new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} à {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                            {error && (
-                                <div className="mx-8 mt-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-xl text-center italic">
-                                    {error}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                {/* Left Column: Profile & Identity */}
+                <motion.div variants={itemVariants} className="space-y-10">
+                    <div className="premium-card p-10 flex flex-col items-center text-center relative group">
+                        <div className="relative mb-8">
+                            <motion.div 
+                                whileHover={{ scale: 1.02 }}
+                                className="w-32 h-32 rounded-[40px] bg-gradient-to-br from-[#001D3D] to-[#003566] text-white flex items-center justify-center text-5xl font-black shadow-2xl shadow-[#001D3D]/30 border-4 border-white dark:border-slate-800"
+                            >
+                                {user?.name?.charAt(0).toUpperCase()}
+                            </motion.div>
+                            <button className="absolute -bottom-2 -right-2 w-11 h-11 bg-white border border-gray-100 rounded-2xl shadow-xl text-[#001D3D] flex items-center justify-center hover:scale-110 transition-transform dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                                <Camera className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="w-full space-y-2 mb-10">
+                            {isEditing ? (
+                                <div className="space-y-4">
+                                    <input 
+                                        type="text"
+                                        value={editName}
+                                        onChange={(e) => setEditName(e.target.value)}
+                                        className="uidt-input w-full text-center font-black text-xl bg-gray-50 border-gray-100"
+                                        autoFocus
+                                    />
+                                    <div className="flex gap-3 justify-center">
+                                        <button onClick={handleProfileUpdate} className="px-5 py-2 bg-[#001D3D] text-white text-[9px] font-black uppercase tracking-widest rounded-xl shadow-lg">Enregistrer</button>
+                                        <button onClick={() => { setIsEditing(false); setEditName(user?.name || ''); }} className="px-5 py-2 bg-gray-100 text-gray-500 text-[9px] font-black uppercase tracking-widest rounded-xl">Annuler</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center group/edit cursor-pointer" onClick={() => setIsEditing(true)}>
+                                    <div className="flex items-center gap-3">
+                                        <h2 className="text-2xl font-black text-[#001D3D] tracking-tight dark:text-white">{user?.name}</h2>
+                                        <Edit2 className="w-4 h-4 text-gray-300 opacity-0 group-hover/edit:opacity-100 transition-opacity" />
+                                    </div>
+                                    <p className="text-[10px] font-black text-[#8B7355] uppercase tracking-[0.2em] mt-1 italic">{user?.role?.name?.replace('_', ' ') || 'Membre Institutionnel'}</p>
                                 </div>
                             )}
+                        </div>
 
-                            <form onSubmit={handlePasswordChange} className="p-8 space-y-6">
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-2 ml-1">Ancien mot de passe</label>
-                                    <input 
-                                        type="password"
-                                        required
-                                        className="premium-input"
-                                        value={passwordData.current_password}
-                                        onChange={(e) => setPasswordData({...passwordData, current_password: e.target.value})}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-2 ml-1">Nouveau mot de passe</label>
-                                    <input 
-                                        type="password"
-                                        required
-                                        className="premium-input"
-                                        value={passwordData.new_password}
-                                        onChange={(e) => setPasswordData({...passwordData, new_password: e.target.value})}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-2 ml-1">Confirmation</label>
-                                    <input 
-                                        type="password"
-                                        required
-                                        className="premium-input"
-                                        value={passwordData.new_password_confirmation}
-                                        onChange={(e) => setPasswordData({...passwordData, new_password_confirmation: e.target.value})}
-                                    />
-                                </div>
-                                <div className="pt-4">
-                                    <button 
-                                        type="submit"
-                                        className="premium-button-primary w-full py-4 text-xs font-black uppercase tracking-widest"
-                                    >
-                                        Mettre à jour la sécurité
-                                    </button>
-                                </div>
-                            </form>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Profile Card */}
-                <motion.div variants={itemVariants} className="lg:col-span-1">
-                    <div className="bg-card-bg rounded-2xl p-8 border border-outline-variant shadow-premium overflow-hidden relative group transition-colors duration-300">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-primary/10"></div>
-                        
-                        <div className="relative z-10 flex flex-col items-center text-center font-outfit">
-                            <div className="relative mb-6">
-                                <motion.div 
-                                    whileHover={{ scale: 1.05 }}
-                                    className="w-28 h-28 rounded-[32px] bg-gradient-to-br from-primary to-indigo-600 text-white flex items-center justify-center text-4xl font-black shadow-xl shadow-primary/20"
-                                >
-                                    {user?.name?.charAt(0).toUpperCase()}
-                                </motion.div>
-                                <button className="absolute -bottom-2 -right-2 p-2.5 bg-card-bg border border-outline-variant rounded-2xl shadow-premium text-primary hover:text-indigo-600 hover:scale-110 transition-all transition-colors duration-300">
-                                    <Camera className="w-4 h-4" />
-                                </button>
+                        <div className="w-full pt-8 border-t border-gray-50 space-y-6 text-left">
+                            <div className="space-y-1">
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest dark:text-slate-400">Adresse de contact</p>
+                                <p className="text-sm font-bold text-[#001D3D] dark:text-white">{user?.email}</p>
                             </div>
-
-                            <div className="w-full">
-                                {isEditing ? (
-                                    <div className="flex flex-col gap-4 w-full">
-                                        <input 
-                                            type="text"
-                                            value={editName}
-                                            onChange={(e) => setEditName(e.target.value)}
-                                            className="premium-input text-center font-bold text-lg"
-                                            autoFocus
-                                        />
-                                        <div className="flex gap-3 justify-center">
-                                            <button 
-                                                onClick={handleProfileUpdate}
-                                                className="px-4 py-1.5 bg-secondary/10 text-secondary text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-secondary/20 transition-all"
-                                            >
-                                                {t('save')}
-                                            </button>
-                                            <button 
-                                                onClick={() => {
-                                                    setIsEditing(false);
-                                                    setEditName(user?.name || '');
-                                                }}
-                                                className="px-4 py-1.5 bg-surface-alt text-surface-400 text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-surface-200 transition-all"
-                                            >
-                                                {t('cancel')}
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col items-center">
-                                        <div className="flex items-center gap-2 group/edit cursor-pointer mb-1" onClick={() => setIsEditing(true)}>
-                                            <h2 className="text-2xl font-black text-surface-900 tracking-tight">{user?.name}</h2>
-                                            <Edit2 className="w-3.5 h-3.5 text-surface-300 opacity-0 group-hover/edit:opacity-100 transition-all" />
-                                        </div>
-                                        <span className="px-3 py-1 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/10">
-                                            {user?.role?.name || 'Utilisateur'}
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-                            
-                            <div className="w-full h-px bg-outline-variant my-8"></div>
-                            
-                            <div className="w-full space-y-6 text-left">
-                                <div className="group/field">
-                                    <p className="text-[10px] font-black text-surface-300 uppercase tracking-widest mb-1 group-hover/field:text-primary transition-colors">Identité Numérique</p>
-                                    <p className="text-sm text-surface-600 font-bold">{user?.email}</p>
-                                </div>
-                                <div className="group/field">
-                                    <p className="text-[10px] font-black text-surface-300 uppercase tracking-widest mb-1 group-hover/field:text-primary transition-colors">Ancienneté</p>
-                                    <p className="text-sm text-surface-600 font-bold">
-                                        {user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'Depuis mars 2024'}
-                                    </p>
+                            <div className="space-y-1">
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest dark:text-slate-400">Statut du Compte</p>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                    <p className="text-sm font-bold text-[#001D3D] dark:text-white">Actif & Certifié</p>
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div className="premium-card p-10 bg-gradient-to-br from-[#8B7355] to-[#A68B6A] text-white">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center">
+                                <span className="material-symbols-outlined text-[20px]">verified_user</span>
+                            </div>
+                            <h3 className="text-sm font-black uppercase tracking-widest leading-none">Vérification Institutionnelle</h3>
+                        </div>
+                        <p className="text-xs font-bold leading-relaxed opacity-90">Votre profil est lié aux registres officiels de la Direction de la Coopération Internationale.</p>
                     </div>
                 </motion.div>
 
-                {/* Settings Options */}
-                <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
-                    <div className="bg-card-bg rounded-2xl p-8 border border-outline-variant shadow-premium group transition-colors duration-300">
-                        <div className="flex items-center gap-3 mb-8">
-                            <div className="w-9 h-9 rounded-xl bg-accent/10 text-accent flex items-center justify-center">
-                                <span className="material-symbols-outlined text-[20px]">tune</span>
+                {/* Right Column: Options & Security */}
+                <motion.div variants={itemVariants} className="lg:col-span-2 space-y-10">
+                    {/* General Preferences */}
+                    <div className="premium-card p-12">
+                        <div className="flex items-center gap-4 mb-12">
+                            <div className="w-12 h-12 rounded-2xl bg-[#001D3D]/5 text-[#001D3D] flex items-center justify-center dark:bg-white/10 dark:text-white">
+                                <span className="material-symbols-outlined text-[24px]">palette</span>
                             </div>
-                            <h3 className="text-xl font-bold text-surface-900 tracking-tight">Préférences de l'Interface</h3>
+                            <div>
+                                <h3 className="text-xl font-black text-[#001D3D] tracking-tight dark:text-white">Préférences d'Interface</h3>
+                                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1 dark:text-slate-400">Personnalisation de l'environnement</p>
+                            </div>
                         </div>
-                        
-                        <div className="space-y-6">
+
+                        <div className="space-y-8">
+                            {/* Theme Toggle */}
                             <div 
-                                onClick={() => setDarkMode(!darkMode)}
-                                className="flex items-center justify-between p-5 rounded-2xl border border-surface-50 hover:border-primary/20 hover:bg-surface-50/50 transition-all cursor-pointer group/toggle"
+                                onClick={toggleDarkMode}
+                                className="flex items-center justify-between p-6 rounded-[2rem] bg-gray-50 border border-gray-100 hover:border-[#001D3D]/10 hover:bg-white transition-all cursor-pointer group/toggle dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700"
                             >
-                                <div className="flex items-center gap-5">
-                                    <div className="w-12 h-12 rounded-xl bg-surface-alt text-surface-400 flex items-center justify-center group-hover/toggle:bg-card-bg group-hover/toggle:text-primary transition-all">
-                                        {darkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                                <div className="flex items-center gap-6">
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${darkMode ? 'bg-slate-900 text-amber-400 shadow-inner' : 'bg-white text-blue-500 shadow-sm'}`}>
+                                        {darkMode ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
                                     </div>
                                     <div>
-                                        <p className="text-sm font-black text-surface-900 uppercase tracking-widest">{t('dark_mode')}</p>
-                                        <p className="text-xs text-surface-400 font-medium italic mt-0.5">Basculer le thème visuel globale.</p>
+                                        <p className="text-sm font-black text-[#001D3D] uppercase tracking-widest dark:text-white">{t('dark_mode')}</p>
+                                        <p className="text-[10px] text-slate-600 font-bold italic mt-0.5 dark:text-slate-400">Optimisation pour le confort visuel nocturne.</p>
                                     </div>
                                 </div>
-                                <button 
-                                    onClick={toggleDarkMode}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${darkMode ? 'bg-primary' : 'bg-surface-200'}`}
-                                >
-                                    <span className={`${darkMode ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300`} />
-                                </button>
+                                <div className={`relative w-14 h-7 rounded-full transition-colors duration-500 p-1 ${darkMode ? 'bg-indigo-600' : 'bg-gray-200'}`}>
+                                    <div className={`w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-500 ${darkMode ? 'translate-x-7' : 'translate-x-0'}`}></div>
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="block text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-2 ml-1">{t('language')}</label>
+                            {/* Language Selector */}
+                            <div className="space-y-4">
+                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Langue de l'espace de travail</label>
                                 <div className="relative group/lang">
-                                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-surface-400 group-hover/lang:text-primary transition-colors">
+                                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-[#001D3D] z-10">
                                         <Globe className="w-5 h-5" />
                                     </div>
                                     <select 
@@ -306,14 +247,14 @@ const Settings = () => {
                                             setShowSuccess(true);
                                             setTimeout(() => setShowSuccess(false), 2000);
                                         }}
-                                        className="premium-input pl-14 appearance-none pr-12 cursor-pointer transition-all hover:border-primary/30"
+                                        className="uidt-input pl-16 appearance-none pr-12 cursor-pointer font-black text-[#001D3D] bg-gray-50 border-gray-100 py-5 rounded-[2rem] hover:bg-white hover:border-[#001D3D]/20 transition-all"
                                     >
-                                        <option value="Français (France)" className="bg-card-bg text-surface-900">Français (France)</option>
-                                        <option value="English (US)" className="bg-card-bg text-surface-900">English (US)</option>
-                                        <option value="Español" className="bg-card-bg text-surface-900">Español</option>
-                                        <option value="Deutsch" className="bg-card-bg text-surface-900">Deutsch</option>
+                                        <option value="Français (France)">Français (France)</option>
+                                        <option value="English (US)">English (US)</option>
+                                        <option value="Español">Español</option>
+                                        <option value="Deutsch">Deutsch</option>
                                     </select>
-                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-surface-400 group-hover/lang:text-primary transition-colors">
+                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                                         <span className="material-symbols-outlined text-[20px]">expand_more</span>
                                     </div>
                                 </div>
@@ -321,23 +262,29 @@ const Settings = () => {
                         </div>
                     </div>
 
-                    <div className="bg-card-bg rounded-2xl p-8 border border-outline-variant shadow-premium transition-colors duration-300">
-                        <div className="flex items-center gap-3 mb-8">
-                            <div className="w-9 h-9 rounded-xl bg-red-50 text-red-500 flex items-center justify-center">
-                                <Lock className="w-4 h-4" />
+                    {/* Security Section */}
+                    <div className="premium-card p-12 overflow-hidden relative">
+                        <div className="absolute top-0 right-0 w-40 h-40 bg-rose-500/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                        
+                        <div className="flex items-center gap-4 mb-12">
+                            <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center dark:bg-rose-500/10 dark:text-rose-400">
+                                <Lock className="w-5 h-5" />
                             </div>
-                            <h3 className="text-xl font-bold text-surface-900 tracking-tight">Sécurité & Accès</h3>
+                            <div>
+                                <h3 className="text-xl font-black text-[#001D3D] tracking-tight dark:text-white">Sécurité du Compte</h3>
+                                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1 dark:text-slate-400">Gestion des accès et mots de passe</p>
+                            </div>
                         </div>
                         
-                        <div className="p-6 rounded-2xl border-2 border-dashed border-red-100 bg-red-50/20">
-                            <div className="flex flex-col md:flex-row items-center gap-6">
-                                <div className="flex-1 text-center md:text-left">
-                                    <p className="text-sm font-bold text-surface-700">Modification du code d'accès</p>
-                                    <p className="text-xs text-surface-400 mt-1 italic">Assurez-vous d'utiliser un mot passe complexe pour garantir la sécurité de vos données analytiques.</p>
+                        <div className="bg-rose-50/30 p-8 rounded-[2.5rem] border border-rose-100 border-dashed dark:bg-rose-500/5 dark:border-rose-500/20">
+                            <div className="flex flex-col md:flex-row items-center gap-10">
+                                <div className="flex-1 space-y-2">
+                                    <p className="text-sm font-black text-[#001D3D] uppercase tracking-tight dark:text-white">Code d'Authentification</p>
+                                    <p className="text-xs text-slate-600 font-bold leading-relaxed italic dark:text-slate-400">Il est recommandé de changer votre mot de passe tous les 90 jours pour maintenir l'intégrité de vos accès institutionnels.</p>
                                 </div>
                                 <button 
                                     onClick={() => setShowPasswordModal(true)}
-                                    className="premium-button text-xs uppercase font-black tracking-widest whitespace-nowrap px-8 py-3.5 bg-card-bg border border-red-200 text-red-500 hover:bg-red-50 transition-all scale-100 hover:scale-105 active:scale-95 shadow-sm"
+                                    className="px-10 py-5 bg-white border-2 border-rose-500 text-rose-600 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-rose-500 hover:text-white transition-all shadow-xl shadow-rose-500/10 active:scale-95 dark:bg-slate-900 dark:hover:bg-rose-600"
                                 >
                                     {t('change_password')}
                                 </button>
@@ -346,6 +293,63 @@ const Settings = () => {
                     </div>
                 </motion.div>
             </div>
+
+            {/* Password Modal */}
+            <AnimatePresence>
+                {showPasswordModal && (
+                    <div className="fixed inset-0 z-[120] flex items-center justify-center p-6">
+                        <motion.div 
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-[#001D3D]/60 backdrop-blur-md"
+                            onClick={() => setShowPasswordModal(false)}
+                        ></motion.div>
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 30 }}
+                            className="relative z-10 w-full max-w-lg bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+                        >
+                            <div className="p-10 border-b border-gray-50 flex justify-between items-center bg-[#FBFBFB]">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20">
+                                        <Lock className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-black text-[#001D3D] uppercase tracking-widest">{t('change_password')}</h3>
+                                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Sécurité renforcée requise</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setShowPasswordModal(false)} className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors text-slate-400">
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handlePasswordChange} className="p-12 space-y-8">
+                                {error && (
+                                    <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-xl text-center">
+                                        {error}
+                                    </div>
+                                )}
+                                <div className="space-y-6">
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Ancien mot de passe</label>
+                                        <input type="password" required className="uidt-input w-full bg-gray-50" value={passwordData.current_password} onChange={(e) => setPasswordData({...passwordData, current_password: e.target.value})} />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Nouveau mot de passe</label>
+                                        <input type="password" required className="uidt-input w-full bg-gray-50" value={passwordData.new_password} onChange={(e) => setPasswordData({...passwordData, new_password: e.target.value})} />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Confirmation du nouveau mot de passe</label>
+                                        <input type="password" required className="uidt-input w-full bg-gray-50" value={passwordData.new_password_confirmation} onChange={(e) => setPasswordData({...passwordData, new_password_confirmation: e.target.value})} />
+                                    </div>
+                                </div>
+                                <button type="submit" className="institution-button mt-4">Actualiser la sécurité</button>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 };

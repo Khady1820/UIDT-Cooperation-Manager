@@ -21,11 +21,23 @@ class AdminDashboardController extends Controller
             ->take(10)
             ->get();
 
+        $statusDistribution = Convention::select('status', \DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->get();
+
+        $upcomingDeadlines = Convention::where('status', 'termine')
+            ->where('end_date', '>', now())
+            ->where('end_date', '<=', now()->addDays(90))
+            ->with('user')
+            ->get();
+
         return response()->json([
             'total_users' => $totalUsers,
             'total_partners' => $totalPartners,
             'total_archives' => $totalArchives,
-            'recent_logins' => $recentLogins
+            'recent_logins' => $recentLogins,
+            'status_distribution' => $statusDistribution,
+            'upcoming_deadlines' => $upcomingDeadlines
         ]);
     }
 }

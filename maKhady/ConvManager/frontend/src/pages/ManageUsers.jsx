@@ -27,12 +27,11 @@ const ManageUsers = () => {
 
     const [roles] = useState([
         { id: 1, name: 'admin' },
-        { id: 2, name: 'responsable' },
         { id: 3, name: 'porteur_projet' },
         { id: 4, name: 'directeur_cooperation' },
         { id: 5, name: 'recteur' },
-        { id: 6, name: 'partenaire' },
-        { id: 7, name: 'service_juridique' }
+        { id: 7, name: 'service_juridique' },
+        { id: 8, name: 'chef_division' }
     ]);
 
     const fetchUsers = async () => {

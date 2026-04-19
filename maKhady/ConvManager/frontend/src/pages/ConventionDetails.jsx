@@ -5,23 +5,35 @@ import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
+import StatusBadge from '../components/StatusBadge';
 
-const Toast = ({ message, type, onClose }) => (
-    <motion.div 
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 50, opacity: 0 }}
-        className={`fixed bottom-10 right-10 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 ${
-            type === 'success' ? 'bg-[#001D3D] text-white' : 'bg-red-500 text-white'
-        }`}
-    >
-        <span className="material-symbols-outlined">{type === 'success' ? 'check_circle' : 'error'}</span>
-        <span className="text-xs font-black uppercase tracking-widest">{message}</span>
-        <button onClick={onClose} className="opacity-50 hover:opacity-100 transition-opacity ml-auto">
-            <span className="material-symbols-outlined text-sm">close</span>
-        </button>
-    </motion.div>
-);
+const Toast = ({ message, type, onClose }) => {
+    useEffect(() => {
+        const timer = setTimeout(onClose, 5000);
+        return () => clearTimeout(timer);
+    }, [onClose]);
+
+    return (
+        <motion.div 
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 50, opacity: 0 }}
+            onClick={onClose}
+            className={`fixed bottom-10 right-10 z-[100] px-8 py-5 rounded-[2rem] shadow-2xl flex items-center gap-4 cursor-pointer hover:scale-105 transition-all ${
+                type === 'success' ? 'bg-[#001D3D] text-white' : 'bg-red-500 text-white'
+            }`}
+        >
+            <span className="material-symbols-outlined text-2xl">{type === 'success' ? 'check_circle' : 'error'}</span>
+            <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-50">{type === 'success' ? 'Succès' : 'Attention'}</span>
+                <span className="text-xs font-bold uppercase tracking-wider leading-tight">{message}</span>
+            </div>
+            <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="opacity-30 hover:opacity-100 transition-opacity ml-4">
+                <span className="material-symbols-outlined text-sm">close</span>
+            </button>
+        </motion.div>
+    );
+};
 
 const ConventionDetails = () => {
     const { id } = useParams();
@@ -89,7 +101,9 @@ const ConventionDetails = () => {
             setIsKpiModalOpen(false);
             fetchConvention();
         } catch (error) {
-            setToast({ message: 'Erreur lors de l’enregistrement de l’indicateur', type: 'error' });
+            console.error(error);
+            const errorMsg = error.response?.data?.message || 'Erreur lors de l’enregistrement de l’indicateur';
+            setToast({ message: errorMsg, type: 'error' });
         } finally {
             setSubmitting(false);
         }
@@ -144,7 +158,13 @@ const ConventionDetails = () => {
                 default: return;
             }
 
-            await api.post(endpoint, payload);
+            if (action === 'sign' && reason instanceof File) {
+                payload = new FormData();
+                payload.append('signed_file', reason);
+                await api.post(endpoint, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
+            } else {
+                await api.post(endpoint, payload);
+            }
             setActiveModalAction(null);
             setRejectionReason('');
             fetchConvention();
@@ -174,7 +194,7 @@ const ConventionDetails = () => {
     );
     
     if (!convention) return (
-        <div className="p-20 text-center bg-white rounded-3xl shadow-sm border border-gray-100 italic text-gray-400">
+        <div className="p-20 text-center bg-white rounded-3xl shadow-sm border border-gray-100 italic text-slate-600">
             Dossier introuvable ou archivé.
         </div>
     );
@@ -197,23 +217,28 @@ const ConventionDetails = () => {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-10 pb-20"
         >
+            {/* Navigation / Back Button */}
+            <div className="flex items-center gap-4 no-print">
+                <button 
+                    onClick={() => navigate(-1)}
+                    className="group flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm hover:bg-gray-50 transition-all"
+                >
+                    <span className="material-symbols-outlined text-slate-600 group-hover:text-[#001D3D] transition-colors">arrow_back</span>
+                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#001D3D] transition-colors">Retour</span>
+                </button>
+                <div className="h-4 w-px bg-gray-200"></div>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Détails du Dossier</p>
+            </div>
+
             {/* Action Bar / Status */}
             <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-8 bg-gradient-to-r from-white to-gray-50/50">
                 <div className="flex items-center gap-6">
-                    <Link to="/conventions" className="w-14 h-14 bg-gray-50 text-gray-400 hover:text-[#001D3D] flex items-center justify-center rounded-2xl transition-all border border-gray-100 group">
-                        <span className="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                    </Link>
                     <div>
-                        <div className="flex items-center gap-3 mb-1">
-                            <span className="bg-[#001D3D] text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">Dossier {convention.num_dossier || 'N/A'}</span>
-                            <span className="text-[10px] font-black text-[#8B7355] uppercase tracking-[0.2em]">UIDT Système Statistique</span>
-                            {(convention.status === 'brouillon' || convention.status === 'soumis') && convention.rejection_reason && (
-                                <span className="bg-red-50 text-red-500 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-red-100 animate-pulse">
-                                    Action Requise: {convention.status === 'soumis' ? 'Arbitrage Juridique' : 'Correction'}
-                                </span>
-                            )}
+                        <div className="flex items-center gap-3 mb-2">
+                            <StatusBadge status={convention.status} />
+                            <span className="text-[10px] font-black text-[#8B7355] uppercase tracking-[0.2em] ml-2">UIDT Système Statistique</span>
                         </div>
-                        <h1 className="text-2xl font-black text-[#001D3D] tracking-tight uppercase">{convention.name}</h1>
+                        <h1 className="text-2xl font-black text-[#001D3D] tracking-tight uppercase leading-tight">{convention.name}</h1>
                     </div>
                 </div>
 
@@ -226,10 +251,12 @@ const ConventionDetails = () => {
                         </button>
                     )}
 
-                    {(user?.role?.name === 'chef_division' || user?.role?.name === 'admin') && convention.status === 'soumis' && (
+                    {(user?.role?.name === 'chef_division' || user?.role?.name === 'admin') && (convention.status === 'soumis' || convention.status === 'en attente') && (
                         <div className="flex gap-4">
                             <button onClick={() => setActiveModalAction('validate-chef')} disabled={submitting} className="px-10 py-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-600/20 hover:bg-blue-700 transition-all">Accorder Pré-validation</button>
-                            <button onClick={() => setActiveModalAction('reject')} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Rejeter</button>
+                            {user?.role?.name === 'admin' && (
+                                <button onClick={() => setActiveModalAction('reject')} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Rejeter</button>
+                            )}
                         </div>
                     )}
 
@@ -256,7 +283,7 @@ const ConventionDetails = () => {
 
                     {(user?.role?.name === 'recteur' || user?.role?.name === 'admin') && convention.status === 'pret_pour_signature' && (
                         <div className="flex gap-4">
-                            <button onClick={() => handleWorkflowAction('sign')} disabled={submitting} className="px-10 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-green-600/20 hover:bg-green-700 transition-all">Apposer Signature Finale</button>
+                            <button onClick={() => setActiveModalAction('sign')} disabled={submitting} className="px-10 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-green-600/20 hover:bg-green-700 transition-all">Apposer Signature Finale</button>
                             <button onClick={() => setActiveModalAction('reject')} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Rejeter Protocol</button>
                         </div>
                     )}
@@ -283,7 +310,7 @@ const ConventionDetails = () => {
                                     <span className="material-symbols-outlined text-[24px]">{isDone ? 'check' : s.icon}</span>
                                 </div>
                                 <div className="text-center">
-                                    <p className={`text-[10px] font-black uppercase tracking-widest ${isCurrent ? 'text-[#001D3D]' : 'text-gray-300'}`}>{s.label}</p>
+                                    <p className={`text-[10px] font-black uppercase tracking-widest ${isCurrent ? 'text-[#001D3D]' : 'text-slate-500'}`}>{s.label}</p>
                                 </div>
                             </div>
                         );
@@ -310,15 +337,17 @@ const ConventionDetails = () => {
                     <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100 space-y-12">
                         <div className="grid grid-cols-3 gap-12">
                             <div className="space-y-1">
-                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Classification</label>
-                                <p className="text-sm font-black text-[#001D3D] uppercase">{convention.type}</p>
+                                <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Classification</label>
+                                <p className="text-sm font-black text-[#001D3D] uppercase">
+                                    {convention.type === 'national' ? 'Nationale' : convention.type === 'international' ? 'Internationale' : 'Régionale'}
+                                </p>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Partenaire Stratégique</label>
+                                <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Partenaire Stratégique</label>
                                 <p className="text-sm font-black text-[#001D3D]">{convention.partners || '—'}</p>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Année de Référence</label>
+                                <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Année de Référence</label>
                                 <p className="text-sm font-black text-[#001D3D]">{convention.year || '2024'}</p>
                             </div>
                         </div>
@@ -363,15 +392,17 @@ const ConventionDetails = () => {
                             <div className="flex justify-between items-center border-b border-gray-50 pb-6">
                                 <div>
                                     <h3 className="text-sm font-black text-[#001D3D] uppercase tracking-[0.2em]">Indicateurs Stratégiques Spécifiques</h3>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Suivi métrique détaillé par axe</p>
+                                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1">Suivi métrique détaillé par axe</p>
                                 </div>
-                                <button 
-                                    onClick={() => openKpiModal()}
-                                    className="px-6 py-3 bg-[#001D3D] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[#8B7355] transition-all flex items-center gap-2 shadow-lg shadow-[#001D3D]/10"
-                                >
-                                    <span className="material-symbols-outlined text-[16px]">add</span>
-                                    {t('ajouter_indicateur')}
-                                </button>
+                                {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
+                                    <button 
+                                        onClick={() => openKpiModal()}
+                                        className="px-6 py-3 bg-[#001D3D] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[#8B7355] transition-all flex items-center gap-2 shadow-lg shadow-[#001D3D]/10"
+                                    >
+                                        <span className="material-symbols-outlined text-[16px]">add</span>
+                                        {t('ajouter_indicateur')}
+                                    </button>
+                                )}
                             </div>
 
                             <div className="grid grid-cols-1 gap-6">
@@ -381,42 +412,48 @@ const ConventionDetails = () => {
                                             <div className="flex justify-between items-start mb-6">
                                                 <div className="space-y-1">
                                                     <h4 className="text-sm font-black text-[#001D3D] uppercase tracking-tight">{kpi.name}</h4>
-                                                    <p className="text-[10px] text-gray-400 font-bold italic">"{kpi.description || 'Pas de description'}"</p>
+                                                    <p className="text-[10px] text-slate-600 font-bold italic">"{kpi.description || 'Pas de description'}"</p>
                                                 </div>
-                                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => openKpiModal(kpi)} className="p-2 text-gray-400 hover:text-[#001D3D] transition-colors"><span className="material-symbols-outlined text-sm">edit</span></button>
-                                                    <button onClick={() => handleKpiDelete(kpi.id)} className="p-2 text-gray-400 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-sm">delete</span></button>
-                                                </div>
+                                                {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
+                                                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button onClick={() => openKpiModal(kpi)} className="p-2 text-slate-600 hover:text-[#001D3D] transition-colors"><span className="material-symbols-outlined text-sm">edit</span></button>
+                                                        <button onClick={() => handleKpiDelete(kpi.id)} className="p-2 text-slate-600 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-sm">delete</span></button>
+                                                    </div>
+                                                )}
                                             </div>
-
-                                            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+                                             <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                                                 <div className="space-y-1">
-                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Référence</p>
+                                                    <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Référence</p>
                                                     <p className="text-xs font-black text-[#001D3D]">{kpi.valeur_reference || '0'}</p>
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Objectif</p>
+                                                    <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Objectif</p>
                                                     <p className="text-xs font-black text-[#001D3D]">{kpi.valeur_cible || '0'}</p>
                                                 </div>
                                                 <div className="space-y-1">
                                                     <p className="text-[8px] font-black text-[#8B7355] uppercase tracking-[0.2em]">Atteint</p>
                                                     <p className="text-xs font-black text-[#8B7355]">{kpi.valeur_atteinte || '0'}</p>
                                                 </div>
-                                                <div className="space-y-1">
-                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Fréquence</p>
-                                                    <p className="text-xs font-black text-[#001D3D] uppercase tracking-tighter">{kpi.frequence_mesure || 'Annuel'}</p>
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Responsable</p>
-                                                    <p className="text-xs font-black text-[#001D3D] truncate">{kpi.responsable || 'Non défini'}</p>
+                                                <div className="md:col-span-2">
+                                                    <div className="flex justify-between items-center mb-1.5">
+                                                        <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Progression</span>
+                                                        <span className="text-[9px] font-black text-[#001D3D]">{Math.min(100, Math.round((parseFloat(kpi.valeur_atteinte) / parseFloat(kpi.valeur_cible)) * 100)) || 0}%</span>
+                                                    </div>
+                                                    <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                                        <motion.div 
+                                                            initial={{ width: 0 }}
+                                                            animate={{ width: `${Math.min(100, (parseFloat(kpi.valeur_atteinte) / parseFloat(kpi.valeur_cible)) * 100) || 0}%` }}
+                                                            className="h-full bg-[#001D3D] rounded-full"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     ))
                                 ) : (
                                     <div className="py-12 text-center bg-gray-50/50 rounded-[2rem] border border-dashed border-gray-200">
-                                        <span className="material-symbols-outlined text-gray-300 text-4xl mb-4">analytics</span>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Aucun indicateur de suivi spécifique pour ce projet.</p>
+                                        <span className="material-symbols-outlined text-slate-500 text-4xl mb-4">analytics</span>
+                                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Aucun indicateur de suivi spécifique pour ce projet.</p>
                                     </div>
                                 )}
                             </div>
@@ -433,7 +470,7 @@ const ConventionDetails = () => {
                             <div className="absolute left-[31px] top-4 bottom-4 w-px bg-gray-50"></div>
                             {(convention.logs || []).map((log, idx) => (
                                 <div key={log.id} className="flex gap-10 items-start relative bg-white group">
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 z-10 transition-all ${idx === 0 ? 'bg-[#001D3D] text-white shadow-xl shadow-[#001D3D]/20' : 'bg-gray-50 text-gray-300 border border-gray-100'}`}>
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 z-10 transition-all ${idx === 0 ? 'bg-[#001D3D] text-white shadow-xl shadow-[#001D3D]/20' : 'bg-gray-50 text-slate-500 border border-gray-100'}`}>
                                         <span className="material-symbols-outlined text-[20px]">
                                             {log.action === 'creation' ? 'add' : log.action === 'rejet' ? 'close' : 'check'}
                                         </span>
@@ -441,10 +478,10 @@ const ConventionDetails = () => {
                                     <div className="flex-1 pt-3">
                                         <div className="flex justify-between items-center mb-2">
                                             <h4 className="text-[11px] font-black text-[#001D3D] uppercase tracking-wider">{log.action.replace('_', ' ')}</h4>
-                                            <span className="text-[9px] font-bold text-gray-400">{format(new Date(log.created_at), 'dd/MM/yyyy HH:mm')}</span>
+                                            <span className="text-[9px] font-bold text-slate-600">{format(new Date(log.created_at), 'dd/MM/yyyy HH:mm')}</span>
                                         </div>
                                         <p className="text-xs font-bold text-gray-500">Par {log.user?.name}</p>
-                                        {log.comment && <p className="mt-3 text-[10px] text-gray-400 italic bg-gray-50/50 p-4 rounded-xl">"{log.comment}"</p>}
+                                        {log.comment && <p className="mt-3 text-[10px] text-slate-600 italic bg-gray-50/50 p-4 rounded-xl">"{log.comment}"</p>}
                                     </div>
                                 </div>
                             ))}
@@ -500,39 +537,71 @@ const ConventionDetails = () => {
                                     </div>
                                     <div>
                                         <h2 className="text-lg font-black text-[#001D3D] uppercase">
-                                            {activeModalAction === 'reject' ? 'Rejet du Dossier' : 'Avis et Pré-validation'}
+                                            {activeModalAction === 'reject' ? 'Rejet du Dossier' : 
+                                             activeModalAction === 'sign' ? 'Signature Finale et Archivage' : 
+                                             'Avis et Pré-validation'}
                                         </h2>
-                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">Saisie de commentaire obligatoire</p>
+                                        <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mt-1">
+                                            {activeModalAction === 'sign' ? 'Téléversement du document signé (PDF)' : 'Saisie de commentaire obligatoire'}
+                                        </p>
                                     </div>
                                 </div>
-                                <button onClick={() => setActiveModalAction(null)} className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors text-gray-400">
+                                <button onClick={() => setActiveModalAction(null)} className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors text-slate-600">
                                     <span className="material-symbols-outlined">close</span>
                                 </button>
                             </div>
                             <div className="p-12 space-y-8">
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2">Observations et recommandations</label>
-                                    <textarea 
-                                        required
-                                        className={`w-full bg-gray-50 border-2 border-gray-100 rounded-[2rem] p-8 text-sm font-bold text-[#001D3D] outline-none transition-all min-h-[150px] placeholder:italic ${activeModalAction === 'reject' ? 'focus:border-red-200' : 'focus:border-blue-200'}`}
-                                        placeholder={activeModalAction === 'reject' ? "Veuillez spécifier les corrections nécessaires..." : "Détaillez votre avis sur la pertinence et cohérence..."}
-                                        value={rejectionReason}
-                                        onChange={(e) => setRejectionReason(e.target.value)}
-                                    />
+                                    {activeModalAction === 'sign' ? (
+                                        <div className="space-y-4">
+                                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-2">Document final signé (Optionnel)</label>
+                                            <div className="relative group">
+                                                <input 
+                                                    type="file" 
+                                                    accept=".pdf"
+                                                    onChange={(e) => setRejectionReason(e.target.files[0])}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                />
+                                                <div className="w-full bg-gray-50 border-2 border-dashed border-gray-200 group-hover:border-green-300 rounded-[2rem] p-10 flex flex-col items-center justify-center transition-all">
+                                                    <span className="material-symbols-outlined text-4xl text-slate-300 group-hover:text-green-500 mb-2">upload_file</span>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                                        {rejectionReason instanceof File ? rejectionReason.name : "Cliquez ou glissez le PDF signé"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-2">Observations et recommandations</label>
+                                            <textarea 
+                                                required
+                                                className={`w-full bg-gray-50 border-2 border-gray-100 rounded-[2rem] p-8 text-sm font-bold text-[#001D3D] outline-none transition-all min-h-[150px] placeholder:italic ${activeModalAction === 'reject' ? 'focus:border-red-200' : 'focus:border-blue-200'}`}
+                                                placeholder={activeModalAction === 'reject' ? "Veuillez spécifier les corrections nécessaires..." : "Détaillez votre avis sur la pertinence et cohérence..."}
+                                                value={rejectionReason}
+                                                onChange={(e) => setRejectionReason(e.target.value)}
+                                            />
+                                        </>
+                                    )}
                                 </div>
                                 <div className="flex gap-4">
                                     <button 
-                                        onClick={() => setActiveModalAction(null)}
-                                        className="flex-1 py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors"
+                                        onClick={() => { setActiveModalAction(null); setRejectionReason(''); }}
+                                        className="flex-1 py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-gray-600 transition-colors"
                                     >
                                         Annuler
                                     </button>
                                     <button 
                                         onClick={() => handleWorkflowAction(activeModalAction, rejectionReason)}
-                                        disabled={!rejectionReason || submitting}
-                                        className={`flex-[2] py-5 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all disabled:opacity-50 ${activeModalAction === 'reject' ? 'bg-red-500 shadow-red-500/20' : 'bg-blue-600 shadow-blue-600/20'}`}
+                                        disabled={(activeModalAction !== 'sign' && !rejectionReason) || submitting}
+                                        className={`flex-[2] py-5 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all disabled:opacity-50 ${
+                                            activeModalAction === 'reject' ? 'bg-red-500 shadow-red-500/20' : 
+                                            activeModalAction === 'sign' ? 'bg-green-600 shadow-green-600/20' : 
+                                            'bg-blue-600 shadow-blue-600/20'
+                                        }`}
                                     >
-                                        {activeModalAction === 'reject' ? 'Confirmer le Rejet' : 'Confirmer la Pré-validation'}
+                                        {activeModalAction === 'reject' ? 'Confirmer le Rejet' : 
+                                         activeModalAction === 'sign' ? 'Valider la Signature Finale' : 
+                                         'Confirmer la Pré-validation'}
                                     </button>
                                 </div>
                             </div>
@@ -560,7 +629,7 @@ const ConventionDetails = () => {
                                         <p className="text-[9px] font-black text-[#8B7355] uppercase tracking-widest mt-1">Saisie des métriques stratégiques</p>
                                     </div>
                                 </div>
-                                <button onClick={() => setIsKpiModalOpen(false)} className="w-10 h-10 flex items-center justify-center hover:bg-red-50 hover:text-red-500 rounded-full transition-all text-gray-300">
+                                <button onClick={() => setIsKpiModalOpen(false)} className="w-10 h-10 flex items-center justify-center hover:bg-red-50 hover:text-red-500 rounded-full transition-all text-slate-500">
                                     <span className="material-symbols-outlined">close</span>
                                 </button>
                             </div>
@@ -568,7 +637,7 @@ const ConventionDetails = () => {
                             <form onSubmit={handleKpiSave} className="p-10 space-y-8 overflow-y-auto max-h-[70vh] custom-scrollbar">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="md:col-span-2 space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nom de l’indicateur</label>
+                                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Nom de l’indicateur</label>
                                         <input 
                                             required
                                             type="text"

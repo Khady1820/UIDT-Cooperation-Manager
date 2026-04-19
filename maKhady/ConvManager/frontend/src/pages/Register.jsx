@@ -12,7 +12,7 @@ const Register = () => {
         email: '',
         password: '',
         password_confirmation: '',
-        role_id: '4' // Default to Porteur de Projet
+        role_id: '3' // Default to Porteur de Projet
     });
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,8 +54,8 @@ const Register = () => {
                                 <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
                                 Retour à la connexion
                             </Link>
-                            <h3 className="text-3xl font-black text-[#001D3D] tracking-tight mb-2">{t('register')}</h3>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-loose">Création de profil institutionnel UIDT</p>
+                            <h3 className="text-4xl font-black text-black tracking-tight mb-4">{t('register')}</h3>
+                            <p className="text-sm font-black text-gray-600 uppercase tracking-widest leading-loose">Création de profil institutionnel UIDT</p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-5">
@@ -73,11 +73,11 @@ const Register = () => {
                             </AnimatePresence>
 
                             <div className="space-y-1.5">
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Nom complet</label>
+                                <label className="block text-[12px] font-black uppercase tracking-[0.2em] text-black ml-1">Nom complet</label>
                                 <input
                                     type="text"
                                     required
-                                    className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none transition-all shadow-sm"
+                                    className="w-full bg-white border-2 border-gray-200 focus:border-black focus:ring-8 focus:ring-black/5 rounded-2xl px-6 py-4 text-base font-black text-black outline-none transition-all shadow-sm"
                                     value={formData.name}
                                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                                     placeholder="Prénom Nom"
@@ -85,11 +85,11 @@ const Register = () => {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Adresse Email</label>
+                                <label className="block text-[12px] font-black uppercase tracking-[0.2em] text-black ml-1">Adresse Email</label>
                                 <input
                                     type="email"
                                     required
-                                    className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none transition-all shadow-sm"
+                                    className="w-full bg-white border-2 border-gray-200 focus:border-black focus:ring-8 focus:ring-black/5 rounded-2xl px-6 py-4 text-base font-black text-black outline-none transition-all shadow-sm"
                                     value={formData.email}
                                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                                     placeholder="nom@uidt.sn"
@@ -98,12 +98,12 @@ const Register = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div className="space-y-1.5">
-                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Mot de passe</label>
+                                    <label className="block text-[12px] font-black uppercase tracking-[0.2em] text-black ml-1">Mot de passe</label>
                                     <div className="relative">
                                         <input
                                             type={showPassword ? "text" : "password"}
                                             required
-                                            className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none transition-all pr-14 shadow-sm"
+                                            className="w-full bg-white border-2 border-gray-200 focus:border-black focus:ring-8 focus:ring-black/5 rounded-2xl px-6 py-4 text-base font-black text-black outline-none transition-all pr-14 shadow-sm"
                                             value={formData.password}
                                             onChange={(e) => setFormData({...formData, password: e.target.value})}
                                             placeholder="••••••••"
@@ -118,28 +118,32 @@ const Register = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Confirmation</label>
-                                    <input
-                                        type={showPassword ? "text" : "password"}
-                                        required
-                                        className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none transition-all shadow-sm"
-                                        value={formData.password_confirmation}
-                                        onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
-                                        placeholder="••••••••"
-                                    />
+                                    <label className="block text-[12px] font-black uppercase tracking-[0.2em] text-black ml-1">Confirmation</label>
+                                    <div className="relative">
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            required
+                                            className="w-full bg-white border-2 border-gray-200 focus:border-black focus:ring-8 focus:ring-black/5 rounded-2xl px-6 py-4 text-base font-black text-black outline-none transition-all pr-14 shadow-sm"
+                                            value={formData.password_confirmation}
+                                            onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
+                                            placeholder="••••••••"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#001D3D] transition-colors"
+                                        >
+                                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Rôle souhaité</label>
-                                <select
-                                    className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none transition-all appearance-none cursor-pointer shadow-sm"
-                                    value={formData.role_id}
-                                    onChange={(e) => setFormData({...formData, role_id: e.target.value})}
-                                >
-                                    <option value="4">Porteur de Projet</option>
-                                    <option value="3">Partenaire Externe</option>
-                                </select>
+                                <label className="block text-[12px] font-black uppercase tracking-[0.2em] text-black ml-1">Rôle</label>
+                                <div className="w-full bg-gray-100 border-2 border-gray-200 rounded-2xl px-6 py-4 text-base font-black text-black shadow-sm">
+                                    Porteur de Projet
+                                </div>
                             </div>
 
                             <div className="pt-6">
@@ -166,9 +170,9 @@ const Register = () => {
                     className="absolute inset-0 z-0"
                 >
                     <img 
-                        src="/auth-bg.png" 
+                        src="/img_uidt.jpg" 
                         alt="UIDT Architecture" 
-                        className="w-full h-full object-cover opacity-60 mix-blend-overlay rotate-180" 
+                        className="w-full h-full object-cover opacity-60 mix-blend-overlay" 
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#001D3D] via-transparent to-transparent opacity-80"></div>
                 </motion.div>
@@ -188,7 +192,7 @@ const Register = () => {
                             <h2 className="text-5xl font-black leading-[1.1] mb-6">
                                 Construisons l'avenir <br/> de la <span className="text-[#8B7355]">coopération</span>.
                             </h2>
-                            <p className="text-gray-300 text-base max-w-sm leading-relaxed font-medium opacity-80">
+                            <p className="text-white text-lg max-w-sm leading-relaxed font-black opacity-100">
                                 Rejoignez plus de 50 porteurs de projets et partenaires institutionnels qui façonnent le rayonnement de l'UIDT à travers le monde.
                             </p>
                         </div>

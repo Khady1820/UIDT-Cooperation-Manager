@@ -29,6 +29,9 @@ class UserController extends Controller
             'role_id' => $validated['role_id'],
         ]);
 
+        // Send Welcome Notification
+        $user->notify(new \App\Notifications\NewUserWelcome($validated['password']));
+
         return response()->json($user, 201);
     }
 

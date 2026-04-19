@@ -23,10 +23,19 @@ class ConventionController extends Controller
 
         if ($role === 'porteur_projet' || $role === 'responsable') {
             $query->where('user_id', $user->id);
-        } elseif ($role === 'chef_division') {
-            // Chef sees dossiers at 'soumis' stage
+            
             if ($request->has('pending')) {
-                $query->where('status', 'soumis');
+                // For porteurs, 'pending' means anything submitted but not yet finished
+                $query->whereIn('status', ['en attente', 'soumis', 'valide_chef_division', 'valide_dir_initial', 'valide_juridique', 'pret_pour_signature']);
+            }
+            
+            if ($request->has('exclude_draft')) {
+                $query->where('status', '!=', 'brouillon');
+            }
+        } elseif ($role === 'chef_division') {
+            // Chef sees dossiers at 'soumis' or 'en attente' stage
+            if ($request->has('pending')) {
+                $query->whereIn('status', ['soumis', 'en attente']);
             }
         } elseif ($role === 'directeur_cooperation' || $role === 'admin') {
             // Admin and Director see pending dossiers at 'valide_chef_division' and 'valide_juridique'
@@ -52,7 +61,8 @@ class ConventionController extends Controller
                   ->where('status', 'termine');
         }
 
-        return response()->json($query->get());
+        $conventions = $query->with('user', 'logs.user')->orderBy('created_at', 'desc')->get();
+        return response()->json($conventions);
     }
 
     public function store(Request $request)
@@ -67,12 +77,13 @@ class ConventionController extends Controller
             'year' => 'nullable|integer',
             'duration' => 'nullable|string|max:255',
             'indicator' => 'nullable|string|max:255',
+            'valeur_reference' => 'nullable|numeric',
             'target' => 'nullable|numeric',
             'actual_value' => 'nullable|numeric',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'observations' => 'nullable|string',
-            'file' => 'nullable|file|mimes:pdf,jpg,png,docx|max:10240',
+            'file' => 'nullable|file|max:20480',
         ]);
 
         $data = $request->all();
@@ -82,7 +93,7 @@ class ConventionController extends Controller
             $data['completion_rate'] = ($data['actual_value'] / $data['target']) * 100;
         }
         $data['user_id'] = $request->user()->id;
-        $data['status'] = 'brouillon';
+        $data['status'] = $request->input('status', 'brouillon');
 
         if ($request->hasFile('file')) {
             $path = $request->file('file')->store('conventions', 'public');
@@ -120,6 +131,7 @@ class ConventionController extends Controller
             'year' => 'nullable|integer',
             'duration' => 'nullable|string|max:255',
             'indicator' => 'nullable|string|max:255',
+            'valeur_reference' => 'nullable|numeric',
             'target' => 'nullable|numeric',
             'actual_value' => 'nullable|numeric',
             'start_date' => 'sometimes|date',
@@ -203,6 +215,9 @@ class ConventionController extends Controller
         })->get();
         Notification::send($directors, new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
 
+        // Notify Porteur of progress
+        $convention->user->notify(new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
+
         return response()->json($convention);
     }
 
@@ -210,9 +225,9 @@ class ConventionController extends Controller
     {
         $convention = Convention::findOrFail($id);
         
-        // Ensure it has been pre-validated by Chef if coming from submitted state
-        if ($convention->status !== 'valide_chef_division' && $request->user()->id !== 1) { // 1 is admin bypass
-             // response()->json(['error' => 'Le dossier doit être pré-validé par le Chef de Division.'], 403);
+        // Ensure it has been pre-validated by Chef
+        if ($convention->status !== 'valide_chef_division' && $request->user()->role->name !== 'admin') {
+             return response()->json(['message' => 'Le dossier doit être pré-validé par le Chef de Division.'], 403);
         }
 
         $convention->update(['status' => 'valide_dir_initial']);
@@ -275,12 +290,24 @@ class ConventionController extends Controller
     public function signByRector(Request $request, $id)
     {
         $convention = Convention::findOrFail($id);
-        $convention->update(['status' => 'termine']);
+        
+        $request->validate([
+            'signed_file' => 'nullable|file|mimes:pdf|max:10240',
+        ]);
+
+        $data = ['status' => 'termine'];
+
+        if ($request->hasFile('signed_file')) {
+            $path = $request->file('signed_file')->store('signed_conventions', 'public');
+            $data['file_path'] = $path; // Replace or keep original? Let's update file_path to the signed version
+        }
+
+        $convention->update($data);
 
         $convention->logs()->create([
             'user_id' => $request->user()->id,
             'action' => 'signature_recteur',
-            'comment' => 'Signé par le Recteur'
+            'comment' => 'Dossier signé officiellement par le Recteur. Document final archivé.'
         ]);
 
         // Notify Porteur
@@ -375,6 +402,20 @@ class ConventionController extends Controller
             ->take(3)
             ->get();
 
+        // Upcoming deadlines (expiring in less than 90 days)
+        $upcomingDeadlines = (clone $query)
+            ->where('status', 'termine')
+            ->where('end_date', '>', now())
+            ->where('end_date', '<=', now()->addDays(90))
+            ->with('user')
+            ->get();
+
+        // Status distribution for the chart
+        $statusDistribution = (clone $query)
+            ->select('status', \DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->get();
+
         return response()->json([
             'active_conventions' => $activeCount,
             'efficiency_index' => round($avgEfficiency, 1),
@@ -382,7 +423,9 @@ class ConventionController extends Controller
             'cooperation_types' => $types,
             'recent_activity' => $recentActivity,
             'pending_actions' => $pendingActions,
-            'total_conventions' => (clone $query)->count()
+            'upcoming_deadlines' => $upcomingDeadlines,
+            'total_conventions' => (clone $query)->count(),
+            'status_distribution' => $statusDistribution
         ]);
     }
 

@@ -18,10 +18,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
-            UIDTInstitutionalSeeder::class,
-            GooglePartnerSeeder::class,
-            HuaweiPartnerSeeder::class,
-            OrangePartnerSeeder::class,
+            // UIDTInstitutionalSeeder::class,
+            // GooglePartnerSeeder::class,
+            // HuaweiPartnerSeeder::class,
+            // OrangePartnerSeeder::class,
             NotificationSeeder::class,
         ]);
     }

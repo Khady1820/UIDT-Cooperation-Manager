@@ -82,15 +82,17 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role_id' => 'required|exists:roles,id',
         ]);
 
         $user = \App\Models\User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => \Illuminate\Support\Facades\Hash::make($request->password),
-            'role_id' => $request->role_id,
+            'role_id' => 3, // Obligatoirement Porteur de Projet (ID 3 dans la DB)
         ]);
+
+        // Send Welcome Notification
+        $user->notify(new \App\Notifications\NewUserWelcome());
 
         $token = $user->createToken('auth_token')->plainTextToken;
 

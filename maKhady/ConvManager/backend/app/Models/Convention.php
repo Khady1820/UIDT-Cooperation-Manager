@@ -9,7 +9,7 @@ class Convention extends Model
     protected $fillable = [
         'name', 'type', 'description', 'objectives', 'partners', 
         'start_date', 'end_date', 'status', 'user_id', 'rejection_reason',
-        'partner_type', 'year', 'duration', 'indicator', 'target', 
+        'partner_type', 'year', 'duration', 'indicator', 'valeur_reference', 'target', 
         'actual_value', 'completion_rate', 'observations', 'file_path',
         'num_dossier'
     ];

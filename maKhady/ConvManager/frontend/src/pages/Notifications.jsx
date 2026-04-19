@@ -81,21 +81,21 @@ const Notifications = () => {
     return (
         <div className="max-w-4xl mx-auto space-y-8 pb-20">
             {/* Header section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 premium-card p-8">
                 <div className="flex items-center gap-5">
                     <div className="w-14 h-14 bg-gradient-to-br from-[#001D3D] to-[#003566] rounded-2xl flex items-center justify-center shadow-xl shadow-[#001D3D]/20">
                         <span className="material-symbols-outlined text-white text-3xl">notifications_active</span>
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black text-[#001D3D] tracking-tight">Alertes Institutionnelles</h1>
-                        <p className="text-[11px] font-bold text-[#8B7355] uppercase tracking-[0.3em] mt-1 ml-0.5">Centre de Notification UIDT</p>
+                        <h1 className="text-3xl font-black text-institutional tracking-tight">Alertes Institutionnelles</h1>
+                        <p className="text-[11px] font-bold text-[#8B7355] uppercase tracking-[0.3em] mt-1 ml-0.5 dark:text-amber-400/80">Centre de Notification UIDT</p>
                     </div>
                 </div>
                 
                 {notifications.some(n => !n.read_at) && (
                     <button 
                         onClick={markAllRead}
-                        className="px-6 py-3 bg-[#F1F3F5] hover:bg-[#E9ECEF] text-[#001D3D] text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-gray-100 shadow-sm"
+                        className="px-6 py-3 bg-[#F1F3F5] dark:bg-slate-800 hover:bg-[#E9ECEF] dark:hover:bg-slate-700 text-institutional text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-gray-100 dark:border-slate-700 shadow-sm"
                     >
                         Tout marquer comme lu
                     </button>
@@ -105,9 +105,9 @@ const Notifications = () => {
             {/* Notifications list */}
             <div className="space-y-4">
                 {notifications.length === 0 ? (
-                    <div className="bg-white p-20 rounded-[3rem] border border-dashed border-gray-200 text-center space-y-4">
-                        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
-                            <span className="material-symbols-outlined text-4xl text-gray-200">notifications_off</span>
+                    <div className="premium-card p-20 border-dashed border-gray-200 dark:border-slate-700 text-center space-y-4">
+                        <div className="w-20 h-20 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto">
+                            <span className="material-symbols-outlined text-4xl text-gray-200 dark:text-slate-600">notifications_off</span>
                         </div>
                         <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Aucune notification archivée</p>
                     </div>
@@ -119,11 +119,11 @@ const Notifications = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.05 }}
-                                className={`group relative bg-white p-6 md:p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-[#001D3D]/5 hover:border-[#001D3D]/10 transition-all duration-300 ${!n.read_at ? 'ring-2 ring-blue-500/5' : 'grayscale-[0.5] opacity-80'}`}
+                                className={`group relative premium-card p-6 md:p-8 hover:shadow-xl hover:shadow-[#001D3D]/5 hover:border-[#001D3D]/10 transition-all duration-300 ${!n.read_at ? 'ring-2 ring-blue-500/5' : 'grayscale-[0.5] opacity-80'}`}
                             >
                                 <div className="flex gap-6 items-start">
                                     {/* Icon Column */}
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner border border-white/50 ${getStatusColor(n.data.status)}`}>
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner border border-white/50 dark:border-white/10 ${getStatusColor(n.data.status)}`}>
                                         <span className="material-symbols-outlined text-2xl font-bold">
                                             {getIcon(n.data.status)}
                                         </span>
@@ -140,7 +140,7 @@ const Notifications = () => {
                                                         {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
                                                     </span>
                                                 </div>
-                                                <h3 className={`text-lg font-black leading-tight ${!n.read_at ? 'text-[#001D3D]' : 'text-gray-500'}`}>
+                                                <h3 className={`text-lg font-black leading-tight ${!n.read_at ? 'text-institutional' : 'text-slate-400'}`}>
                                                     {n.data.message}
                                                 </h3>
                                             </div>
@@ -156,17 +156,17 @@ const Notifications = () => {
                                             )}
                                         </div>
 
-                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t border-gray-50">
-                                            <div className="flex items-center gap-3 bg-gray-50/80 px-4 py-2 rounded-xl border border-gray-100">
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t border-gray-50 dark:border-slate-700">
+                                            <div className="flex items-center gap-3 bg-gray-50/80 dark:bg-slate-800/80 px-4 py-2 rounded-xl border border-gray-100 dark:border-slate-700">
                                                 <span className="material-symbols-outlined text-[16px] text-gray-400">description</span>
-                                                <span className="text-[10px] font-black text-[#001D3D] uppercase tracking-tighter truncate max-w-[200px]">
+                                                <span className="text-[10px] font-black text-institutional uppercase tracking-tighter truncate max-w-[200px]">
                                                     {n.data.convention_name}
                                                 </span>
                                             </div>
 
                                             <button 
                                                 onClick={() => navigate(`/conventions/${n.data.convention_id}`)}
-                                                className="flex items-center gap-2 text-[10px] font-black text-[#001D3D] uppercase tracking-widest hover:translate-x-1 transition-transform group-hover:text-blue-600"
+                                                className="flex items-center gap-2 text-[10px] font-black text-institutional uppercase tracking-widest hover:translate-x-1 transition-transform group-hover:text-blue-600 dark:group-hover:text-blue-400"
                                             >
                                                 Accéder au dossier 
                                                 <span className="material-symbols-outlined text-[16px]">arrow_forward</span>

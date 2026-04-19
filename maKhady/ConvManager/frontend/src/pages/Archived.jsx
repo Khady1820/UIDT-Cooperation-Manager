@@ -98,7 +98,7 @@ const Archived = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
                     <h1 className="text-3xl font-black text-[#001D3D] tracking-tight">{t('archived')} Institutionnelles</h1>
-                    <p className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-wider">{t('institutional_sub')} • Dossiers Historiques</p>
+                    <p className="text-sm font-bold text-slate-600 mt-1 uppercase tracking-wider">{t('institutional_sub')} • Dossiers Historiques</p>
                 </div>
                 <div className="flex gap-4">
                     <button onClick={() => fetchConventions()} className="p-4 bg-white border border-gray-100 rounded-2xl text-[#001D3D] hover:bg-gray-50 transition-all shadow-sm">
@@ -115,16 +115,16 @@ const Archived = () => {
             <div className="bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.02)] border border-gray-100 overflow-hidden">
                 <div className="p-10 border-b border-gray-50 bg-[#FBFBFB]/50 flex items-center justify-between">
                     <div className="relative w-full max-w-md group">
-                        <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#001D3D] transition-colors text-[20px]">search</span>
+                        <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#001D3D] transition-colors text-[20px]">search</span>
                         <input 
                             type="text" 
                             placeholder={t('search')} 
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full bg-white border border-gray-100 text-[#001D3D] rounded-2xl pl-14 pr-6 py-4 text-xs font-bold placeholder:text-gray-300 focus:outline-none focus:ring-8 focus:ring-[#001D3D]/5 focus:border-[#001D3D]/10 transition-all shadow-sm"
+                            className="w-full bg-white border border-gray-100 text-[#001D3D] rounded-2xl pl-14 pr-6 py-4 text-xs font-bold placeholder:text-slate-500 focus:outline-none focus:ring-8 focus:ring-[#001D3D]/5 focus:border-[#001D3D]/10 transition-all shadow-sm"
                         />
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] font-black text-gray-300 uppercase tracking-widest bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
+                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
                         <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
                         {filteredConventions.length} Archives Trouvées
                     </div>
@@ -133,7 +133,7 @@ const Archived = () => {
                 <div className="overflow-x-auto min-h-[400px]">
                     <table className="w-full text-left border-collapse table-fixed min-w-[1500px]">
                         <thead>
-                            <tr className="bg-[#F1F3F5]/30 text-[10px] text-gray-400 uppercase font-black tracking-[0.2em] border-b border-gray-100">
+                            <tr className="bg-[#F1F3F5]/30 text-[11px] text-slate-600 uppercase font-black tracking-widest border-b border-gray-100">
                                 <th className="px-8 py-6 w-40">{t('num_dossier')}</th>
                                 <th className="px-8 py-6 w-80">{t('project_title_short')}</th>
                                 <th className="px-8 py-6 w-40">{t('cooperation_type')}</th>
@@ -185,7 +185,7 @@ const Archived = () => {
                                                 </span>
                                             </td>
                                             <td className="px-8 py-7 text-xs font-black text-[#001D3D] uppercase tracking-tighter">{conv.partners || '-'}</td>
-                                            <td className="px-8 py-7 text-xs font-bold text-gray-400">{conv.year || '-'}</td>
+                                            <td className="px-8 py-7 text-xs font-bold text-slate-600">{conv.year || '-'}</td>
                                             <td className="px-8 py-7 text-xs font-bold text-[#8B7355]">{conv.duration || '-'}</td>
                                             <td className="px-8 py-7">
                                                 <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${conv.status === 'termine' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
@@ -194,10 +194,10 @@ const Archived = () => {
                                             </td>
                                             <td className="px-8 py-7 text-right sticky right-0 bg-white/95 group-hover:bg-gray-50 transition-colors shadow-[-10px_0_20px_rgba(0,0,0,0.02)]">
                                                 <div className="flex justify-end gap-2">
-                                                    <button onClick={() => handleRestore(conv.id)} title="Restaurer" className="w-9 h-9 flex items-center justify-center bg-white border border-gray-100 text-gray-400 hover:text-green-500 hover:shadow-lg rounded-xl transition-all">
+                                                    <button onClick={() => handleRestore(conv.id)} title="Restaurer" className="w-9 h-9 flex items-center justify-center bg-white border border-gray-100 text-slate-600 hover:text-green-500 hover:shadow-lg rounded-xl transition-all">
                                                         <span className="material-symbols-outlined text-[18px]">unarchive</span>
                                                     </button>
-                                                    <button onClick={() => handleDelete(conv.id)} title="Supprimer" className="w-9 h-9 flex items-center justify-center bg-white border border-gray-100 text-gray-400 hover:text-red-500 hover:shadow-lg rounded-xl transition-all">
+                                                    <button onClick={() => handleDelete(conv.id)} title="Supprimer" className="w-9 h-9 flex items-center justify-center bg-white border border-gray-100 text-slate-600 hover:text-red-500 hover:shadow-lg rounded-xl transition-all">
                                                         <span className="material-symbols-outlined text-[18px]">delete</span>
                                                     </button>
                                                 </div>
@@ -236,12 +236,12 @@ const Archived = () => {
                                 </span>
                             </div>
                             <h3 className="text-xl font-black text-[#001D3D] mb-2 uppercase tracking-tight">{confirmConfig.title}</h3>
-                            <p className="text-xs font-bold text-gray-400 leading-relaxed mb-8">{confirmConfig.message}</p>
+                            <p className="text-xs font-bold text-slate-600 leading-relaxed mb-8">{confirmConfig.message}</p>
                             
                             <div className="flex gap-3">
                                 <button 
                                     onClick={() => setConfirmConfig({ ...confirmConfig, open: false })}
-                                    className="flex-1 px-6 py-4 bg-gray-50 text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-100"
+                                    className="flex-1 px-6 py-4 bg-gray-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-100"
                                 >
                                     Annuler
                                 </button>
