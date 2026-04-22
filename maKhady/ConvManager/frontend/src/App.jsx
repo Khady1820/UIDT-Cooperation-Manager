@@ -9,6 +9,7 @@ import Conventions from './pages/Conventions';
 import ConventionDetails from './pages/ConventionDetails';
 import Settings from './pages/Settings';
 import PartnerDashboard from './pages/PartnerDashboard';
+import SecretariatDashboard from './pages/SecretariatDashboard';
 import Register from './pages/Register';
 import Indicators from './pages/Indicators';
 import Validation from './pages/Validation';
@@ -74,7 +75,6 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/conventions/:id" element={
-
                 <ProtectedRoute>
                   <Layout>
                     <ConventionDetails />

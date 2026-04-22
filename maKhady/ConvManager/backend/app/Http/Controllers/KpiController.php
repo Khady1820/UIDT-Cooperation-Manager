@@ -55,6 +55,7 @@ class KpiController extends Controller
         ]);
 
         $kpi = Kpi::create($request->all());
+        $kpi->convention->refreshCompletionRate();
         return response()->json($kpi, 201);
     }
 
@@ -80,13 +81,16 @@ class KpiController extends Controller
         ]);
 
         $kpi->update($request->all());
+        $kpi->convention->refreshCompletionRate();
         return response()->json($kpi);
     }
 
     public function destroy($id)
     {
         $kpi = Kpi::findOrFail($id);
+        $convention = $kpi->convention;
         $kpi->delete();
+        $convention->refreshCompletionRate();
         return response()->json(['message' => 'KPI deleted successfully']);
     }
 }

@@ -158,6 +158,11 @@ const Conventions = () => {
                 setToast({ message: 'Veuillez renseigner les dates de début et de fin.', type: 'error' });
                 return;
             }
+        } else if (currentStep === 4) {
+            if (!selectedFile && !formData.file_path) {
+                setToast({ message: 'Le dépôt du document (PDF/Image) est obligatoire.', type: 'error' });
+                return;
+            }
         }
         
         if (currentStep < 5) setCurrentStep(currentStep + 1);
@@ -302,7 +307,44 @@ const Conventions = () => {
         (c.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
         (c.partners || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (c.partner_type || '').toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    ).sort((a, b) => {
+        const valA = String(a.num_dossier || a.id);
+        const valB = String(b.num_dossier || b.id);
+        return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+    });
+
+    const handleExport = () => {
+        if (conventions.length === 0) return;
+        
+        // CSV Header
+        const headers = ["Nom", "Type", "Partenaires", "Statut", "Date Debut", "Date Fin", "Taux de Realisation (%)"];
+        
+        // CSV Rows (replacing accents for CSV compatibility)
+        const rows = conventions.map(c => [
+            c.name.replace(/,/g, " "),
+            c.type,
+            (c.partners || "").replace(/,/g, " "),
+            c.status,
+            c.start_date,
+            c.end_date,
+            c.completion_rate ? parseFloat(c.completion_rate).toFixed(1) : "0"
+        ]);
+        
+        const csvContent = [
+            headers.join(","),
+            ...rows.map(r => r.join(","))
+        ].join("\n");
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `conventions_uidt_${new Date().toISOString().slice(0,10)}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     return (
         <div className="space-y-10">
@@ -313,6 +355,14 @@ const Conventions = () => {
                     <p className="text-sm font-bold text-slate-600 mt-1 uppercase tracking-wider">{t('institutional_sub')} • Répertoire des Projets</p>
                 </div>
                 <div className="flex gap-4">
+                    <button 
+                        onClick={handleExport}
+                        className="px-6 py-4 bg-white border border-gray-100 rounded-2xl text-[#001D3D] text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2"
+                        title="Exporter en CSV"
+                    >
+                        <span className="material-symbols-outlined text-[18px]">download</span>
+                        Exporter
+                    </button>
                     <button onClick={() => fetchConventions()} className="p-4 bg-white border border-gray-100 rounded-2xl text-[#001D3D] hover:bg-gray-50 transition-all shadow-sm">
                         <span className="material-symbols-outlined text-[20px] block">refresh</span>
                     </button>
@@ -435,12 +485,16 @@ const Conventions = () => {
                                             <td className="px-8 py-7 text-xs font-black text-slate-500">{conv.target || '-'}</td>
                                             <td className="px-8 py-7 text-xs font-black text-[#001D3D]">{conv.actual_value || '-'}</td>
                                             <td className="px-8 py-7">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden min-w-[60px]">
-                                                        <div className="h-full bg-[#001D3D]" style={{ width: `${Math.min(conv.completion_rate || 0, 100)}%` }}></div>
+                                                {['signe_recteur', 'termine'].includes(conv.status) ? (
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden min-w-[60px]">
+                                                            <div className="h-full bg-[#001D3D]" style={{ width: `${Math.min(conv.completion_rate || 0, 100)}%` }}></div>
+                                                        </div>
+                                                        <span className="text-[10px] font-black text-[#001D3D]">{conv.completion_rate || 0}%</span>
                                                     </div>
-                                                    <span className="text-[10px] font-black text-[#001D3D]">{conv.completion_rate || 0}%</span>
-                                                </div>
+                                                ) : (
+                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100">Prévu</span>
+                                                )}
                                             </td>
                                             <td className="px-8 py-7 text-xs font-medium text-slate-600 italic line-clamp-1">{conv.observations || '-'}</td>
                                             <td className="px-8 py-7">
@@ -465,9 +519,21 @@ const Conventions = () => {
                                                             <span className="material-symbols-outlined text-[18px]">edit</span>
                                                         </button>
                                                         <button 
-                                                            onClick={() => handleArchive(conv.id)} 
-                                                            title="Archiver"
-                                                            className="w-9 h-9 flex items-center justify-center bg-white border border-gray-100 text-slate-600 hover:text-amber-600 hover:shadow-lg rounded-xl transition-all"
+                                                            onClick={() => {
+                                                                // Bloquer seulement ce qui est "Vivant" ou "En traitement"
+                                                                const nonArchivable = ['soumis', 'en attente', 'valide_dir_initial', 'valide_juridique', 'pret_pour_signature', 'signe_recteur', 'en cours'];
+                                                                if (nonArchivable.includes(conv.status)) {
+                                                                    setToast({ message: "Action bloquée : Ce dossier est actuellement ACTIF ou EN COURS DE TRAITEMENT. Il ne peut pas être archivé.", type: 'error' });
+                                                                    return;
+                                                                }
+                                                                handleArchive(conv.id);
+                                                            }} 
+                                                            title={['soumis', 'en attente', 'valide_dir_initial', 'valide_juridique', 'pret_pour_signature', 'signe_recteur', 'en cours'].includes(conv.status) ? "Archivage bloqué (Dossier Actif/En cours)" : "Archiver ce dossier"}
+                                                            className={`w-9 h-9 flex items-center justify-center bg-white border border-gray-100 rounded-xl transition-all ${
+                                                                ['soumis', 'en attente', 'valide_dir_initial', 'valide_juridique', 'pret_pour_signature', 'signe_recteur', 'en cours'].includes(conv.status)
+                                                                ? 'opacity-20 cursor-not-allowed text-gray-400' 
+                                                                : 'text-slate-600 hover:text-amber-600 hover:shadow-lg'
+                                                            }`}
                                                         >
                                                             <span className="material-symbols-outlined text-[18px]">archive</span>
                                                         </button>
@@ -628,10 +694,12 @@ const Conventions = () => {
                                                 <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('target')}</label>
                                                 <input type="number" className="uidt-input w-full" value={formData.target} onChange={e => handleInputChange('target', e.target.value)} />
                                             </div>
-                                            <div className="space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('actual_value')}</label>
-                                                <input type="number" className="uidt-input w-full font-black text-[#001D3D]" value={formData.actual_value} onChange={e => handleInputChange('actual_value', e.target.value)} />
-                                            </div>
+                                            {['signe_recteur', 'termine'].includes(formData.status) && (
+                                                <div className="space-y-3">
+                                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('actual_value')}</label>
+                                                    <input type="number" className="uidt-input w-full font-black text-[#001D3D]" value={formData.actual_value} onChange={e => handleInputChange('actual_value', e.target.value)} />
+                                                </div>
+                                            )}
                                         </div>
                                     </motion.div>
                                 )}
@@ -639,13 +707,13 @@ const Conventions = () => {
                                 {currentStep === 4 && (
                                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
                                         <div className="bg-gray-50/50 p-10 rounded-[2.5rem] border-2 border-dashed border-gray-100 flex flex-col items-center justify-center gap-6 group cursor-pointer hover:bg-white hover:border-[#001D3D]/20 transition-all" onClick={() => fileInputRef.current.click()}>
-                                            <input ref={fileInputRef} type="file" className="hidden" onChange={(e) => setSelectedFile(e.target.files[0])} />
+                                            <input ref={fileInputRef} type="file" className="hidden" onChange={(e) => setSelectedFile(e.target.files[0])} accept=".doc,.docx" />
                                             <div className={`w-20 h-20 rounded-3xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${selectedFile ? 'bg-green-500 text-white shadow-green-200' : 'bg-[#001D3D] text-white shadow-[#001D3D]/20'}`}>
                                                 <span className="material-symbols-outlined text-4xl">{selectedFile ? 'task' : 'upload_file'}</span>
                                             </div>
                                             <div className="text-center">
-                                                <h3 className="text-sm font-black text-[#001D3D] uppercase tracking-widest">{selectedFile ? selectedFile.name : 'DÉPOSER LE DOCUMENT (FACULTATIF)'}</h3>
-                                                <p className="text-[10px] font-bold text-slate-600 mt-2 uppercase tracking-widest">Formats acceptés : PDF, JPG, PNG (Max 10Mo)</p>
+                                                <h3 className="text-sm font-black text-[#001D3D] uppercase tracking-widest">{selectedFile ? selectedFile.name : 'DÉPOSER LE DOCUMENT (OBLIGATOIRE)'}</h3>
+                                                <p className="text-[10px] font-bold text-slate-600 mt-2 uppercase tracking-widest">Format Word (.doc, .docx) uniquement (Max 10Mo)</p>
                                             </div>
                                         </div>
                                     </motion.div>

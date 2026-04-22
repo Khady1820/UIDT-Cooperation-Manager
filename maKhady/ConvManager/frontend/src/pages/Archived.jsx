@@ -38,7 +38,8 @@ const Archived = () => {
         setLoading(true);
         try {
             const res = await api.get('/conventions');
-            const archivedOnly = res.data.filter(c => c.status === 'archive');
+            // Include both 'termine' (signed/finished) and 'archive' statuses
+            const archivedOnly = res.data.filter(c => c.status === 'archive' || c.status === 'termine');
 
             setConventions(archivedOnly);
         } catch (err) {
@@ -98,7 +99,14 @@ const Archived = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
                     <h1 className="text-3xl font-black text-[#001D3D] tracking-tight">{t('archived')} Institutionnelles</h1>
-                    <p className="text-sm font-bold text-slate-600 mt-1 uppercase tracking-wider">{t('institutional_sub')} • Dossiers Historiques</p>
+                    <div className="flex items-center gap-3 mt-2">
+                        <p className="text-sm font-bold text-slate-600 uppercase tracking-wider">{t('institutional_sub')} • Dossiers Historiques</p>
+                        <div className="w-1 h-1 bg-slate-300 rounded-full"></div>
+                        <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 rounded-lg border border-amber-100">
+                            <span className="material-symbols-outlined text-[14px] text-amber-600">verified</span>
+                            <span className="text-[9px] font-black text-amber-700 uppercase tracking-widest">Signature Recteur + Archivage Secrétariat</span>
+                        </div>
+                    </div>
                 </div>
                 <div className="flex gap-4">
                     <button onClick={() => fetchConventions()} className="p-4 bg-white border border-gray-100 rounded-2xl text-[#001D3D] hover:bg-gray-50 transition-all shadow-sm">
@@ -188,8 +196,8 @@ const Archived = () => {
                                             <td className="px-8 py-7 text-xs font-bold text-slate-600">{conv.year || '-'}</td>
                                             <td className="px-8 py-7 text-xs font-bold text-[#8B7355]">{conv.duration || '-'}</td>
                                             <td className="px-8 py-7">
-                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${conv.status === 'termine' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
-                                                    {conv.status.replace('_', ' ')}
+                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${conv.status === 'termine' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-gray-100 text-gray-600'}`}>
+                                                    {conv.status === 'termine' ? 'SIGNÉE & ARCHIVÉE' : conv.status.replace('_', ' ')}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-7 text-right sticky right-0 bg-white/95 group-hover:bg-gray-50 transition-colors shadow-[-10px_0_20px_rgba(0,0,0,0.02)]">

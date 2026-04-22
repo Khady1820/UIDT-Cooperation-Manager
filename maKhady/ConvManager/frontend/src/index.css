@@ -31,7 +31,7 @@
 
   html {
     scroll-behavior: smooth;
-    font-size: 18px;
+    font-size: 16px;
   }
 
   body {
@@ -80,7 +80,7 @@
   }
 
   html {
-    font-size: 18px;
+    font-size: 16px;
   }
   .premium-input {
     @apply w-full px-5 py-4 rounded-2xl border border-outline-variant bg-surface-100/50 text-surface-900 text-sm font-bold placeholder:text-surface-400 focus:border-primary/50 focus:ring-8 focus:ring-primary/5 outline-none transition-all font-sans;
@@ -182,29 +182,51 @@
 @media print {
   @page {
     size: A4;
-    margin: 2cm;
-  }
-
-  /* Hide UI elements */
-  aside, 
-  header, 
-  nav,
-  .no-print {
-    display: none !important;
+    margin: 1.5cm;
   }
 
   /* Reset layout for print */
-  main,
   #root,
-  .min-h-screen {
-    background: white !important;
+  .h-screen,
+  .min-h-screen,
+  .overflow-hidden,
+  .overflow-y-auto {
+    height: auto !important;
+    overflow: visible !important;
+    position: static !important;
+    display: block !important;
+  }
+
+  /* Hide UI elements - placed AFTER layout reset to ensure priority */
+  aside, 
+  header, 
+  nav,
+  .no-print,
+  .no-print *,
+  button:not(.print-only) {
+    display: none !important;
+  }
+
+  .ml-72, .ml-64 {
+    margin-left: 0 !important;
+  }
+
+
+  main {
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Ensure content is full width */
+  .p-10, .p-12, .p-8 {
+    padding: 1rem !important;
   }
 
   /* Show hidden print elements */
-  .print-only {
+  .print-only, .print\:block {
     display: block !important;
   }
 
@@ -214,10 +236,39 @@
     print-color-adjust: exact !important;
   }
 
-  /* Prevent section breaks */
-  .bg-white, .institution-card {
-    break-inside: avoid;
-    border: 1px solid #eee !important;
-    box-shadow: none !important;
+  /* Typography for print */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt !important;
   }
+
+  h1 { font-size: 18pt !important; }
+  h2 { font-size: 16pt !important; }
+  h3 { font-size: 14pt !important; }
+
+  /* Prevent section breaks */
+  .bg-white, 
+  .institution-card, 
+  .premium-card,
+  .rounded-\[2\.5rem\],
+  .rounded-\[3rem\],
+  .rounded-\[3\.5rem\] {
+    break-inside: avoid;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    background-color: white !important;
+    border-radius: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Fix for images */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* Links */
+  a { text-decoration: none !important; color: black !important; }
 }
+

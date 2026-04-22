@@ -43,18 +43,18 @@ const Indicators = () => {
     );
 
     const radarData = filteredKpis
-        .filter(k => k.valeur_cible > 0 && !k.name.match(/^[zda-z]{4,}$/i)) // Filter out garbage test data
-        .slice(0, 6)
+        .filter(k => k.valeur_cible > 0) // Only need target > 0 to calculate %
+        .slice(0, 12) // Show up to 12 main indicators
         .map(k => ({
-            subject: k.name.length > 15 ? k.name.substring(0, 15) + '...' : k.name,
+            subject: k.name.length > 20 ? k.name.substring(0, 20) + '...' : k.name,
             A: Math.min(100, Math.round((parseFloat(k.valeur_atteinte) / parseFloat(k.valeur_cible)) * 100)),
             fullMark: 100,
         }));
 
     const barData = filteredKpis
-        .filter(k => k.valeur_cible > 0 && !k.name.match(/^[zda-z]{4,}$/i))
+        .filter(k => k.valeur_cible > 0)
         .map(k => ({
-            name: k.name.length > 20 ? k.name.substring(0, 20) + '...' : k.name,
+            name: k.name.length > 25 ? k.name.substring(0, 25) + '...' : k.name,
             value: Math.min(100, Math.round((parseFloat(k.valeur_atteinte) / parseFloat(k.valeur_cible)) * 100)),
             realValue: k.valeur_atteinte,
             target: k.valeur_cible,

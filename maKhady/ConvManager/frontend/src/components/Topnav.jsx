@@ -65,7 +65,7 @@ const Topnav = () => {
     };
 
     return (
-        <header className="fixed top-0 right-0 w-[calc(100%-18rem)] h-20 z-40 bg-institutional flex justify-between items-center px-10 transition-all duration-300 shadow-2xl border-b border-white/10">
+        <header className="no-print sticky top-0 w-full h-20 z-40 bg-institutional flex justify-between items-center px-10 transition-all duration-300 shadow-2xl border-b border-white/10">
             <div className="flex items-center gap-8">
                 <h2 className="text-lg font-black text-white tracking-tight uppercase">{t('app_name')}</h2>
                 

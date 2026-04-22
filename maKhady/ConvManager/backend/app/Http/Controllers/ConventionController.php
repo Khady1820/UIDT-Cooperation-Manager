@@ -83,7 +83,7 @@ class ConventionController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'observations' => 'nullable|string',
-            'file' => 'nullable|file|max:20480',
+            'file' => 'required|file|mimes:doc,docx|max:20480',
         ]);
 
         $data = $request->all();
@@ -122,24 +122,9 @@ class ConventionController extends Controller
         $convention = Convention::findOrFail($id);
 
         $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'type' => 'sometimes|in:regional,national,international',
-            'partner_type' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'objectives' => 'nullable|string',
-            'partners' => 'nullable|string',
-            'year' => 'nullable|integer',
-            'duration' => 'nullable|string|max:255',
-            'indicator' => 'nullable|string|max:255',
-            'valeur_reference' => 'nullable|numeric',
-            'target' => 'nullable|numeric',
-            'actual_value' => 'nullable|numeric',
-            'start_date' => 'sometimes|date',
-            'end_date' => 'sometimes|date|after_or_equal:start_date',
+            'file' => 'nullable|file|max:20480',
+            'status' => 'sometimes|string',
             'observations' => 'nullable|string',
-            'file' => 'nullable|file|mimes:pdf,jpg,png,docx|max:10240',
-            'status' => 'sometimes|string|in:brouillon,soumis,valide_dir,signe_recteur,rejete,termine,archive,en cours,en attente',
-
         ]);
 
         $data = $request->all();
@@ -155,6 +140,13 @@ class ConventionController extends Controller
         if ($request->hasFile('file')) {
             $path = $request->file('file')->store('conventions', 'public');
             $data['file_path'] = $path;
+            
+            // Log the document update explicitly
+            $convention->logs()->create([
+                'user_id' => $request->user()->id,
+                'action' => 'modification_document',
+                'comment' => 'Une nouvelle version corrigée du document a été téléversée.'
+            ]);
         }
 
         $oldStatus = $convention->status;
@@ -185,11 +177,15 @@ class ConventionController extends Controller
             'comment' => 'Convention soumise pour première validation (Direction)'
         ]);
 
-        // Notify Chef de Division (instead of Director)
-        $chefs = User::whereHas('role', function($q) {
-            $q->where('name', 'chef_division');
-        })->get();
-        Notification::send($chefs, new ConventionStatusChanged($convention, 'soumis', $request->user()));
+        // Notify Chef de Division
+        try {
+            $chefs = User::whereHas('role', function($q) {
+                $q->where('name', 'chef_division');
+            })->get();
+            Notification::send($chefs, new ConventionStatusChanged($convention, 'soumis', $request->user()));
+        } catch (\Exception $e) {
+            \Log::error('Mail Error: ' . $e->getMessage());
+        }
 
         return response()->json($convention);
     }
@@ -201,6 +197,11 @@ class ConventionController extends Controller
         ]);
 
         $convention = Convention::findOrFail($id);
+        
+        if ($convention->status === 'valide_chef_division') {
+            return response()->json(['message' => 'Ce dossier a déjà été pré-validé par le Chef de Division.'], 200);
+        }
+
         $convention->update(['status' => 'valide_chef_division']);
 
         $convention->logs()->create([
@@ -209,14 +210,16 @@ class ConventionController extends Controller
             'comment' => 'Pré-validation effectuée par le Chef de Division. Avis : ' . $request->comment
         ]);
 
-        // Notify Directors
-        $directors = User::whereHas('role', function($q) {
-            $q->where('name', 'directeur_cooperation');
-        })->get();
-        Notification::send($directors, new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
-
-        // Notify Porteur of progress
-        $convention->user->notify(new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
+        // Notify Directors & Porteur
+        try {
+            $directors = User::whereHas('role', function($q) {
+                $q->where('name', 'directeur_cooperation');
+            })->get();
+            Notification::send($directors, new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
+            $convention->user->notify(new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
+        } catch (\Exception $e) {
+            \Log::error('Mail Error: ' . $e->getMessage());
+        }
 
         return response()->json($convention);
     }
@@ -225,9 +228,13 @@ class ConventionController extends Controller
     {
         $convention = Convention::findOrFail($id);
         
+        if ($convention->status === 'valide_dir_initial') {
+            return response()->json(['message' => 'Ce dossier a déjà été validé par la Direction.'], 200);
+        }
+        
         // Ensure it has been pre-validated by Chef
         if ($convention->status !== 'valide_chef_division' && $request->user()->role->name !== 'admin') {
-             return response()->json(['message' => 'Le dossier doit être pré-validé par le Chef de Division.'], 403);
+             return response()->json(['message' => 'Le dossier doit être pré-validé par le Chef de Division avant cette étape.'], 403);
         }
 
         $convention->update(['status' => 'valide_dir_initial']);
@@ -239,10 +246,14 @@ class ConventionController extends Controller
         ]);
 
         // Notify Legal
-        $legalUsers = User::whereHas('role', function($q) {
-            $q->where('name', 'service_juridique');
-        })->get();
-        Notification::send($legalUsers, new ConventionStatusChanged($convention, 'valide_dir_initial', $request->user()));
+        try {
+            $legalUsers = User::whereHas('role', function($q) {
+                $q->where('name', 'service_juridique');
+            })->get();
+            Notification::send($legalUsers, new ConventionStatusChanged($convention, 'valide_dir_initial', $request->user()));
+        } catch (\Exception $e) {
+            \Log::error('Mail Error: ' . $e->getMessage());
+        }
 
         return response()->json($convention);
     }
@@ -250,6 +261,11 @@ class ConventionController extends Controller
     public function validateByLegal(Request $request, $id)
     {
         $convention = Convention::findOrFail($id);
+
+        if ($convention->status === 'valide_juridique') {
+            return response()->json(['message' => 'Le visa juridique a déjà été accordé pour ce dossier.'], 200);
+        }
+
         $convention->update(['status' => 'valide_juridique']);
 
         $convention->logs()->create([
@@ -259,10 +275,14 @@ class ConventionController extends Controller
         ]);
 
         // Notify Directors
-        $directors = User::whereHas('role', function($q) {
-            $q->where('name', 'directeur_cooperation');
-        })->get();
-        Notification::send($directors, new ConventionStatusChanged($convention, 'valide_juridique', $request->user()));
+        try {
+            $directors = User::whereHas('role', function($q) {
+                $q->where('name', 'directeur_cooperation');
+            })->get();
+            Notification::send($directors, new ConventionStatusChanged($convention, 'valide_juridique', $request->user()));
+        } catch (\Exception $e) {
+            \Log::error('Mail Error: ' . $e->getMessage());
+        }
 
         return response()->json($convention);
     }
@@ -279,10 +299,14 @@ class ConventionController extends Controller
         ]);
 
         // Notify Recteurs
-        $recteurs = User::whereHas('role', function($q) {
-            $q->where('name', 'recteur');
-        })->get();
-        Notification::send($recteurs, new ConventionStatusChanged($convention, 'pret_pour_signature', $request->user()));
+        try {
+            $recteurs = User::whereHas('role', function($q) {
+                $q->where('name', 'recteur');
+            })->get();
+            Notification::send($recteurs, new ConventionStatusChanged($convention, 'pret_pour_signature', $request->user()));
+        } catch (\Exception $e) {
+            \Log::error('Mail Error: ' . $e->getMessage());
+        }
 
         return response()->json($convention);
     }
@@ -311,7 +335,11 @@ class ConventionController extends Controller
         ]);
 
         // Notify Porteur
-        $convention->user->notify(new ConventionStatusChanged($convention, 'termine', $request->user()));
+        try {
+            $convention->user->notify(new ConventionStatusChanged($convention, 'termine', $request->user()));
+        } catch (\Exception $e) {
+            \Log::error('Mail Error: ' . $e->getMessage());
+        }
 
         return response()->json($convention);
     }
@@ -348,13 +376,17 @@ class ConventionController extends Controller
         ]);
 
         // Notify 
-        if ($newStatus === 'soumis') {
-            $directors = User::whereHas('role', function($q) {
-                $q->where('name', 'directeur_cooperation');
-            })->get();
-            Notification::send($directors, new ConventionStatusChanged($convention, 'soumis', $user));
-        } else {
-            $convention->user->notify(new ConventionStatusChanged($convention, 'brouillon', $user));
+        try {
+            if ($newStatus === 'soumis') {
+                $directors = User::whereHas('role', function($q) {
+                    $q->where('name', 'directeur_cooperation');
+                })->get();
+                Notification::send($directors, new ConventionStatusChanged($convention, 'soumis', $user));
+            } else {
+                $convention->user->notify(new ConventionStatusChanged($convention, 'brouillon', $user));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Mail Error: ' . $e->getMessage());
         }
 
         return response()->json($convention);
@@ -440,6 +472,17 @@ class ConventionController extends Controller
     public function destroy($id)
     {
         $convention = Convention::findOrFail($id);
+        
+        // Log deletion for audit (the log record will remain if DB is configured with cascade null or if we keep the data)
+        // In this simple setup, we log it, but the cascade delete in DB might remove the log.
+        // For institutional security, we usually keep the log.
+        \App\Models\ConventionLog::create([
+            'user_id' => auth()->id(),
+            'convention_id' => null, // We set to null because the convention is about to be deleted
+            'action' => 'suppression',
+            'comment' => "Suppression définitive de la convention : {$convention->name} (Dossier : {$convention->num_dossier})"
+        ]);
+
         $convention->delete();
         return response()->json(['message' => 'Convention deleted successfully']);
     }

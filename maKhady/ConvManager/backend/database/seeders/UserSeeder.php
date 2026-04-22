@@ -68,5 +68,14 @@ class UserSeeder extends Seeder
                 'role_id' => \App\Models\Role::where('name', 'chef_division')->first()->id ?? null,
             ]
         );
+
+        \App\Models\User::firstOrCreate(
+            ['email' => 'secretariat@uidt.sn'],
+            [
+                'name' => 'Secrétariat Général',
+                'password' => bcrypt('password'),
+                'role_id' => \App\Models\Role::where('name', 'secretariat')->first()->id ?? null,
+            ]
+        );
     }
 }

@@ -47,6 +47,22 @@ const AdminDashboard = () => {
         visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
     };
 
+    const handleBackup = async () => {
+        try {
+            const response = await api.get('/admin/backup', { responseType: 'blob' });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `coopmanager_backup_${new Date().toISOString().slice(0, 10)}.sql`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error("Erreur lors de la sauvegarde", error);
+            alert("Erreur lors de la génération de la sauvegarde.");
+        }
+    };
+
     if (loading || !stats) return (
         <div className="flex items-center justify-center min-h-[60vh]">
             <div className="w-8 h-8 border-4 border-[#001D3D]/20 border-t-[#001D3D] rounded-full animate-spin"></div>
@@ -66,6 +82,13 @@ const AdminDashboard = () => {
                     <h1 className="text-3xl font-black text-institutional tracking-tight text-balance">Portail Administration</h1>
                     <p className="text-sm font-bold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wider">Supervision Système • {new Date().toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }).toUpperCase()}</p>
                 </div>
+                <button 
+                    onClick={handleBackup}
+                    className="flex items-center gap-3 px-8 py-4 bg-[#8B7355] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#7a654a] transition-all shadow-xl shadow-[#8B7355]/20 active:scale-95"
+                >
+                    <span className="material-symbols-outlined text-[20px]">database</span>
+                    Sauvegarder BD
+                </button>
             </div>
 
             {/* Stats Grid */}
@@ -114,30 +137,34 @@ const AdminDashboard = () => {
             </div>
 
             {/* Expiration Alerts */}
-            {stats.upcoming_deadlines && stats.upcoming_deadlines.length > 0 && (
-                <motion.div variants={itemVariants} className="mb-10">
-                    <div className="bg-amber-50 border border-amber-200 rounded-[2.5rem] p-8 flex items-center gap-6 shadow-sm">
-                        <div className="w-14 h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30">
-                            <span className="material-symbols-outlined text-3xl">notification_important</span>
-                        </div>
-                        <div className="flex-1">
-                            <h2 className="text-lg font-black text-amber-900 uppercase tracking-tight">Vigilance : Conventions à Échéance</h2>
-                            <p className="text-xs font-bold text-amber-700 uppercase tracking-widest mt-1">Supervision des fins de contrats imminentes (sous 90 jours).</p>
-                        </div>
-                        <div className="flex flex-wrap gap-3">
-                            {stats.upcoming_deadlines.map((conv, idx) => (
+            <motion.div variants={itemVariants} className="mb-10">
+                <div className="bg-amber-50 border border-amber-200 rounded-[2.5rem] p-8 flex items-center gap-6 shadow-sm">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30">
+                        <span className="material-symbols-outlined text-3xl">notification_important</span>
+                    </div>
+                    <div className="flex-1">
+                        <h2 className="text-lg font-black text-amber-900 uppercase tracking-tight">Vigilance : Conventions à Échéance</h2>
+                        <p className="text-xs font-bold text-amber-700 uppercase tracking-widest mt-1">Supervision des fins de contrats imminentes (sous 90 jours).</p>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                        {stats.upcoming_deadlines && stats.upcoming_deadlines.length > 0 ? (
+                            stats.upcoming_deadlines.map((conv, idx) => (
                                 <div 
-                                    key={idx} 
+                                    key={`deadline-${conv.id || idx}`} 
                                     className="px-6 py-3 bg-white border border-amber-200 rounded-xl text-[10px] font-black text-amber-900 uppercase tracking-widest shadow-sm flex items-center gap-2"
                                 >
                                     {conv.name.substring(0, 20)}...
                                     <span className="bg-red-50 text-red-600 px-2 py-0.5 rounded-md">{new Date(conv.end_date).toLocaleDateString()}</span>
                                 </div>
-                            ))}
-                        </div>
+                            ))
+                        ) : (
+                            <div className="px-6 py-3 bg-white/50 border border-amber-200/50 border-dashed rounded-xl text-[10px] font-bold text-amber-700 uppercase tracking-widest">
+                                Aucun dossier en alerte
+                            </div>
+                        )}
                     </div>
-                </motion.div>
-            )}
+                </div>
+            </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
                 {/* Status Chart */}
@@ -221,7 +248,7 @@ const AdminDashboard = () => {
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {stats.recent_logins.map((user, index) => (
-                                <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                                <tr key={`login-${user.id || index}`} className="hover:bg-gray-50 transition-colors">
                                     <td className="px-6 py-6">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-full bg-[#001D3D]/5 flex items-center justify-center text-[#001D3D] font-black text-xs uppercase">

@@ -5,12 +5,28 @@ import { useLanguage } from '../context/LanguageContext';
 
 const Timeline = () => {
     const [logs, setLogs] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filterType, setFilterType] = useState('all');
     const [loading, setLoading] = useState(true);
     const { t } = useLanguage();
 
     useEffect(() => {
         fetchLogs();
     }, []);
+
+    const filteredLogs = logs.filter(log => {
+        const matchesSearch = 
+            (log.user?.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (log.convention?.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (log.comment || "").toLowerCase().includes(searchQuery.toLowerCase());
+        
+        const matchesFilter = filterType === 'all' || 
+            (filterType === 'validation' && log.action.toLowerCase().includes('valid')) ||
+            (filterType === 'creation' && log.action.toLowerCase().includes('creat')) ||
+            (filterType === 'rejet' && log.action.toLowerCase().includes('rejet'));
+            
+        return matchesSearch && matchesFilter;
+    });
 
     const fetchLogs = async () => {
         try {
@@ -67,19 +83,59 @@ const Timeline = () => {
                         <p className="text-[11px] font-bold text-slate-600 uppercase tracking-[0.3em] mt-1 italic">{t('institutional_sub')}</p>
                     </div>
                 </div>
+                <div className="flex items-center gap-4">
+                    <div className="relative group hidden md:block">
+                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                        <input 
+                            type="text" 
+                            placeholder="Rechercher une action..." 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-slate-900/5 transition-all w-64"
+                        />
+                    </div>
+                    <button 
+                        onClick={fetchLogs}
+                        className="flex items-center gap-3 px-6 py-4 text-[10px] font-black text-slate-900 uppercase tracking-widest bg-slate-50 hover:bg-slate-100 rounded-xl transition-all border border-slate-100 active:scale-95 shadow-sm"
+                    >
+                        <span className="material-symbols-outlined text-[18px]">refresh</span>
+                        Actualiser
+                    </button>
+                </div>
+            </div>
+
+            {/* Filters Bar */}
+            <div className="flex flex-wrap items-center gap-3 bg-white/50 p-4 rounded-3xl border border-slate-100/50 backdrop-blur-sm">
                 <button 
-                    onClick={fetchLogs}
-                    className="flex items-center gap-3 px-6 py-4 text-[10px] font-black text-slate-900 uppercase tracking-widest bg-slate-50 hover:bg-slate-100 rounded-xl transition-all border border-slate-100 active:scale-95 shadow-sm"
+                    onClick={() => setFilterType('all')}
+                    className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${filterType === 'all' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-100 hover:bg-slate-50'}`}
                 >
-                    <span className="material-symbols-outlined text-[18px]">refresh</span>
-                    Actualiser le flux
+                    Tout
+                </button>
+                <button 
+                    onClick={() => setFilterType('creation')}
+                    className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${filterType === 'creation' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-white text-slate-600 border border-slate-100 hover:bg-slate-50'}`}
+                >
+                    Créations
+                </button>
+                <button 
+                    onClick={() => setFilterType('validation')}
+                    className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${filterType === 'validation' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-white text-slate-600 border border-slate-100 hover:bg-slate-50'}`}
+                >
+                    Validations
+                </button>
+                <button 
+                    onClick={() => setFilterType('rejet')}
+                    className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${filterType === 'rejet' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20' : 'bg-white text-slate-600 border border-slate-100 hover:bg-slate-50'}`}
+                >
+                    Rejets
                 </button>
             </div>
 
             {/* Timeline Feed */}
             <div className="relative pl-12 space-y-10 before:content-[''] before:absolute before:left-[11px] before:top-4 before:bottom-4 before:w-[1px] before:bg-slate-100">
-                {logs.length > 0 ? (
-                    logs.map((log, index) => (
+                {filteredLogs.length > 0 ? (
+                    filteredLogs.map((log, index) => (
                         <motion.div 
                             key={log.id}
                             initial={{ opacity: 0, x: -10 }}
@@ -101,10 +157,18 @@ const Timeline = () => {
                                             <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${getStatusStyles(log.action)}`}>
                                                 {log.action}
                                             </span>
-                                            <span className="text-[11px] font-black text-slate-600 flex items-center gap-2 uppercase tracking-tight">
-                                                <span className="material-symbols-outlined text-[16px]">schedule</span>
-                                                {new Date(log.created_at).toLocaleString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                            </span>
+                                            <div className="flex items-center gap-4 bg-slate-50 px-5 py-3 rounded-2xl border border-slate-100">
+                                                <div className="flex flex-col text-left">
+                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">Date & Heure</span>
+                                                    <span className="text-[11px] font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
+                                                        <span className="material-symbols-outlined text-[16px] text-indigo-600">event</span>
+                                                        {new Date(log.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                                        <span className="w-1 h-1 bg-slate-300 rounded-full mx-1"></span>
+                                                        <span className="material-symbols-outlined text-[16px] text-indigo-600">schedule</span>
+                                                        {new Date(log.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
                                         
                                         <div className="flex items-center gap-4 bg-slate-50 px-5 py-3 rounded-2xl border border-slate-100">

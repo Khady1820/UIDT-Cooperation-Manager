@@ -39,4 +39,24 @@ class Convention extends Model
     {
         return $this->hasMany(Kpi::class);
     }
+
+    /**
+     * Calcule et met à jour le taux de réalisation global basé sur la moyenne des KPIs.
+     */
+    public function refreshCompletionRate()
+    {
+        if ($this->kpis()->count() > 0) {
+            $average = $this->kpis()
+                ->get()
+                ->map(function ($kpi) {
+                    if ($kpi->valeur_cible > 0) {
+                        return min(100, ($kpi->valeur_atteinte / $kpi->valeur_cible) * 100);
+                    }
+                    return 0;
+                })
+                ->avg();
+            
+            $this->update(['completion_rate' => $average]);
+        }
+    }
 }

@@ -172,9 +172,13 @@ const Validation = () => {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <AnimatePresence>
-                            {pendingDossiers.map((doc) => (
+                            {pendingDossiers.sort((a, b) => {
+                                const valA = String(a.num_dossier || a.id);
+                                const valB = String(b.num_dossier || b.id);
+                                return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+                            }).map((doc, idx) => (
                                 <motion.div 
-                                    key={doc.id}
+                                    key={`validation-${doc.id || idx}`}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition-all cursor-pointer"
@@ -182,7 +186,7 @@ const Validation = () => {
                                 >
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-start">
-                                            <span className="px-2 py-1 bg-gray-100 text-gray-500 text-[10px] font-bold rounded uppercase">ID: {doc.id}</span>
+                                            <span className="px-3 py-1 bg-institutional text-white text-[10px] font-black rounded-lg uppercase tracking-widest shadow-sm">DOSSIER #{doc.num_dossier || doc.id}</span>
                                             <span className="material-symbols-outlined text-gray-200">description</span>
                                         </div>
                                         <h3 className="text-md font-bold text-[#001D3D] line-clamp-2 leading-tight uppercase">{doc.name}</h3>

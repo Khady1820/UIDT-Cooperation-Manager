@@ -25,18 +25,23 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('/users', UserController::class);
         Route::apiResource('/partners', PartenaireController::class);
         Route::get('/admin/dashboard-stats', [\App\Http\Controllers\AdminDashboardController::class, 'stats']);
+        Route::get('/admin/backup', [\App\Http\Controllers\AdminController::class, 'backup']);
     });
 
     // Routes for Porteur de Projet (Project Leads)
     Route::middleware('role:admin,porteur_projet')->group(function () {
         Route::post('/conventions', [ConventionController::class, 'store']);
-        Route::put('/conventions/{id}', [ConventionController::class, 'update']);
         Route::delete('/conventions/{id}', [ConventionController::class, 'destroy']);
         Route::post('/conventions/{id}/submit', [ConventionController::class, 'submit']);
         
         Route::post('/kpis', [KpiController::class, 'store']);
         Route::put('/kpis/{id}', [KpiController::class, 'update']);
         Route::delete('/kpis/{id}', [KpiController::class, 'destroy']);
+    });
+
+    // Update route allowed for Porteurs AND all supervisors AND secretariat
+    Route::middleware('role:admin,porteur_projet,directeur_cooperation,recteur,service_juridique,chef_division,secretariat')->group(function () {
+        Route::put('/conventions/{id}', [ConventionController::class, 'update']);
     });
 
     // Routes for Management (Validation/Signature)

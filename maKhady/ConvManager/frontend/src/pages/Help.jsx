@@ -15,7 +15,8 @@ const Help = () => {
                 { label: "3. Instruction (Direction)", desc: "Le dossier est envoyé à la Direction de la Coopération pour première instruction." },
                 { label: "4. Visa Juridique", desc: "Le Service Juridique certifie la conformité légale et le respect des règlementations." },
                 { label: "5. Contrôle Final", desc: "La Direction effectue une vérification finale avant transmission au Rectorat." },
-                { label: "6. Signature Rectorale", desc: "Le Recteur appose la validation finale pour l'officialisation de l'accord." }
+                { label: "6. Signature Rectorale", desc: "Le Recteur appose la validation finale pour l'officialisation de l'accord." },
+                { label: "7. Archivage (Secrétariat)", desc: "Impression, cachet officiel, scan et mise en ligne du document final." }
             ]
         },
         {
@@ -25,7 +26,7 @@ const Help = () => {
             items: [
                 { label: "Cible (Target)", desc: "L'objectif numérique à atteindre d'ici la fin de la convention." },
                 { label: "Identifiant UIDT", desc: "Numéro de dossier unique (ex: UIDT-2026-001) généré automatiquement." },
-                { label: "Taux de Réalisation", desc: "Indice automatique mesurant l'état d'avancement des objectifs." }
+                { label: "Répertoire Officiel", desc: "Base de données centralisée regroupant tous les protocoles signés et archivés." }
             ]
         },
         {
@@ -37,7 +38,8 @@ const Help = () => {
                 { name: "Chef de Division", desc: "Vérifie la pertinence académique et pré-valide le dossier." },
                 { name: "Directeur Coopération", desc: "Instruit les dossiers, assure l'arbitrage et le contrôle final." },
                 { name: "Service Juridique", desc: "Garantit la conformité et la sécurité juridique des partenariats." },
-                { name: "Recteur", desc: "Assure la signature institutionnelle et le pilotage de haut niveau." }
+                { name: "Recteur", desc: "Assure la signature institutionnelle et le pilotage de haut niveau." },
+                { name: "Secrétariat Général", desc: "Gère l'archivage numérique, le cachetage et la conservation des actes." }
             ]
         },
         {
@@ -45,9 +47,9 @@ const Help = () => {
             icon: "quiz",
             content: "Réponses aux questions courantes sur le fonctionnement du système.",
             items: [
-                { label: "Pourquoi justifier chaque décision ?", desc: "Les commentaires sont obligatoires pour garantir la transparence et l'auditabilité du circuit." },
-                { label: "Que signifie un retour 'Visa Refusé' ?", desc: "Le dossier présente des non-conformités juridiques. Il retourne à l'instruction pour correction." },
-                { label: "Qui génère le numéro de dossier ?", desc: "Le système attribue le numéro UIDT-YYYY-XXX dès que le porteur soumet le projet." }
+                { label: "Pourquoi le cachet est obligatoire ?", desc: "Pour garantir la validité légale du document numérique, le cachet institutionnel doit être apposé avant le scan." },
+                { label: "Où trouver les conventions signées ?", desc: "Toutes les conventions finalisées sont disponibles dans le 'Répertoire Officiel' de la barre latérale." },
+                { label: "Qui peut voir les archives ?", desc: "Le Répertoire Officiel est accessible en lecture à tous les acteurs autorisés de l'UIDT." }
             ]
         }
     ];

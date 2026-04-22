@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 import AdminDashboard from '../components/AdminDashboard';
 import StatusBadge from '../components/StatusBadge';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import SecretariatDashboard from './SecretariatDashboard';
 
 const STATUS_COLORS = {
     'brouillon': '#94a3b8',
@@ -74,6 +75,11 @@ const Dashboard = () => {
         return <AdminDashboard />;
     }
 
+    // Render Secretariat Dashboard if user is secretariat
+    if (user?.role?.name === 'secretariat') {
+        return <SecretariatDashboard />;
+    }
+
     if (!stats) return null;
 
     return (
@@ -108,50 +114,56 @@ const Dashboard = () => {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
                 {/* Active Conventions */}
-                <motion.div variants={itemVariants} className="premium-card p-8 bg-white border-l-[12px] border-l-[#0F172A] flex flex-col justify-between h-48 group shadow-sm hover:shadow-md transition-shadow">
-                    <div>
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Conventions Actives</h3>
-                            <span className="material-symbols-outlined text-slate-500">folder_open</span>
+                <motion.div variants={itemVariants}>
+                    <Link to="/conventions" className="premium-card p-8 bg-white border-l-[12px] border-l-[#0F172A] flex flex-col justify-between h-48 group shadow-sm hover:shadow-md transition-all hover:-translate-y-1 block">
+                        <div>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Conventions Actives</h3>
+                                <span className="material-symbols-outlined text-slate-500 group-hover:text-institutional transition-colors">folder_open</span>
+                            </div>
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-5xl font-black text-institutional">{stats.active_conventions}</span>
+                                <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Total</span>
+                            </div>
                         </div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-5xl font-black text-institutional">{stats.active_conventions}</span>
-                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Total</span>
-                        </div>
-                    </div>
+                    </Link>
                 </motion.div>
 
                 {/* Efficiency Index */}
-                <motion.div variants={itemVariants} className="premium-card p-8 border-l-[12px] border-l-emerald-500 flex flex-col justify-between h-48 group shadow-sm hover:shadow-md transition-shadow">
-                    <div>
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Efficacité</h3>
-                            <span className="material-symbols-outlined text-emerald-300">trending_up</span>
+                <motion.div variants={itemVariants}>
+                    <Link to="/indicators" className="premium-card p-8 border-l-[12px] border-l-emerald-500 flex flex-col justify-between h-48 group shadow-sm hover:shadow-md transition-all hover:-translate-y-1 block bg-white">
+                        <div>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Efficacité</h3>
+                                <span className="material-symbols-outlined text-emerald-300 group-hover:text-emerald-500 transition-colors">trending_up</span>
+                            </div>
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-5xl font-black text-institutional">{stats.efficiency_index}%</span>
+                                <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Performance</span>
+                            </div>
                         </div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-5xl font-black text-institutional">{stats.efficiency_index}%</span>
-                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Performance</span>
-                        </div>
-                    </div>
+                    </Link>
                 </motion.div>
 
                 {/* Pending Actions */}
-                <motion.div variants={itemVariants} className="premium-card p-8 border-l-[12px] border-l-rose-500 flex flex-col justify-between h-48 group shadow-sm hover:shadow-md transition-shadow">
-                    <div>
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Urgences</h3>
-                            <span className="material-symbols-outlined text-rose-300">error_outline</span>
+                <motion.div variants={itemVariants}>
+                    <Link to="/validation" className="premium-card p-8 border-l-[12px] border-l-rose-500 flex flex-col justify-between h-48 group shadow-sm hover:shadow-md transition-all hover:-translate-y-1 block bg-white">
+                        <div>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Urgences</h3>
+                                <span className="material-symbols-outlined text-rose-300 group-hover:text-rose-500 transition-colors">error_outline</span>
+                            </div>
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-5xl font-black text-institutional">{stats.pending_validations}</span>
+                                <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Dossiers</span>
+                            </div>
                         </div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-5xl font-black text-institutional">{stats.pending_validations}</span>
-                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Dossiers</span>
+                        <div>
+                             <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-1 group-hover:underline">
+                                Traiter <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                            </span>
                         </div>
-                    </div>
-                    <div>
-                         <Link to="/validation" className="text-[10px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-1 hover:underline">
-                            Traiter <span className="material-symbols-outlined text-xs">arrow_forward</span>
-                        </Link>
-                    </div>
+                    </Link>
                 </motion.div>
             </div>
 
@@ -169,7 +181,7 @@ const Dashboard = () => {
                         <div className="flex gap-3">
                             {stats.upcoming_deadlines.map((conv, idx) => (
                                 <Link 
-                                    key={idx} 
+                                    key={`deadline-${conv.id || idx}`} 
                                     to={`/conventions/${conv.id}`}
                                     className="px-6 py-3 bg-white border border-amber-200 rounded-xl text-[10px] font-black text-amber-900 uppercase tracking-widest hover:bg-amber-100 transition-all shadow-sm flex items-center gap-2"
                                 >
@@ -258,7 +270,7 @@ const Dashboard = () => {
 
                     <div className="space-y-10">
                         {stats.cooperation_types.map((type, index) => (
-                            <div key={index} className="group cursor-pointer">
+                            <div key={`type-${type.type || index}`} className="group cursor-pointer">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-3">
                                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
@@ -310,7 +322,7 @@ const Dashboard = () => {
                         <div className="absolute left-[23px] top-2 bottom-0 w-[1px] bg-gray-100"></div>
                         
                         {stats.recent_activity.slice(0, 5).map((act, index) => (
-                            <div key={index} className="relative pl-14 group">
+                            <div key={`act-${act.id || index}`} className="relative pl-14 group">
                                 <div className="absolute left-0 top-0 w-12 h-12 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all z-10">
                                     <span className="material-symbols-outlined text-[#001D3D] text-[20px]">
                                         {act.action === 'creation' ? 'add' : act.action.includes('valide') ? 'verified' : 'history_edu'}
@@ -339,7 +351,7 @@ const Dashboard = () => {
                     </div>
                     <div className="space-y-4">
                         {stats.pending_actions && stats.pending_actions.slice(0, 3).map((task, index) => (
-                            <Link to={`/conventions/${task.id}`} key={index} className="flex items-center gap-4 p-4 bg-[#FBFBFB] rounded-2xl hover:bg-white hover:shadow-lg transition-all border border-gray-50">
+                            <Link to={`/conventions/${task.id}`} key={`urgency-${task.id || index}`} className="flex items-center gap-4 p-4 bg-[#FBFBFB] rounded-2xl hover:bg-white hover:shadow-lg transition-all border border-gray-50">
                                 <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
                                     <span className="material-symbols-outlined text-[#8B7355] text-xl">priority_high</span>
                                 </div>
@@ -360,14 +372,15 @@ const Dashboard = () => {
                     <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] border border-gray-100 px-3 py-1 rounded-full">
                         {user?.role?.name === 'directeur_cooperation' ? 'Vue Direction' : 
                          user?.role?.name === 'service_juridique' ? 'Vue Juridique' :
-                         user?.role?.name === 'recteur' ? 'Vue Rectorat' : 'Vue Admin'}
+                         user?.role?.name === 'recteur' ? 'Vue Rectorat' : 
+                         user?.role?.name === 'secretariat' ? 'Vue Secrétariat' : 'Vue Admin'}
                     </span>
                 </div>
 
                 <div className="space-y-4">
                     {stats.pending_actions && stats.pending_actions.length > 0 ? (
                         stats.pending_actions.map((task, index) => (
-                            <Link to={`/conventions/${task.id}`} key={index} className="flex items-center gap-6 p-6 border border-gray-50 bg-[#FBFBFB] hover:bg-white hover:shadow-xl transition-all rounded-3xl group">
+                            <Link to={`/conventions/${task.id}`} key={`action-${task.id || index}`} className="flex items-center gap-6 p-6 border border-gray-50 bg-[#FBFBFB] hover:bg-white hover:shadow-xl transition-all rounded-3xl group">
                                 <div className="w-14 h-14 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-sm">
                                     <span className="material-symbols-outlined text-[#8B7355] text-3xl opacity-60 group-hover:scale-110 transition-transform">
                                         {task.status === 'soumis' ? 'account_balance' : 
@@ -440,8 +453,8 @@ const Dashboard = () => {
                     <div className="space-y-6">
                         <h2 className="text-lg font-black uppercase tracking-widest border-l-4 border-[#001D3D] pl-4">Types de Coopération</h2>
                         <div className="space-y-3">
-                            {stats.cooperation_types.map((type) => (
-                                <div key={type.type} className="flex justify-between text-sm py-1">
+                            {stats.cooperation_types.map((type, idx) => (
+                                <div key={`print-type-${type.type || idx}`} className="flex justify-between text-sm py-1">
                                     <span className="font-bold text-gray-600 capitalize">{type.type}</span>
                                     <span className="font-black">{type.count} Projets</span>
                                 </div>
@@ -462,7 +475,7 @@ const Dashboard = () => {
                         </thead>
                         <tbody className="text-[11px] font-medium text-gray-600">
                             {stats.recent_activity.map((act, i) => (
-                                <tr key={i} className="border-t border-gray-100">
+                                <tr key={`print-act-${act.id || i}`} className="border-t border-gray-100">
                                     <td className="p-4 font-black text-[#001D3D] uppercase">{act.action}</td>
                                     <td className="p-4 group-hover:text-[#8B7355]">{act.comment} - {act.convention.name}</td>
                                     <td className="p-4 font-black">{new Date(act.created_at).toLocaleDateString('fr-FR')}</td>

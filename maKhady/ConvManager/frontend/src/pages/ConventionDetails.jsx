@@ -15,6 +15,7 @@ const Toast = ({ message, type, onClose }) => {
 
     return (
         <motion.div 
+            key="status-toast"
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 50, opacity: 0 }}
@@ -44,9 +45,26 @@ const ConventionDetails = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [toast, setToast] = useState(null);
+    const [isDownloaded, setIsDownloaded] = useState(false);
 
     const [activeModalAction, setActiveModalAction] = useState(null); // 'reject' or 'validate-chef'
     const [rejectionReason, setRejectionReason] = useState('');
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        name: '',
+        objectives: '',
+        description: '',
+        partners: '',
+        type: '',
+        start_date: '',
+        end_date: '',
+        indicator: '',
+        target: '',
+        actual_value: '',
+        observations: ''
+    });
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [hasStamp, setHasStamp] = useState(false);
 
     const [isKpiModalOpen, setIsKpiModalOpen] = useState(false);
     const [editingKpi, setEditingKpi] = useState(null);
@@ -120,11 +138,101 @@ const ConventionDetails = () => {
         }
     };
 
+    const handleDownload = () => {
+        if (!convention?.file_path) {
+            setToast({ message: "Aucun document n'est disponible pour l'impression.", type: 'error' });
+            return;
+        }
+        
+        // Use the hardcoded backend URL to match the API service
+        const baseUrl = 'http://localhost:8000';
+        const fileUrl = `${baseUrl}/storage/${convention.file_path}`;
+        
+        // Create a temporary link to force download
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.target = '_blank';
+        link.download = convention.file_path.split('/').pop(); // Suggest filename
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        setIsDownloaded(true);
+    };
+
+    const openEditModal = () => {
+        setEditFormData({
+            name: convention.name || '',
+            objectives: convention.objectives || '',
+            description: convention.description || '',
+            partners: convention.partners || '',
+            type: convention.type || 'national',
+            start_date: convention.start_date || '',
+            end_date: convention.end_date || '',
+            indicator: convention.indicator || '',
+            target: convention.target || '',
+            actual_value: convention.actual_value || '',
+            observations: convention.observations || ''
+        });
+        setSelectedFile(null);
+        setIsEditModalOpen(true);
+    };
+
+    const handleEditSave = async (e) => {
+        e.preventDefault();
+
+        if (user?.role?.name === 'secretariat' && !hasStamp && selectedFile) {
+            setToast({ message: "Veuillez confirmer l'apposition du cachet officiel avant de soumettre.", type: 'error' });
+            return;
+        }
+
+        setSubmitting(true);
+        
+        const payload = new FormData();
+        Object.keys(editFormData).forEach(key => {
+            if (editFormData[key] !== null && editFormData[key] !== undefined) {
+                payload.append(key, editFormData[key]);
+            }
+        });
+        
+        if (selectedFile) {
+            payload.append('file', selectedFile);
+            // If secretariat uploads the file, we mark as finished
+            if (user?.role?.name === 'secretariat') {
+                payload.append('status', 'termine');
+            }
+        }
+        
+        // Laravel method spoofing for PATCH/PUT with files
+        payload.append('_method', 'PUT');
+
+        try {
+            // Let axios handle Content-Type and boundary for FormData
+            const res = await api.post(`/conventions/${id}`, payload);
+            setConvention(res.data);
+            setIsEditModalOpen(false);
+            setIsDownloaded(false);
+            setToast({ 
+                message: user?.role?.name === 'secretariat' 
+                    ? 'Le document a été archivé avec succès. Il est désormais disponible dans le Répertoire Officiel.' 
+                    : 'Le document a été mis à jour avec succès.', 
+                type: 'success' 
+            });
+        } catch (err) {
+            console.error(err);
+            const errorMessage = err.response?.data?.message || err.response?.data?.error || 'Erreur lors de la modification';
+            setToast({ message: errorMessage, type: 'error' });
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     useEffect(() => {
         fetchConvention();
     }, [id]);
 
     const fetchConvention = async () => {
+        if (!id || id === 'undefined') return;
         try {
             const res = await api.get(`/conventions/${id}`);
             setConvention(res.data);
@@ -162,6 +270,9 @@ const ConventionDetails = () => {
                 payload = new FormData();
                 payload.append('signed_file', reason);
                 await api.post(endpoint, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
+            } else if (action === 'sign') {
+                // If rector doesn't provide a file, just send the comment
+                await api.post(endpoint, { comment: reason });
             } else {
                 await api.post(endpoint, payload);
             }
@@ -217,6 +328,37 @@ const ConventionDetails = () => {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-10 pb-20"
         >
+            {/* Header Officiel pour l'impression uniquement */}
+            <div className="hidden print:block mb-10 border-b-2 border-slate-900 pb-8">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-6">
+                        <img 
+                            src="/image/logo_UIDT.png" 
+                            alt="Logo UIDT" 
+                            className="w-24 h-24 object-contain"
+                            onError={(e) => {
+                                if (e.target.src.includes('.png')) {
+                                    e.target.src = '/image/logo_UIDT.jpg';
+                                } else {
+                                    e.target.style.display = 'none';
+                                }
+                            }}
+                        />
+                        <div>
+                            <h1 className="text-xl font-black text-slate-900 uppercase">Université Iba Der Thiam de Thiès</h1>
+                            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Direction de la Coopération et des Partenariats</p>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-[10px] font-black uppercase tracking-tighter">Document Généré le :</p>
+                        <p className="text-xs font-bold">{new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        <p className="text-[9px] font-bold text-slate-500 mt-1">REF: {convention.num_dossier}</p>
+                    </div>
+                </div>
+                <div className="mt-8 text-center bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-900">Fiche de Suivi et de Performance</h2>
+                </div>
+            </div>
             {/* Navigation / Back Button */}
             <div className="flex items-center gap-4 no-print">
                 <button 
@@ -225,6 +367,14 @@ const ConventionDetails = () => {
                 >
                     <span className="material-symbols-outlined text-slate-600 group-hover:text-[#001D3D] transition-colors">arrow_back</span>
                     <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#001D3D] transition-colors">Retour</span>
+                </button>
+                <div className="h-4 w-px bg-gray-200"></div>
+                <button 
+                    onClick={() => window.print()}
+                    className="group flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm hover:bg-gray-50 transition-all text-[#001D3D]"
+                >
+                    <span className="material-symbols-outlined text-sm">print</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Imprimer Fiche</span>
                 </button>
                 <div className="h-4 w-px bg-gray-200"></div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Détails du Dossier</p>
@@ -302,10 +452,9 @@ const ConventionDetails = () => {
                     {steps.map((s, idx) => {
                         const isDone = idx < currentStepIndex;
                         const isCurrent = idx === currentStepIndex;
-                        const isLast = idx === steps.length - 1;
                         
                         return (
-                            <div key={s.id} className="relative z-10 flex flex-col items-center gap-4">
+                            <div key={`step-${s.id || idx}`} className="relative z-10 flex flex-col items-center gap-4">
                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${isDone ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : isCurrent ? 'bg-[#001D3D] text-white shadow-2xl shadow-[#001D3D]/30 scale-125' : 'bg-white border-4 border-gray-50 text-gray-200'}`}>
                                     <span className="material-symbols-outlined text-[24px]">{isDone ? 'check' : s.icon}</span>
                                 </div>
@@ -375,15 +524,24 @@ const ConventionDetails = () => {
                                     <p className="text-[9px] font-black text-white/40 uppercase mb-2">Cible</p>
                                     <p className="text-2xl font-black">{convention.target || 0}</p>
                                 </div>
-                                <div className="text-center">
-                                    <p className="text-[9px] font-black text-white/40 uppercase mb-2">Réalisé</p>
-                                    <p className="text-2xl font-black">{convention.actual_value || 0}</p>
-                                </div>
-                                <div className="w-px h-12 bg-white/10"></div>
-                                <div className="text-center">
-                                    <p className="text-[9px] font-black text-[#B68F40] uppercase mb-2">Completion</p>
-                                    <p className="text-3xl font-black text-[#B68F40]">{parseFloat(convention.completion_rate || 0).toFixed(1)}%</p>
-                                </div>
+                                {(convention.status === 'signe_recteur' || convention.status === 'termine') && (
+                                    <>
+                                        <div className="text-center">
+                                            <p className="text-[9px] font-black text-white/40 uppercase mb-2">Réalisé</p>
+                                            <p className="text-2xl font-black">{convention.actual_value || 0}</p>
+                                        </div>
+                                        <div className="w-px h-12 bg-white/10"></div>
+                                        <div className="text-center">
+                                            <p className="text-[9px] font-black text-[#B68F40] uppercase mb-2">Completion</p>
+                                            <p className="text-3xl font-black text-[#B68F40]">{parseFloat(convention.completion_rate || 0).toFixed(1)}%</p>
+                                        </div>
+                                    </>
+                                )}
+                                {!(convention.status === 'signe_recteur' || convention.status === 'termine') && (
+                                    <div className="text-center px-6 py-2 bg-white/5 rounded-xl border border-white/10">
+                                        <p className="text-[8px] font-black text-white/30 uppercase">Suivi disponible après signature</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -407,8 +565,8 @@ const ConventionDetails = () => {
 
                             <div className="grid grid-cols-1 gap-6">
                                 {convention.kpis?.length > 0 ? (
-                                    convention.kpis.map((kpi) => (
-                                        <div key={kpi.id} className="bg-gray-50/50 border border-gray-100 rounded-[2rem] p-8 group hover:bg-white hover:shadow-xl transition-all">
+                                    convention.kpis.map((kpi, kIdx) => (
+                                        <div key={`kpi-${kpi.id || kIdx}`} className="bg-gray-50/50 border border-gray-100 rounded-[2rem] p-8 group hover:bg-white hover:shadow-xl transition-all">
                                             <div className="flex justify-between items-start mb-6">
                                                 <div className="space-y-1">
                                                     <h4 className="text-sm font-black text-[#001D3D] uppercase tracking-tight">{kpi.name}</h4>
@@ -430,23 +588,32 @@ const ConventionDetails = () => {
                                                     <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Objectif</p>
                                                     <p className="text-xs font-black text-[#001D3D]">{kpi.valeur_cible || '0'}</p>
                                                 </div>
-                                                <div className="space-y-1">
-                                                    <p className="text-[8px] font-black text-[#8B7355] uppercase tracking-[0.2em]">Atteint</p>
-                                                    <p className="text-xs font-black text-[#8B7355]">{kpi.valeur_atteinte || '0'}</p>
-                                                </div>
-                                                <div className="md:col-span-2">
-                                                    <div className="flex justify-between items-center mb-1.5">
-                                                        <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Progression</span>
-                                                        <span className="text-[9px] font-black text-[#001D3D]">{Math.min(100, Math.round((parseFloat(kpi.valeur_atteinte) / parseFloat(kpi.valeur_cible)) * 100)) || 0}%</span>
+                                                {(convention.status === 'signe_recteur' || convention.status === 'termine') ? (
+                                                    <>
+                                                        <div className="space-y-1">
+                                                            <p className="text-[8px] font-black text-[#8B7355] uppercase tracking-[0.2em]">Atteint</p>
+                                                            <p className="text-xs font-black text-[#8B7355]">{kpi.valeur_atteinte || '0'}</p>
+                                                        </div>
+                                                        <div className="md:col-span-2">
+                                                            <div className="flex justify-between items-center mb-1.5">
+                                                                <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Progression</span>
+                                                                <span className="text-[9px] font-black text-[#001D3D]">{Math.min(100, Math.round((parseFloat(kpi.valeur_atteinte) / parseFloat(kpi.valeur_cible)) * 100)) || 0}%</span>
+                                                            </div>
+                                                            <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                                                <motion.div 
+                                                                    initial={{ width: 0 }}
+                                                                    animate={{ width: `${Math.min(100, (parseFloat(kpi.valeur_atteinte) / parseFloat(kpi.valeur_cible)) * 100) || 0}%` }}
+                                                                    className="h-full bg-[#001D3D] rounded-full"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <div className="md:col-span-3 flex items-center bg-gray-100/50 rounded-xl px-4 py-2 border border-gray-100">
+                                                        <span className="material-symbols-outlined text-xs text-gray-400 mr-2">lock</span>
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Saisie des résultats après signature du protocole</p>
                                                     </div>
-                                                    <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                                                        <motion.div 
-                                                            initial={{ width: 0 }}
-                                                            animate={{ width: `${Math.min(100, (parseFloat(kpi.valeur_atteinte) / parseFloat(kpi.valeur_cible)) * 100) || 0}%` }}
-                                                            className="h-full bg-[#001D3D] rounded-full"
-                                                        />
-                                                    </div>
-                                                </div>
+                                                )}
                                             </div>
                                         </div>
                                     ))
@@ -460,6 +627,81 @@ const ConventionDetails = () => {
                         </div>
                     </div>
 
+                    {/* Documents Section */}
+                    <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-4">
+                                <span className="material-symbols-outlined text-[#001D3D]">attach_file</span>
+                                <h3 className="text-sm font-black text-[#001D3D] uppercase tracking-[0.2em]">Documents du Dossier</h3>
+                            </div>
+                            <div className="flex gap-2">
+                                {user?.role?.name === 'secretariat' && (
+                                    <button 
+                                        onClick={handleDownload}
+                                        className="px-4 py-2 bg-blue-50 text-blue-700 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-100 transition-all flex items-center gap-2 border border-blue-100"
+                                    >
+                                        <span className="material-symbols-outlined text-[16px]">print</span>
+                                        Télécharger pour Impression
+                                    </button>
+                                )}
+                                {['chef_division', 'directeur_cooperation', 'service_juridique', 'recteur', 'admin', 'secretariat'].includes(user?.role?.name) && (
+                                    <button 
+                                        onClick={openEditModal}
+                                        className="px-4 py-2 bg-amber-50 text-amber-700 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-100 transition-all flex items-center gap-2 border border-amber-100"
+                                    >
+                                        <span className="material-symbols-outlined text-[16px]">
+                                            {user?.role?.name === 'secretariat' ? 'upload_file' : 'edit_document'}
+                                        </span>
+                                        {user?.role?.name === 'secretariat' ? 'Archivage Numérique' : 'Modifier Dossier'}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            {convention.file_path ? (
+                                <div className="group flex items-center justify-between p-6 bg-gray-50/50 rounded-3xl border border-gray-100 hover:bg-white hover:shadow-lg transition-all">
+                                    <div className="flex items-center gap-6">
+                                        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform">
+                                            <span className="material-symbols-outlined text-3xl">
+                                                {convention.file_path.toLowerCase().endsWith('.docx') || convention.file_path.toLowerCase().endsWith('.doc') ? 'description' : 'picture_as_pdf'}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-black text-[#001D3D] uppercase tracking-tight line-clamp-1">{convention.file_path.split('/').pop()}</p>
+                                            <p className="text-[9px] font-bold text-slate-500 uppercase mt-1">
+                                                Document Principal • {convention.file_path.toLowerCase().endsWith('.docx') || convention.file_path.toLowerCase().endsWith('.doc') ? 'Word' : 'PDF'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        disabled={isDownloaded}
+                                        onClick={() => {
+                                            if (isDownloaded) return;
+                                            const link = document.createElement('a');
+                                            link.href = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/storage/${convention.file_path}`;
+                                            link.target = '_blank';
+                                            link.download = convention.file_path.split('/').pop();
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            document.body.removeChild(link);
+                                            setIsDownloaded(true);
+                                            setToast({ message: 'Téléchargement démarré avec succès !', type: 'success' });
+                                        }}
+                                        className={`w-12 h-12 flex items-center justify-center rounded-2xl transition-all shadow-lg ${isDownloaded ? 'bg-green-500/20 text-green-600 shadow-none cursor-default' : 'bg-[#001D3D] text-white shadow-[#001D3D]/20 hover:scale-110 active:scale-95'}`}
+                                        title={isDownloaded ? "Document déjà téléchargé" : "Télécharger le document"}
+                                    >
+                                        <span className="material-symbols-outlined">{isDownloaded ? 'check_circle' : 'download'}</span>
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="p-10 text-center bg-gray-50/50 rounded-3xl border border-dashed border-gray-200">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Aucun document joint à ce dossier.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Timeline / Audit Log */}
                     <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100">
                         <div className="flex items-center gap-4 mb-12">
@@ -469,7 +711,7 @@ const ConventionDetails = () => {
                         <div className="space-y-10 relative">
                             <div className="absolute left-[31px] top-4 bottom-4 w-px bg-gray-50"></div>
                             {(convention.logs || []).map((log, idx) => (
-                                <div key={log.id} className="flex gap-10 items-start relative bg-white group">
+                                <div key={`log-${log.id || idx}`} className="flex gap-10 items-start relative bg-white group">
                                     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 z-10 transition-all ${idx === 0 ? 'bg-[#001D3D] text-white shadow-xl shadow-[#001D3D]/20' : 'bg-gray-50 text-slate-500 border border-gray-100'}`}>
                                         <span className="material-symbols-outlined text-[20px]">
                                             {log.action === 'creation' ? 'add' : log.action === 'rejet' ? 'close' : 'check'}
@@ -521,9 +763,15 @@ const ConventionDetails = () => {
             </div>
 
             {/* Workflow Comment/Rejection Modal */}
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
                 {activeModalAction && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md bg-black/20">
+                    <motion.div 
+                        key={`modal-${activeModalAction}`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md bg-black/20"
+                    >
                         <motion.div 
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
@@ -542,7 +790,7 @@ const ConventionDetails = () => {
                                              'Avis et Pré-validation'}
                                         </h2>
                                         <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mt-1">
-                                            {activeModalAction === 'sign' ? 'Téléversement du document signé (PDF)' : 'Saisie de commentaire obligatoire'}
+                                            {activeModalAction === 'sign' ? 'Confirmation de la signature officielle' : 'Saisie de commentaire obligatoire'}
                                         </p>
                                     </div>
                                 </div>
@@ -552,36 +800,20 @@ const ConventionDetails = () => {
                             </div>
                             <div className="p-12 space-y-8">
                                 <div className="space-y-4">
-                                    {activeModalAction === 'sign' ? (
-                                        <div className="space-y-4">
-                                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-2">Document final signé (Optionnel)</label>
-                                            <div className="relative group">
-                                                <input 
-                                                    type="file" 
-                                                    accept=".pdf"
-                                                    onChange={(e) => setRejectionReason(e.target.files[0])}
-                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                                />
-                                                <div className="w-full bg-gray-50 border-2 border-dashed border-gray-200 group-hover:border-green-300 rounded-[2rem] p-10 flex flex-col items-center justify-center transition-all">
-                                                    <span className="material-symbols-outlined text-4xl text-slate-300 group-hover:text-green-500 mb-2">upload_file</span>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                                        {rejectionReason instanceof File ? rejectionReason.name : "Cliquez ou glissez le PDF signé"}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-2">Observations et recommandations</label>
-                                            <textarea 
-                                                required
-                                                className={`w-full bg-gray-50 border-2 border-gray-100 rounded-[2rem] p-8 text-sm font-bold text-[#001D3D] outline-none transition-all min-h-[150px] placeholder:italic ${activeModalAction === 'reject' ? 'focus:border-red-200' : 'focus:border-blue-200'}`}
-                                                placeholder={activeModalAction === 'reject' ? "Veuillez spécifier les corrections nécessaires..." : "Détaillez votre avis sur la pertinence et cohérence..."}
-                                                value={rejectionReason}
-                                                onChange={(e) => setRejectionReason(e.target.value)}
-                                            />
-                                        </>
-                                    )}
+                                    <>
+                                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-2">
+                                            {activeModalAction === 'sign' ? 'Observations finales (Optionnel)' : 'Observations et recommandations'}
+                                        </label>
+                                        <textarea 
+                                            required={activeModalAction !== 'sign'}
+                                            className={`w-full bg-gray-50 border-2 border-gray-100 rounded-[2rem] p-8 text-sm font-bold text-[#001D3D] outline-none transition-all min-h-[150px] placeholder:italic ${activeModalAction === 'reject' ? 'focus:border-red-200' : 'focus:border-blue-200'}`}
+                                            placeholder={activeModalAction === 'reject' ? "Veuillez spécifier les corrections nécessaires..." : 
+                                                         activeModalAction === 'sign' ? "Ajouter une note finale avant l'archivage..." : 
+                                                         "Détaillez votre avis sur la pertinence et cohérence..."}
+                                            value={rejectionReason}
+                                            onChange={(e) => setRejectionReason(e.target.value)}
+                                        />
+                                    </>
                                 </div>
                                 <div className="flex gap-4">
                                     <button 
@@ -606,8 +838,9 @@ const ConventionDetails = () => {
                                 </div>
                             </div>
                         </motion.div>
-                    </div>
+                    </motion.div>
                 )}
+            </AnimatePresence>
 
 
             {/* KPI Management Modal */}
@@ -738,6 +971,130 @@ const ConventionDetails = () => {
                     </div>
                 )}
 
+            {/* Dossier Edit Modal */}
+            <AnimatePresence>
+                {isEditModalOpen && (
+                    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-[#001D3D]/40 backdrop-blur-md"
+                        />
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 30 }}
+                            className="relative z-[130] w-full max-w-4xl bg-white rounded-[3rem] shadow-[0_50px_150px_rgba(0,0,0,0.3)] border border-gray-100 flex flex-col overflow-hidden max-h-[90vh]"
+                        >
+                            <div className="p-10 border-b border-gray-50 bg-[#FBFBFB] flex justify-between items-center">
+                                <div>
+                                    <h2 className="text-2xl font-black text-[#001D3D] tracking-tight uppercase">
+                                        {user?.role?.name === 'secretariat' ? 'ARCHIVAGE DU DOSSIER' : 'ÉDITION DU DOSSIER'}
+                                    </h2>
+                                    <p className="text-[10px] font-black text-[#8B7355] uppercase tracking-[0.3em] mt-1">
+                                        {user?.role?.name === 'secretariat' ? 'Mise en ligne du scan final' : 'Mise à jour des informations et documents'}
+                                    </p>
+                                </div>
+                                <button onClick={() => setIsEditModalOpen(false)} className="w-12 h-12 flex items-center justify-center bg-white hover:bg-red-50 hover:text-red-500 rounded-2xl transition-all text-slate-500 border border-gray-100">
+                                    <span className="material-symbols-outlined">close</span>
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleEditSave} className="p-12 space-y-8 overflow-y-auto custom-scrollbar">
+                                <div className="space-y-6">
+                                    <div className="bg-amber-50/50 p-8 rounded-[2rem] border border-amber-100/50 mb-6">
+                                        <div className="flex items-start gap-4">
+                                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-amber-600 shadow-sm">
+                                                <span className="material-symbols-outlined">info</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest mb-1">Mise à jour du document</p>
+                                                <p className="text-[9px] font-bold text-amber-700/70 leading-relaxed uppercase tracking-wider">
+                                                    Vous pouvez modifier le document joint (Word, PDF) en téléchargeant la version corrigée. 
+                                                    Les informations d'identité du dossier restent figées.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-10 bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2.5rem] flex flex-col items-center justify-center group hover:border-amber-300 transition-all">
+                                        <input 
+                                            type="file" 
+                                            id="dossier-file-update"
+                                            accept=".doc,.docx"
+                                            className="hidden"
+                                            onChange={(e) => setSelectedFile(e.target.files[0])}
+                                        />
+                                        <label 
+                                            htmlFor="dossier-file-update"
+                                            className="cursor-pointer flex flex-col items-center"
+                                        >
+                                            <div className="w-20 h-20 bg-white rounded-[2rem] shadow-xl shadow-amber-500/10 flex items-center justify-center text-amber-500 mb-6 group-hover:scale-110 transition-transform">
+                                                <span className="material-symbols-outlined text-4xl">upload_file</span>
+                                            </div>
+                                            <p className="text-sm font-black text-[#001D3D] uppercase tracking-widest">
+                                                {selectedFile ? selectedFile.name : (user?.role?.name === 'secretariat' ? 'DÉPOSER LE SCAN FINAL' : 'Charger la version Word corrigée')}
+                                            </p>
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-2 italic">Format PDF ou Word supportés</p>
+                                        </label>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Observations internes (Optionnel)</label>
+                                        <textarea 
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-6 text-sm font-bold text-[#001D3D] outline-none focus:border-[#001D3D]/20 transition-all min-h-[100px]"
+                                            placeholder="Notes sur les modifications apportées..."
+                                            value={editFormData.observations}
+                                            onChange={(e) => setEditFormData({ ...editFormData, observations: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                                {user?.role?.name === 'secretariat' && (
+                                    <div className="p-8 px-10 bg-amber-50/50 border-y border-amber-100/50">
+                                        <label className="flex items-start gap-4 cursor-pointer group">
+                                            <div className="pt-1">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={hasStamp}
+                                                    onChange={(e) => setHasStamp(e.target.checked)}
+                                                    className="w-6 h-6 rounded-lg border-amber-300 text-amber-600 focus:ring-amber-500 transition-all cursor-pointer" 
+                                                />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-sm font-black text-amber-900 uppercase tracking-tight">Validation du Cachet Institutionnel</p>
+                                                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest mt-1 leading-relaxed">
+                                                    Je certifie avoir apposé le cachet officiel de l'UIDT sur le document physique avant le scan.
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                )}
+
+                                <div className="p-8 px-10 flex justify-end gap-4 bg-gray-50/30">
+                                    <button 
+                                        type="button"
+                                        onClick={() => setIsEditModalOpen(false)}
+                                        className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest"
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button 
+                                        type="submit"
+                                        disabled={(!selectedFile && !submitting) || (user?.role?.name === 'secretariat' && !hasStamp)}
+                                        className="px-12 py-5 bg-[#001D3D] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#001D3D]/20 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
+                                    >
+                                        {submitting ? 'Enregistrement...' : (user?.role?.name === 'secretariat' ? 'ARCHIVER LE DOCUMENT SCANNÉ' : 'Valider la nouvelle version')}
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
                 {toast && (
                     <Toast 
                         message={toast.message} 
@@ -746,6 +1103,82 @@ const ConventionDetails = () => {
                     />
                 )}
             </AnimatePresence>
+                {/* Zone de Signature pour l'impression */}
+                <div className="hidden print:block mt-20">
+                    <div className="flex justify-end">
+                        <div className="text-center w-64 space-y-4">
+                            <p className="text-xs font-black uppercase tracking-widest text-slate-900">Le Recteur de l'UIDT</p>
+                            <div className="h-32 flex items-center justify-center">
+                                <img 
+                                    src="/image/signature_recteur.png" 
+                                    alt="Signature Recteur" 
+                                    className="max-h-full max-w-full object-contain"
+                                    onError={(e) => {
+                                        if (e.target.src.includes('.png')) {
+                                            e.target.src = '/image/signature_recteur.jpg';
+                                        } else {
+                                            e.target.style.display = 'none';
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest border-t border-slate-100 pt-2">Cachet et Signature</p>
+                        </div>
+                    </div>
+                </div>
+
+                <style dangerouslySetInnerHTML={{ __html: `
+                    @media print {
+                        .no-print, button, .Toastify { display: none !important; }
+                        body { 
+                            background: white !important; 
+                            margin: 0 !important; 
+                            padding: 0 !important;
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+                        
+                        /* Layout reset */
+                        .space-y-10 > * + * { margin-top: 1.5rem !important; }
+                        .pb-20 { padding-bottom: 0 !important; }
+                        .grid { display: block !important; }
+                        .lg\\:col-span-3, .lg\\:col-span-1 { width: 100% !important; margin-bottom: 2rem; }
+                        
+                        /* Card styling */
+                        .premium-card, .bg-white, .bg-gray-50\\/50 { 
+                            border: 1px solid #e2e8f0 !important; 
+                            box-shadow: none !important; 
+                            break-inside: avoid; 
+                            border-radius: 1rem !important;
+                            background-color: white !important;
+                            padding: 1.5rem !important;
+                        }
+
+                        /* Dark Sections */
+                        .bg-institutional, .bg-gradient-to-br, .bg-\\[\\#001D3D\\] { 
+                            background-color: #001D3D !important; 
+                            background-image: none !important;
+                            color: white !important;
+                        }
+                        .text-white { color: white !important; }
+                        
+                        /* Progress and Indicators */
+                        .bg-green-500 { background-color: #22c55e !important; }
+                        .bg-gray-100 { background-color: #f1f5f9 !important; }
+                        .w-full.bg-gray-100.h-1\\.5 { border: 1px solid #e2e8f0; }
+
+                        /* Header & Signature */
+                        .print\\:block { display: block !important; }
+                        .border-b-2 { border-color: #000 !important; }
+                        
+                        /* Typography */
+                        h1, h2, h3, h4 { color: #001D3D !important; }
+                        .text-slate-600, .text-slate-500 { color: #475569 !important; }
+                        
+                        /* Fix for the audit log timeline */
+                        .absolute.left-\\[31px\\] { border-left: 1px solid #e2e8f0 !important; background: none !important; }
+                    }
+                `}} />
         </motion.div>
     );
 };
