@@ -20,6 +20,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
             'role_id' => 'required|exists:roles,id',
+            'is_active' => 'boolean',
         ]);
 
         $user = User::create([
@@ -27,6 +28,7 @@ class UserController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role_id' => $validated['role_id'],
+            'is_active' => $request->get('is_active', true),
         ]);
 
         // Send Welcome Notification
@@ -43,6 +45,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:6',
             'role_id' => 'required|exists:roles,id',
+            'is_active' => 'boolean',
         ]);
 
         $user->name = $validated['name'];
@@ -51,6 +54,7 @@ class UserController extends Controller
             $user->password = Hash::make($validated['password']);
         }
         $user->role_id = $validated['role_id'];
+        $user->is_active = $request->get('is_active', $user->is_active);
         $user->save();
 
         return response()->json($user);

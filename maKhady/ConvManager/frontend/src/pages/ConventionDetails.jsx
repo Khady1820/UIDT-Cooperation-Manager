@@ -21,7 +21,7 @@ const Toast = ({ message, type, onClose }) => {
             exit={{ y: 50, opacity: 0 }}
             onClick={onClose}
             className={`fixed bottom-10 right-10 z-[100] px-8 py-5 rounded-[2rem] shadow-2xl flex items-center gap-4 cursor-pointer hover:scale-105 transition-all ${
-                type === 'success' ? 'bg-[#001D3D] text-white' : 'bg-red-500 text-white'
+                type === 'success' ? 'bg-[#2E2F7F] text-white' : 'bg-red-500 text-white'
             }`}
         >
             <span className="material-symbols-outlined text-2xl">{type === 'success' ? 'check_circle' : 'error'}</span>
@@ -300,7 +300,7 @@ const ConventionDetails = () => {
 
     if (loading) return (
         <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="w-12 h-12 border-4 border-[#001D3D]/10 border-t-[#001D3D] rounded-full animate-spin"></div>
+            <div className="w-12 h-12 border-4 border-[#2E2F7F]/10 border-t-[#2E2F7F] rounded-full animate-spin"></div>
         </div>
     );
     
@@ -365,13 +365,13 @@ const ConventionDetails = () => {
                     onClick={() => navigate(-1)}
                     className="group flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm hover:bg-gray-50 transition-all"
                 >
-                    <span className="material-symbols-outlined text-slate-600 group-hover:text-[#001D3D] transition-colors">arrow_back</span>
-                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#001D3D] transition-colors">Retour</span>
+                    <span className="material-symbols-outlined text-slate-600 group-hover:text-[#2E2F7F] transition-colors">arrow_back</span>
+                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#2E2F7F] transition-colors">Retour</span>
                 </button>
                 <div className="h-4 w-px bg-gray-200"></div>
                 <button 
                     onClick={() => window.print()}
-                    className="group flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm hover:bg-gray-50 transition-all text-[#001D3D]"
+                    className="group flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm hover:bg-gray-50 transition-all text-[#2E2F7F]"
                 >
                     <span className="material-symbols-outlined text-sm">print</span>
                     <span className="text-[10px] font-black uppercase tracking-widest">Imprimer Fiche</span>
@@ -386,16 +386,16 @@ const ConventionDetails = () => {
                     <div>
                         <div className="flex items-center gap-3 mb-2">
                             <StatusBadge status={convention.status} />
-                            <span className="text-[10px] font-black text-[#8B7355] uppercase tracking-[0.2em] ml-2">UIDT Système Statistique</span>
+                            <span className="text-[10px] font-black text-[#F7931E] uppercase tracking-[0.2em] ml-2">UIDT Système Statistique</span>
                         </div>
-                        <h1 className="text-2xl font-black text-[#001D3D] tracking-tight uppercase leading-tight">{convention.name}</h1>
+                        <h1 className="text-2xl font-black text-[#2E2F7F] tracking-tight uppercase leading-tight">{convention.name}</h1>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-4">
                     {/* Role-based Buttons */}
                     {user?.role?.name === 'porteur_projet' && convention.status === 'brouillon' && (
-                        <button onClick={() => handleWorkflowAction('submit')} disabled={submitting} className="px-10 py-4 bg-[#001D3D] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-[#001D3D]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
+                        <button onClick={() => handleWorkflowAction('submit')} disabled={submitting} className="px-10 py-4 bg-[#2E2F7F] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-[#2E2F7F]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
                             Soumettre pour Approbation
                             <span className="material-symbols-outlined text-[18px]">send</span>
                         </button>
@@ -455,11 +455,11 @@ const ConventionDetails = () => {
                         
                         return (
                             <div key={`step-${s.id || idx}`} className="relative z-10 flex flex-col items-center gap-4">
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${isDone ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : isCurrent ? 'bg-[#001D3D] text-white shadow-2xl shadow-[#001D3D]/30 scale-125' : 'bg-white border-4 border-gray-50 text-gray-200'}`}>
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${isDone ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : isCurrent ? 'bg-[#2E2F7F] text-white shadow-2xl shadow-[#2E2F7F]/30 scale-125' : 'bg-white border-4 border-gray-50 text-gray-200'}`}>
                                     <span className="material-symbols-outlined text-[24px]">{isDone ? 'check' : s.icon}</span>
                                 </div>
                                 <div className="text-center">
-                                    <p className={`text-[10px] font-black uppercase tracking-widest ${isCurrent ? 'text-[#001D3D]' : 'text-slate-500'}`}>{s.label}</p>
+                                    <p className={`text-[10px] font-black uppercase tracking-widest ${isCurrent ? 'text-[#2E2F7F]' : 'text-slate-500'}`}>{s.label}</p>
                                 </div>
                             </div>
                         );
@@ -487,31 +487,31 @@ const ConventionDetails = () => {
                         <div className="grid grid-cols-3 gap-12">
                             <div className="space-y-1">
                                 <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Classification</label>
-                                <p className="text-sm font-black text-[#001D3D] uppercase">
+                                <p className="text-sm font-black text-[#2E2F7F] uppercase">
                                     {convention.type === 'national' ? 'Nationale' : convention.type === 'international' ? 'Internationale' : 'Régionale'}
                                 </p>
                             </div>
                             <div className="space-y-1">
                                 <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Partenaire Stratégique</label>
-                                <p className="text-sm font-black text-[#001D3D]">{convention.partners || '—'}</p>
+                                <p className="text-sm font-black text-[#2E2F7F]">{convention.partners || '—'}</p>
                             </div>
                             <div className="space-y-1">
                                 <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Année de Référence</label>
-                                <p className="text-sm font-black text-[#001D3D]">{convention.year || '2024'}</p>
+                                <p className="text-sm font-black text-[#2E2F7F]">{convention.year || '2024'}</p>
                             </div>
                         </div>
 
                         <div className="h-px bg-gray-50"></div>
 
                         <div className="space-y-6">
-                            <h3 className="text-sm font-black text-[#001D3D] uppercase tracking-[0.2em]">Objectifs Institutionnels</h3>
+                            <h3 className="text-sm font-black text-[#2E2F7F] uppercase tracking-[0.2em]">Objectifs Institutionnels</h3>
                             <p className="text-sm text-gray-500 leading-[1.8] font-medium italic bg-gray-50/30 p-8 rounded-[2.5rem] border border-gray-50 whitespace-pre-wrap">
                                 {convention.objectives || 'Aucun objectif spécifié pour le moment.'}
                             </p>
                         </div>
 
                         {/* Performance Metric Section */}
-                        <div className="bg-gradient-to-br from-[#001D3D] to-[#002b5c] p-10 rounded-[3rem] text-white flex flex-col md:flex-row items-center justify-between gap-8">
+                        <div className="bg-gradient-to-br from-[#2E2F7F] to-[#002b5c] p-10 rounded-[3rem] text-white flex flex-col md:flex-row items-center justify-between gap-8">
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3">
                                     <span className="material-symbols-outlined text-[#B68F40] text-[24px]">analytics</span>
@@ -549,13 +549,13 @@ const ConventionDetails = () => {
                         <div className="space-y-8 pt-6">
                             <div className="flex justify-between items-center border-b border-gray-50 pb-6">
                                 <div>
-                                    <h3 className="text-sm font-black text-[#001D3D] uppercase tracking-[0.2em]">Indicateurs Stratégiques Spécifiques</h3>
+                                    <h3 className="text-sm font-black text-[#2E2F7F] uppercase tracking-[0.2em]">Indicateurs Stratégiques Spécifiques</h3>
                                     <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1">Suivi métrique détaillé par axe</p>
                                 </div>
                                 {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
                                     <button 
                                         onClick={() => openKpiModal()}
-                                        className="px-6 py-3 bg-[#001D3D] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[#8B7355] transition-all flex items-center gap-2 shadow-lg shadow-[#001D3D]/10"
+                                        className="px-6 py-3 bg-[#2E2F7F] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[#F7931E] transition-all flex items-center gap-2 shadow-lg shadow-[#2E2F7F]/10"
                                     >
                                         <span className="material-symbols-outlined text-[16px]">add</span>
                                         {t('ajouter_indicateur')}
@@ -569,12 +569,12 @@ const ConventionDetails = () => {
                                         <div key={`kpi-${kpi.id || kIdx}`} className="bg-gray-50/50 border border-gray-100 rounded-[2rem] p-8 group hover:bg-white hover:shadow-xl transition-all">
                                             <div className="flex justify-between items-start mb-6">
                                                 <div className="space-y-1">
-                                                    <h4 className="text-sm font-black text-[#001D3D] uppercase tracking-tight">{kpi.name}</h4>
+                                                    <h4 className="text-sm font-black text-[#2E2F7F] uppercase tracking-tight">{kpi.name}</h4>
                                                     <p className="text-[10px] text-slate-600 font-bold italic">"{kpi.description || 'Pas de description'}"</p>
                                                 </div>
                                                 {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
                                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <button onClick={() => openKpiModal(kpi)} className="p-2 text-slate-600 hover:text-[#001D3D] transition-colors"><span className="material-symbols-outlined text-sm">edit</span></button>
+                                                        <button onClick={() => openKpiModal(kpi)} className="p-2 text-slate-600 hover:text-[#2E2F7F] transition-colors"><span className="material-symbols-outlined text-sm">edit</span></button>
                                                         <button onClick={() => handleKpiDelete(kpi.id)} className="p-2 text-slate-600 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-sm">delete</span></button>
                                                     </div>
                                                 )}
@@ -582,28 +582,28 @@ const ConventionDetails = () => {
                                              <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                                                 <div className="space-y-1">
                                                     <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Référence</p>
-                                                    <p className="text-xs font-black text-[#001D3D]">{kpi.valeur_reference || '0'}</p>
+                                                    <p className="text-xs font-black text-[#2E2F7F]">{kpi.valeur_reference || '0'}</p>
                                                 </div>
                                                 <div className="space-y-1">
                                                     <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Objectif</p>
-                                                    <p className="text-xs font-black text-[#001D3D]">{kpi.valeur_cible || '0'}</p>
+                                                    <p className="text-xs font-black text-[#2E2F7F]">{kpi.valeur_cible || '0'}</p>
                                                 </div>
                                                 {(convention.status === 'signe_recteur' || convention.status === 'termine') ? (
                                                     <>
                                                         <div className="space-y-1">
-                                                            <p className="text-[8px] font-black text-[#8B7355] uppercase tracking-[0.2em]">Atteint</p>
-                                                            <p className="text-xs font-black text-[#8B7355]">{kpi.valeur_atteinte || '0'}</p>
+                                                            <p className="text-[8px] font-black text-[#F7931E] uppercase tracking-[0.2em]">Atteint</p>
+                                                            <p className="text-xs font-black text-[#F7931E]">{kpi.valeur_atteinte || '0'}</p>
                                                         </div>
                                                         <div className="md:col-span-2">
                                                             <div className="flex justify-between items-center mb-1.5">
                                                                 <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Progression</span>
-                                                                <span className="text-[9px] font-black text-[#001D3D]">{Math.min(100, Math.round((parseFloat(kpi.valeur_atteinte) / parseFloat(kpi.valeur_cible)) * 100)) || 0}%</span>
+                                                                <span className="text-[9px] font-black text-[#2E2F7F]">{Math.min(100, Math.round((parseFloat(kpi.valeur_atteinte) / parseFloat(kpi.valeur_cible)) * 100)) || 0}%</span>
                                                             </div>
                                                             <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
                                                                 <motion.div 
                                                                     initial={{ width: 0 }}
                                                                     animate={{ width: `${Math.min(100, (parseFloat(kpi.valeur_atteinte) / parseFloat(kpi.valeur_cible)) * 100) || 0}%` }}
-                                                                    className="h-full bg-[#001D3D] rounded-full"
+                                                                    className="h-full bg-[#2E2F7F] rounded-full"
                                                                 />
                                                             </div>
                                                         </div>
@@ -631,8 +631,8 @@ const ConventionDetails = () => {
                     <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100">
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
-                                <span className="material-symbols-outlined text-[#001D3D]">attach_file</span>
-                                <h3 className="text-sm font-black text-[#001D3D] uppercase tracking-[0.2em]">Documents du Dossier</h3>
+                                <span className="material-symbols-outlined text-[#2E2F7F]">attach_file</span>
+                                <h3 className="text-sm font-black text-[#2E2F7F] uppercase tracking-[0.2em]">Documents du Dossier</h3>
                             </div>
                             <div className="flex gap-2">
                                 {user?.role?.name === 'secretariat' && (
@@ -668,7 +668,7 @@ const ConventionDetails = () => {
                                             </span>
                                         </div>
                                         <div>
-                                            <p className="text-xs font-black text-[#001D3D] uppercase tracking-tight line-clamp-1">{convention.file_path.split('/').pop()}</p>
+                                            <p className="text-xs font-black text-[#2E2F7F] uppercase tracking-tight line-clamp-1">{convention.file_path.split('/').pop()}</p>
                                             <p className="text-[9px] font-bold text-slate-500 uppercase mt-1">
                                                 Document Principal • {convention.file_path.toLowerCase().endsWith('.docx') || convention.file_path.toLowerCase().endsWith('.doc') ? 'Word' : 'PDF'}
                                             </p>
@@ -688,7 +688,7 @@ const ConventionDetails = () => {
                                             setIsDownloaded(true);
                                             setToast({ message: 'Téléchargement démarré avec succès !', type: 'success' });
                                         }}
-                                        className={`w-12 h-12 flex items-center justify-center rounded-2xl transition-all shadow-lg ${isDownloaded ? 'bg-green-500/20 text-green-600 shadow-none cursor-default' : 'bg-[#001D3D] text-white shadow-[#001D3D]/20 hover:scale-110 active:scale-95'}`}
+                                        className={`w-12 h-12 flex items-center justify-center rounded-2xl transition-all shadow-lg ${isDownloaded ? 'bg-green-500/20 text-green-600 shadow-none cursor-default' : 'bg-[#2E2F7F] text-white shadow-[#2E2F7F]/20 hover:scale-110 active:scale-95'}`}
                                         title={isDownloaded ? "Document déjà téléchargé" : "Télécharger le document"}
                                     >
                                         <span className="material-symbols-outlined">{isDownloaded ? 'check_circle' : 'download'}</span>
@@ -705,21 +705,21 @@ const ConventionDetails = () => {
                     {/* Timeline / Audit Log */}
                     <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100">
                         <div className="flex items-center gap-4 mb-12">
-                            <span className="material-symbols-outlined text-[#001D3D]">history_edu</span>
-                            <h3 className="text-sm font-black text-[#001D3D] uppercase tracking-[0.2em]">Historique de Validation (Audit)</h3>
+                            <span className="material-symbols-outlined text-[#2E2F7F]">history_edu</span>
+                            <h3 className="text-sm font-black text-[#2E2F7F] uppercase tracking-[0.2em]">Historique de Validation (Audit)</h3>
                         </div>
                         <div className="space-y-10 relative">
                             <div className="absolute left-[31px] top-4 bottom-4 w-px bg-gray-50"></div>
                             {(convention.logs || []).map((log, idx) => (
                                 <div key={`log-${log.id || idx}`} className="flex gap-10 items-start relative bg-white group">
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 z-10 transition-all ${idx === 0 ? 'bg-[#001D3D] text-white shadow-xl shadow-[#001D3D]/20' : 'bg-gray-50 text-slate-500 border border-gray-100'}`}>
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 z-10 transition-all ${idx === 0 ? 'bg-[#2E2F7F] text-white shadow-xl shadow-[#2E2F7F]/20' : 'bg-gray-50 text-slate-500 border border-gray-100'}`}>
                                         <span className="material-symbols-outlined text-[20px]">
                                             {log.action === 'creation' ? 'add' : log.action === 'rejet' ? 'close' : 'check'}
                                         </span>
                                     </div>
                                     <div className="flex-1 pt-3">
                                         <div className="flex justify-between items-center mb-2">
-                                            <h4 className="text-[11px] font-black text-[#001D3D] uppercase tracking-wider">{log.action.replace('_', ' ')}</h4>
+                                            <h4 className="text-[11px] font-black text-[#2E2F7F] uppercase tracking-wider">{log.action.replace('_', ' ')}</h4>
                                             <span className="text-[9px] font-bold text-slate-600">{format(new Date(log.created_at), 'dd/MM/yyyy HH:mm')}</span>
                                         </div>
                                         <p className="text-xs font-bold text-gray-500">Par {log.user?.name}</p>
@@ -733,7 +733,7 @@ const ConventionDetails = () => {
 
                 {/* Sidebar Info */}
                 <div className="lg:col-span-1 space-y-8">
-                     <div className="bg-[#001D3D] p-10 rounded-[3rem] text-white space-y-8 relative overflow-hidden">
+                     <div className="bg-[#2E2F7F] p-10 rounded-[3rem] text-white space-y-8 relative overflow-hidden">
                         <div className="relative z-10 space-y-6">
                             <div className="space-y-1">
                                 <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Porteur de Projet</label>
@@ -784,7 +784,7 @@ const ConventionDetails = () => {
                                         <span className="material-symbols-outlined">{activeModalAction === 'reject' ? 'feedback' : 'rate_review'}</span>
                                     </div>
                                     <div>
-                                        <h2 className="text-lg font-black text-[#001D3D] uppercase">
+                                        <h2 className="text-lg font-black text-[#2E2F7F] uppercase">
                                             {activeModalAction === 'reject' ? 'Rejet du Dossier' : 
                                              activeModalAction === 'sign' ? 'Signature Finale et Archivage' : 
                                              'Avis et Pré-validation'}
@@ -806,7 +806,7 @@ const ConventionDetails = () => {
                                         </label>
                                         <textarea 
                                             required={activeModalAction !== 'sign'}
-                                            className={`w-full bg-gray-50 border-2 border-gray-100 rounded-[2rem] p-8 text-sm font-bold text-[#001D3D] outline-none transition-all min-h-[150px] placeholder:italic ${activeModalAction === 'reject' ? 'focus:border-red-200' : 'focus:border-blue-200'}`}
+                                            className={`w-full bg-gray-50 border-2 border-gray-100 rounded-[2rem] p-8 text-sm font-bold text-[#2E2F7F] outline-none transition-all min-h-[150px] placeholder:italic ${activeModalAction === 'reject' ? 'focus:border-red-200' : 'focus:border-blue-200'}`}
                                             placeholder={activeModalAction === 'reject' ? "Veuillez spécifier les corrections nécessaires..." : 
                                                          activeModalAction === 'sign' ? "Ajouter une note finale avant l'archivage..." : 
                                                          "Détaillez votre avis sur la pertinence et cohérence..."}
@@ -854,12 +854,12 @@ const ConventionDetails = () => {
                         >
                             <div className="p-10 border-b border-gray-50 flex justify-between items-center bg-[#FBFBFB]">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-[#001D3D] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#001D3D]/20">
+                                    <div className="w-12 h-12 bg-[#2E2F7F] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#2E2F7F]/20">
                                         <span className="material-symbols-outlined">{editingKpi ? 'edit_note' : 'add_chart'}</span>
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-black text-[#001D3D] uppercase tracking-tight">{editingKpi ? 'Modifier l’Indicateur' : 'Nouvel Indicateur de Performance'}</h2>
-                                        <p className="text-[9px] font-black text-[#8B7355] uppercase tracking-widest mt-1">Saisie des métriques stratégiques</p>
+                                        <h2 className="text-xl font-black text-[#2E2F7F] uppercase tracking-tight">{editingKpi ? 'Modifier l’Indicateur' : 'Nouvel Indicateur de Performance'}</h2>
+                                        <p className="text-[9px] font-black text-[#F7931E] uppercase tracking-widest mt-1">Saisie des métriques stratégiques</p>
                                     </div>
                                 </div>
                                 <button onClick={() => setIsKpiModalOpen(false)} className="w-10 h-10 flex items-center justify-center hover:bg-red-50 hover:text-red-500 rounded-full transition-all text-slate-500">
@@ -874,7 +874,7 @@ const ConventionDetails = () => {
                                         <input 
                                             required
                                             type="text"
-                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none focus:border-[#001D3D]/10 transition-all"
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#2E2F7F] outline-none focus:border-[#2E2F7F]/10 transition-all"
                                             placeholder="Ex : Taux de réussite des étudiants en mobilité"
                                             value={kpiFormData.name}
                                             onChange={(e) => setKpiFormData({...kpiFormData, name: e.target.value})}
@@ -884,7 +884,7 @@ const ConventionDetails = () => {
                                     <div className="md:col-span-2 space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description / Observations</label>
                                         <textarea 
-                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none focus:border-[#001D3D]/10 transition-all min-h-[80px]"
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#2E2F7F] outline-none focus:border-[#2E2F7F]/10 transition-all min-h-[80px]"
                                             placeholder="Détails sur la méthode de calcul ou le contexte..."
                                             value={kpiFormData.description}
                                             onChange={(e) => setKpiFormData({...kpiFormData, description: e.target.value})}
@@ -895,7 +895,7 @@ const ConventionDetails = () => {
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{t('valeur_reference')}</label>
                                         <input 
                                             type="text"
-                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none focus:border-[#001D3D]/10 transition-all"
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#2E2F7F] outline-none focus:border-[#2E2F7F]/10 transition-all"
                                             placeholder="Ex : 15%"
                                             value={kpiFormData.valeur_reference}
                                             onChange={(e) => setKpiFormData({...kpiFormData, valeur_reference: e.target.value})}
@@ -903,10 +903,10 @@ const ConventionDetails = () => {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-[#8B7355] uppercase tracking-widest ml-1">{t('valeur_cible')}</label>
+                                        <label className="text-[10px] font-black text-[#F7931E] uppercase tracking-widest ml-1">{t('valeur_cible')}</label>
                                         <input 
                                             type="text"
-                                            className="w-full bg-gray-50 border-2 border-amber-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none focus:border-amber-200 transition-all"
+                                            className="w-full bg-gray-50 border-2 border-amber-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#2E2F7F] outline-none focus:border-amber-200 transition-all"
                                             placeholder="Ex : 40%"
                                             value={kpiFormData.valeur_cible}
                                             onChange={(e) => setKpiFormData({...kpiFormData, valeur_cible: e.target.value})}
@@ -914,10 +914,10 @@ const ConventionDetails = () => {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-[#001D3D] uppercase tracking-widest ml-1">{t('valeur_atteinte')}</label>
+                                        <label className="text-[10px] font-black text-[#2E2F7F] uppercase tracking-widest ml-1">{t('valeur_atteinte')}</label>
                                         <input 
                                             type="text"
-                                            className="w-full bg-[#001D3D]/5 border-2 border-[#001D3D]/10 rounded-2xl px-6 py-4 text-sm font-black text-[#001D3D] outline-none focus:bg-white transition-all"
+                                            className="w-full bg-[#2E2F7F]/5 border-2 border-[#2E2F7F]/10 rounded-2xl px-6 py-4 text-sm font-black text-[#2E2F7F] outline-none focus:bg-white transition-all"
                                             placeholder="Valeur actuelle..."
                                             value={kpiFormData.valeur_atteinte}
                                             onChange={(e) => setKpiFormData({...kpiFormData, valeur_atteinte: e.target.value})}
@@ -927,7 +927,7 @@ const ConventionDetails = () => {
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{t('frequence_mesure')}</label>
                                         <select 
-                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none focus:border-[#001D3D]/10 transition-all appearance-none cursor-pointer"
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#2E2F7F] outline-none focus:border-[#2E2F7F]/10 transition-all appearance-none cursor-pointer"
                                             value={kpiFormData.frequence_mesure}
                                             onChange={(e) => setKpiFormData({...kpiFormData, frequence_mesure: e.target.value})}
                                         >
@@ -942,7 +942,7 @@ const ConventionDetails = () => {
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{t('responsable_suivi')}</label>
                                         <input 
                                             type="text"
-                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#001D3D] outline-none focus:border-[#001D3D]/10 transition-all"
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#2E2F7F] outline-none focus:border-[#2E2F7F]/10 transition-all"
                                             placeholder="Ex : Chef de division / Nom de la Direction"
                                             value={kpiFormData.responsable}
                                             onChange={(e) => setKpiFormData({...kpiFormData, responsable: e.target.value})}
@@ -961,7 +961,7 @@ const ConventionDetails = () => {
                                     <button 
                                         type="submit"
                                         disabled={submitting}
-                                        className="flex-[2] py-5 bg-[#001D3D] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-[#001D3D]/20 active:scale-95 transition-all disabled:opacity-50"
+                                        className="flex-[2] py-5 bg-[#2E2F7F] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-[#2E2F7F]/20 active:scale-95 transition-all disabled:opacity-50"
                                     >
                                         {editingKpi ? 'Mettre à jour' : 'Ajouter l’Indicateur'}
                                     </button>
@@ -979,7 +979,7 @@ const ConventionDetails = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-[#001D3D]/40 backdrop-blur-md"
+                            className="absolute inset-0 bg-[#2E2F7F]/40 backdrop-blur-md"
                         />
                         <motion.div 
                             initial={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -989,10 +989,10 @@ const ConventionDetails = () => {
                         >
                             <div className="p-10 border-b border-gray-50 bg-[#FBFBFB] flex justify-between items-center">
                                 <div>
-                                    <h2 className="text-2xl font-black text-[#001D3D] tracking-tight uppercase">
+                                    <h2 className="text-2xl font-black text-[#2E2F7F] tracking-tight uppercase">
                                         {user?.role?.name === 'secretariat' ? 'ARCHIVAGE DU DOSSIER' : 'ÉDITION DU DOSSIER'}
                                     </h2>
-                                    <p className="text-[10px] font-black text-[#8B7355] uppercase tracking-[0.3em] mt-1">
+                                    <p className="text-[10px] font-black text-[#F7931E] uppercase tracking-[0.3em] mt-1">
                                         {user?.role?.name === 'secretariat' ? 'Mise en ligne du scan final' : 'Mise à jour des informations et documents'}
                                     </p>
                                 </div>
@@ -1033,7 +1033,7 @@ const ConventionDetails = () => {
                                             <div className="w-20 h-20 bg-white rounded-[2rem] shadow-xl shadow-amber-500/10 flex items-center justify-center text-amber-500 mb-6 group-hover:scale-110 transition-transform">
                                                 <span className="material-symbols-outlined text-4xl">upload_file</span>
                                             </div>
-                                            <p className="text-sm font-black text-[#001D3D] uppercase tracking-widest">
+                                            <p className="text-sm font-black text-[#2E2F7F] uppercase tracking-widest">
                                                 {selectedFile ? selectedFile.name : (user?.role?.name === 'secretariat' ? 'DÉPOSER LE SCAN FINAL' : 'Charger la version Word corrigée')}
                                             </p>
                                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-2 italic">Format PDF ou Word supportés</p>
@@ -1043,7 +1043,7 @@ const ConventionDetails = () => {
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Observations internes (Optionnel)</label>
                                         <textarea 
-                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-6 text-sm font-bold text-[#001D3D] outline-none focus:border-[#001D3D]/20 transition-all min-h-[100px]"
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-6 text-sm font-bold text-[#2E2F7F] outline-none focus:border-[#2E2F7F]/20 transition-all min-h-[100px]"
                                             placeholder="Notes sur les modifications apportées..."
                                             value={editFormData.observations}
                                             onChange={(e) => setEditFormData({ ...editFormData, observations: e.target.value })}
@@ -1083,7 +1083,7 @@ const ConventionDetails = () => {
                                     <button 
                                         type="submit"
                                         disabled={(!selectedFile && !submitting) || (user?.role?.name === 'secretariat' && !hasStamp)}
-                                        className="px-12 py-5 bg-[#001D3D] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#001D3D]/20 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
+                                        className="px-12 py-5 bg-[#2E2F7F] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#2E2F7F]/20 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
                                     >
                                         {submitting ? 'Enregistrement...' : (user?.role?.name === 'secretariat' ? 'ARCHIVER LE DOCUMENT SCANNÉ' : 'Valider la nouvelle version')}
                                     </button>
@@ -1155,8 +1155,8 @@ const ConventionDetails = () => {
                         }
 
                         /* Dark Sections */
-                        .bg-institutional, .bg-gradient-to-br, .bg-\\[\\#001D3D\\] { 
-                            background-color: #001D3D !important; 
+                        .bg-institutional, .bg-gradient-to-br, .bg-\\[\\#2E2F7F\\] { 
+                            background-color: #2E2F7F !important; 
                             background-image: none !important;
                             color: white !important;
                         }
@@ -1172,7 +1172,7 @@ const ConventionDetails = () => {
                         .border-b-2 { border-color: #000 !important; }
                         
                         /* Typography */
-                        h1, h2, h3, h4 { color: #001D3D !important; }
+                        h1, h2, h3, h4 { color: #2E2F7F !important; }
                         .text-slate-600, .text-slate-500 { color: #475569 !important; }
                         
                         /* Fix for the audit log timeline */

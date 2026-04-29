@@ -18,6 +18,12 @@ class AuthController extends Controller
         }
 
         $user = \App\Models\User::with('role')->where('email', $request->email)->firstOrFail();
+        
+        if (!$user->is_active) {
+            \Illuminate\Support\Facades\Auth::logout();
+            return response()->json(['message' => 'Votre compte a été désactivé. Veuillez contacter l\'administrateur.'], 403);
+        }
+
         $user->update(['last_login_at' => now()]);
         $token = $user->createToken('auth_token')->plainTextToken;
 

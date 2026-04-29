@@ -9,10 +9,10 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#4f46e5",
-          hover: "#4338ca",
-          light: "#eef2ff",
-          dark: "#3730a3",
+          DEFAULT: "rgb(var(--primary-rgb) / <alpha-value>)",
+          hover: "rgb(var(--primary-rgb) / 0.9)",
+          light: "rgb(var(--primary-rgb) / 0.1)",
+          dark: "rgb(var(--primary-rgb) / 0.8)",
         },
         secondary: {
           DEFAULT: "#10b981",
@@ -20,14 +20,14 @@ export default {
           light: "#ecfdf5",
         },
         accent: {
-          DEFAULT: "#f59e0b",
-          hover: "#d97706",
-          light: "#fffbeb",
+          DEFAULT: "rgb(var(--accent-rgb) / <alpha-value>)",
+          hover: "rgb(var(--accent-rgb) / 0.9)",
+          light: "rgb(var(--accent-rgb) / 0.1)",
         },
         surface: {
           50: "rgb(var(--bg-main) / <alpha-value>)",
-          100: "rgb(var(--surface-alt) / <alpha-value>)",
-          200: "rgb(var(--border) / <alpha-value>)",
+          100: "rgb(var(--surface-rgb) / <alpha-value>)",
+          200: "rgb(var(--border-rgb) / <alpha-value>)",
           300: "#cbd5e1",
           400: "#94a3b8",
           500: "#64748b",
@@ -40,9 +40,9 @@ export default {
         // Semantic aliases for easier migration
         "on-surface": "rgb(var(--text-main) / <alpha-value>)",
         "on-surface-variant": "#475569",
-        "outline-variant": "rgb(var(--border) / <alpha-value>)",
-        "card-bg": "rgb(var(--surface) / <alpha-value>)",
-        "primary-container": "#4f46e5",
+        "outline-variant": "rgb(var(--border-rgb) / <alpha-value>)",
+        "card-bg": "rgb(var(--surface-rgb) / <alpha-value>)",
+        "primary-container": "rgb(var(--primary-rgb) / <alpha-value>)",
         "on-primary": "#ffffff",
       },
       fontFamily: {

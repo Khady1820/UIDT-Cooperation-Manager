@@ -15,10 +15,9 @@ class UserSeeder extends Seeder
         $adminRole = \App\Models\Role::where('name', 'admin')->first();
 
         \App\Models\User::firstOrCreate(
-            ['email' => 'admin@convmanager.com'],
+            ['email' => 'admin@uidt.sn'],
             [
-                'name' => 'Admin ConvManager',
-
+                'name' => 'Administrateur UIDT',
                 'password' => bcrypt('password'),
                 'role_id' => \App\Models\Role::where('name', 'admin')->first()->id ?? null,
             ]

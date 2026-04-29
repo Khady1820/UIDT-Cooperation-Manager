@@ -12,6 +12,8 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'sendResetLink']);
 Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'reset']);
+Route::get('/public-stats', [ConventionController::class, 'publicStats']);
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -67,4 +69,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
 
     Route::get('/dashboard/stats', [ConventionController::class, 'getDashboardStats']);
+
+    // Support Tickets Routes
+    Route::get('/my-tickets', [\App\Http\Controllers\TicketController::class, 'myTickets']);
+    Route::post('/tickets', [\App\Http\Controllers\TicketController::class, 'store']);
+    Route::middleware('role:admin')->group(function () {
+        Route::apiResource('/admin/tickets', \App\Http\Controllers\TicketController::class);
+    });
 });

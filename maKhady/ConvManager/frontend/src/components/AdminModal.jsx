@@ -21,7 +21,7 @@ const AdminModal = ({ isOpen, onClose, title, children }) => {
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="relative z-10 w-full max-w-2xl bg-card-bg border border-outline-variant rounded-[2.5rem] shadow-2xl overflow-hidden"
+                        className="relative z-10 w-full max-w-2xl bg-white dark:bg-slate-900 border-2 border-gray-100 rounded-[2.5rem] shadow-2xl overflow-hidden"
                     >
                         {/* Header */}
                         <div className="px-8 py-6 border-b border-outline-variant flex items-center justify-between">

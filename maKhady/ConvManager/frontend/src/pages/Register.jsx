@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,9 +17,17 @@ const Register = () => {
     });
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { register } = useAuth();
+    const { user, register } = useAuth();
+
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard');
+        }
+    }, [user, navigate]);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,7 +39,8 @@ const Register = () => {
         setIsSubmitting(true);
         try {
             await register(formData);
-            navigate('/');
+            navigate('/dashboard');
+
         } catch (err) {
             setError(err.response?.data?.message || 'Erreur lors de l’inscription');
         } finally {
@@ -50,12 +60,16 @@ const Register = () => {
                 >
                     <div className="auth-glass p-10 md:p-14 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.08)]">
                         <div className="mb-10">
-                            <Link to="/login" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#8B7355] hover:text-[#001D3D] transition-colors mb-6 group">
-                                <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
-                                Retour à la connexion
-                            </Link>
-                            <h3 className="text-4xl font-black text-black tracking-tight mb-4">{t('register')}</h3>
-                            <p className="text-sm font-black text-gray-600 uppercase tracking-widest leading-loose">Création de profil institutionnel UIDT</p>
+                            <div className="mb-6">
+                                <Link to="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#F7931E] hover:text-[#2E2F7F] transition-colors group">
+                                    <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
+                                    Retour à l'accueil
+                                </Link>
+                            </div>
+
+                            <h3 className="text-4xl font-black text-black tracking-tight mb-4">Créer un compte</h3>
+                            <p className="text-sm font-black text-gray-600 uppercase tracking-widest leading-loose">Espace réservé aux porteurs de projets</p>
+
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-5">
@@ -111,7 +125,7 @@ const Register = () => {
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#001D3D] transition-colors"
+                                            className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#2E2F7F] transition-colors"
                                         >
                                             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                         </button>
@@ -131,7 +145,7 @@ const Register = () => {
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#001D3D] transition-colors"
+                                            className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#2E2F7F] transition-colors"
                                         >
                                             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                         </button>
@@ -150,19 +164,30 @@ const Register = () => {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="w-full bg-[#001D3D] text-white py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-[#002b5c] transition-all shadow-2xl shadow-[#001D3D]/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-4"
+                                    className="w-full bg-[#2E2F7F] text-white py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-[#002b5c] transition-all shadow-2xl shadow-[#2E2F7F]/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-4"
                                 >
                                     <UserPlus className="w-4 h-4" />
-                                    {isSubmitting ? 'Création...' : 'Créer mon Profil'}
+                                    {isSubmitting ? 'Création...' : 'Créer mon Compte'}
                                 </button>
+
                             </div>
                         </form>
+
+                        <div className="mt-10 text-center pt-8 border-t border-gray-50">
+                            <p className="text-[13px] text-gray-400 font-bold">
+                                Déjà un compte ?{' '}
+                                <Link to="/login" className="text-[#F7931E] font-black underline decoration-2 underline-offset-4 hover:text-[#2E2F7F] transition-colors">
+                                    Se connecter
+                                </Link>
+                            </p>
+                        </div>
+
                     </div>
                 </motion.div>
             </div>
 
             {/* Left Side: Visual Experience */}
-            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#001D3D] order-1 lg:order-2">
+            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#2E2F7F] order-1 lg:order-2">
                 <motion.div 
                     initial={{ scale: 1.1, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -174,7 +199,7 @@ const Register = () => {
                         alt="UIDT Architecture" 
                         className="w-full h-full object-cover opacity-60 mix-blend-overlay" 
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#001D3D] via-transparent to-transparent opacity-80"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#2E2F7F] via-transparent to-transparent opacity-80"></div>
                 </motion.div>
 
                 <div className="relative z-20 flex flex-col justify-center p-20 w-full h-full text-white">
@@ -185,12 +210,12 @@ const Register = () => {
                         className="space-y-10"
                     >
                         <div className="w-20 h-20 bg-white/10 backdrop-blur-3xl rounded-[2rem] flex items-center justify-center border border-white/20">
-                            <span className="material-symbols-outlined text-4xl text-[#8B7355]">how_to_reg</span>
+                            <span className="material-symbols-outlined text-4xl text-[#F7931E]">how_to_reg</span>
                         </div>
                         
                         <div>
                             <h2 className="text-5xl font-black leading-[1.1] mb-6">
-                                Construisons l'avenir <br/> de la <span className="text-[#8B7355]">coopération</span>.
+                                Construisons l'avenir <br/> de la <span className="text-[#F7931E]">coopération</span>.
                             </h2>
                             <p className="text-white text-lg max-w-sm leading-relaxed font-black opacity-100">
                                 Rejoignez plus de 50 porteurs de projets et partenaires institutionnels qui façonnent le rayonnement de l'UIDT à travers le monde.
@@ -210,7 +235,7 @@ const Register = () => {
                                     transition={{ delay: 0.8 + (i * 0.2) }}
                                     className="flex items-center gap-4 group"
                                 >
-                                    <CheckCircle2 className="w-5 h-5 text-[#8B7355]" />
+                                    <CheckCircle2 className="w-5 h-5 text-[#F7931E]" />
                                     <span className="text-xs font-black uppercase tracking-[0.2em] text-white/70">{text}</span>
                                 </motion.div>
                             ))}

@@ -21,6 +21,11 @@ import ManageUsers from './pages/ManageUsers';
 import ManagePartners from './pages/ManagePartners';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Landing from './pages/Landing';
+import ConventionSummary from './pages/ConventionSummary';
+import Support from './pages/Support';
+import ManageTickets from './pages/ManageTickets';
+
 
 
 import { ThemeProvider } from './context/ThemeContext';
@@ -39,13 +44,15 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
 
-              <Route path="/" element={
+              <Route path="/" element={<Landing />} />
+              <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Layout>
                     <Dashboard />
                   </Layout>
                 </ProtectedRoute>
               } />
+
               <Route path="/conventions" element={
                 <ProtectedRoute>
                   <Layout>
@@ -78,6 +85,13 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <ConventionDetails />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/conventions/:id/summary" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ConventionSummary />
                   </Layout>
                 </ProtectedRoute>
               } />
@@ -130,7 +144,22 @@ function App() {
                   </Layout>
                 </ProtectedRoute>
               } />
+              <Route path="/support" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Support />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/tickets" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ManageTickets />
+                  </Layout>
+                </ProtectedRoute>
+              } />
               <Route path="*" element={<Navigate to="/" />} />
+
             </Routes>
           </Router>
         </SearchProvider>

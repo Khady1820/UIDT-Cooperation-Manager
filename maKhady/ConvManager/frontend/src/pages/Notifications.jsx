@@ -59,11 +59,11 @@ const Notifications = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'soumis': return 'text-blue-500 bg-blue-50';
-            case 'valide_dir': return 'text-amber-500 bg-amber-50';
-            case 'termine': return 'text-emerald-500 bg-emerald-50';
-            case 'brouillon': return 'text-rose-500 bg-rose-50';
-            default: return 'text-gray-500 bg-gray-50';
+            case 'soumis': return 'text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20';
+            case 'valide_dir': return 'text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20';
+            case 'termine': return 'text-emerald-500 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20';
+            case 'brouillon': return 'text-rose-500 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20';
+            default: return 'text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-800';
         }
     };
 
@@ -71,8 +71,8 @@ const Notifications = () => {
         return (
             <div className="flex items-center justify-center h-[60vh]">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-[#001D3D]/10 border-t-[#001D3D] rounded-full animate-spin"></div>
-                    <p className="text-xs font-black text-[#001D3D] tracking-widest uppercase">{t('loading')}</p>
+                    <div className="w-12 h-12 border-4 border-[#2E2F7F]/10 border-t-[#2E2F7F] dark:border-white/10 dark:border-t-white rounded-full animate-spin"></div>
+                    <p className="text-xs font-black text-[#2E2F7F] dark:text-white tracking-widest uppercase">{t('loading')}</p>
                 </div>
             </div>
         );
@@ -81,21 +81,21 @@ const Notifications = () => {
     return (
         <div className="max-w-4xl mx-auto space-y-8 pb-20">
             {/* Header section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 premium-card p-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-slate-800 shadow-sm">
                 <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 bg-gradient-to-br from-[#001D3D] to-[#003566] rounded-2xl flex items-center justify-center shadow-xl shadow-[#001D3D]/20">
+                    <div className="w-14 h-14 bg-gradient-to-br from-[#2E2F7F] to-[#003566] dark:from-slate-800 dark:to-slate-700 rounded-2xl flex items-center justify-center shadow-xl shadow-[#2E2F7F]/20 dark:shadow-black/20">
                         <span className="material-symbols-outlined text-white text-3xl">notifications_active</span>
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black text-institutional tracking-tight">Alertes Institutionnelles</h1>
-                        <p className="text-[11px] font-bold text-[#8B7355] uppercase tracking-[0.3em] mt-1 ml-0.5 dark:text-amber-400/80">Centre de Notification UIDT</p>
+                        <h1 className="text-3xl font-black text-[#2E2F7F] dark:text-white tracking-tight">Alertes Institutionnelles</h1>
+                        <p className="text-[11px] font-bold text-[#F7931E] uppercase tracking-[0.3em] mt-1 ml-0.5 dark:text-amber-400/80">Centre de Notification UIDT</p>
                     </div>
                 </div>
                 
                 {notifications.some(n => !n.read_at) && (
                     <button 
                         onClick={markAllRead}
-                        className="px-6 py-3 bg-[#F1F3F5] dark:bg-slate-800 hover:bg-[#E9ECEF] dark:hover:bg-slate-700 text-institutional text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-gray-100 dark:border-slate-700 shadow-sm"
+                        className="px-6 py-3 bg-[#F1F3F5] dark:bg-slate-800 hover:bg-[#E9ECEF] dark:hover:bg-slate-700 text-[#2E2F7F] dark:text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-gray-100 dark:border-slate-700 shadow-sm"
                     >
                         Tout marquer comme lu
                     </button>
@@ -105,11 +105,11 @@ const Notifications = () => {
             {/* Notifications list */}
             <div className="space-y-4">
                 {notifications.length === 0 ? (
-                    <div className="premium-card p-20 border-dashed border-gray-200 dark:border-slate-700 text-center space-y-4">
+                    <div className="bg-white dark:bg-slate-900 p-20 border-dashed border-gray-200 dark:border-slate-700 text-center space-y-4 rounded-[2.5rem]">
                         <div className="w-20 h-20 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto">
                             <span className="material-symbols-outlined text-4xl text-gray-200 dark:text-slate-600">notifications_off</span>
                         </div>
-                        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Aucune notification archivée</p>
+                        <p className="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Aucune notification archivée</p>
                     </div>
                 ) : (
                     <AnimatePresence>
@@ -119,7 +119,7 @@ const Notifications = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.05 }}
-                                className={`group relative premium-card p-6 md:p-8 hover:shadow-xl hover:shadow-[#001D3D]/5 hover:border-[#001D3D]/10 transition-all duration-300 ${!n.read_at ? 'ring-2 ring-blue-500/5' : 'grayscale-[0.5] opacity-80'}`}
+                                className={`group relative bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2.5rem] border border-gray-100 dark:border-slate-800 hover:shadow-xl hover:shadow-[#2E2F7F]/5 dark:hover:shadow-black/20 hover:border-[#2E2F7F]/10 transition-all duration-300 ${!n.read_at ? 'ring-2 ring-blue-500/5' : 'grayscale-[0.5] opacity-80'}`}
                             >
                                 <div className="flex gap-6 items-start">
                                     {/* Icon Column */}
@@ -140,7 +140,7 @@ const Notifications = () => {
                                                         {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
                                                     </span>
                                                 </div>
-                                                <h3 className={`text-lg font-black leading-tight ${!n.read_at ? 'text-institutional' : 'text-slate-400'}`}>
+                                                <h3 className={`text-lg font-black leading-tight ${!n.read_at ? 'text-[#2E2F7F] dark:text-white' : 'text-slate-400 dark:text-slate-500'}`}>
                                                     {n.data.message}
                                                 </h3>
                                             </div>
@@ -148,7 +148,7 @@ const Notifications = () => {
                                             {!n.read_at && (
                                                 <button 
                                                     onClick={() => markAsRead(n.id)}
-                                                    className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                                    className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                                                     title="Marquer comme lu"
                                                 >
                                                     <span className="material-symbols-outlined text-lg">done_all</span>
@@ -158,15 +158,15 @@ const Notifications = () => {
 
                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t border-gray-50 dark:border-slate-700">
                                             <div className="flex items-center gap-3 bg-gray-50/80 dark:bg-slate-800/80 px-4 py-2 rounded-xl border border-gray-100 dark:border-slate-700">
-                                                <span className="material-symbols-outlined text-[16px] text-gray-400">description</span>
-                                                <span className="text-[10px] font-black text-institutional uppercase tracking-tighter truncate max-w-[200px]">
+                                                <span className="material-symbols-outlined text-[16px] text-gray-400 dark:text-slate-500">description</span>
+                                                <span className="text-[10px] font-black text-[#2E2F7F] dark:text-indigo-300 uppercase tracking-tighter truncate max-w-[200px]">
                                                     {n.data.convention_name}
                                                 </span>
                                             </div>
 
                                             <button 
                                                 onClick={() => navigate(`/conventions/${n.data.convention_id}`)}
-                                                className="flex items-center gap-2 text-[10px] font-black text-institutional uppercase tracking-widest hover:translate-x-1 transition-transform group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                                                className="flex items-center gap-2 text-[10px] font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest hover:translate-x-1 transition-transform group-hover:text-blue-600 dark:group-hover:text-blue-400"
                                             >
                                                 Accéder au dossier 
                                                 <span className="material-symbols-outlined text-[16px]">arrow_forward</span>

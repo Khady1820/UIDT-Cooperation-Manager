@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import api from '../services/api';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus, Trash2, Edit2, Shield, Mail, Key, Eye, EyeOff } from 'lucide-react';
 import AdminModal from '../components/AdminModal';
 
@@ -34,6 +34,10 @@ const ManageUsers = () => {
         { id: 8, name: 'chef_division' }
     ]);
 
+    // Search & Filter State
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterRole, setFilterRole] = useState('all');
+
     const fetchUsers = async () => {
         try {
             const res = await api.get('/users');
@@ -49,14 +53,36 @@ const ManageUsers = () => {
         fetchUsers();
     }, []);
 
+    const handleToggleStatus = async (user) => {
+        try {
+            await api.put(`/users/${user.id}`, {
+                ...user,
+                is_active: !user.is_active,
+                role_id: user.role_id // Ensure role_id is passed as expected by backend
+            });
+            fetchUsers();
+        } catch (error) {
+            alert("Erreur lors de la modification du statut");
+        }
+    };
+
+    // Filter Logic
+    const filteredUsers = users.filter(user => {
+        const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                             user.email.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesRole = filterRole === 'all' || user.role?.name === filterRole;
+        return matchesSearch && matchesRole;
+    });
+
     const handleOpenModal = (user = null) => {
         if (user) {
             setCurrentUser(user);
             setFormData({
                 name: user.name,
                 email: user.email,
-                password: '', // Password stays empty unless changing
-                role_id: user.role_id
+                password: '', 
+                role_id: user.role_id,
+                is_active: user.is_active
             });
         } else {
             setCurrentUser(null);
@@ -64,7 +90,8 @@ const ManageUsers = () => {
                 name: '',
                 email: '',
                 password: '',
-                role_id: 3
+                role_id: 3,
+                is_active: true
             });
         }
         setIsModalOpen(true);
@@ -127,6 +154,8 @@ const ManageUsers = () => {
         }
     };
 
+    // Pagination removed as per user request
+
     return (
         <motion.div 
             initial="hidden"
@@ -136,72 +165,152 @@ const ManageUsers = () => {
         >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex flex-col gap-2">
-                    <h1 className="text-3xl font-black text-surface-900 tracking-tight uppercase tracking-widest">{t('manage_users')}</h1>
-                    <p className="text-surface-500 font-medium italic">Gérez les accès et les rôles institutionnels des collaborateurs.</p>
+                    <div className="flex items-center gap-4 mb-2">
+                        <button 
+                            onClick={() => navigate('/dashboard')}
+                            className="group flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-150 active:scale-95"
+                        >
+                            <span className="material-symbols-outlined text-[#2E2F7F] dark:text-white group-hover:scale-110 transition-transform duration-150 text-sm">arrow_back</span>
+                            <span className="text-[9px] font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest">Retour</span>
+                        </button>
+                        <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
+                        <h1 className="text-xl font-black text-surface-900 dark:text-white tracking-tight uppercase tracking-widest">{t('manage_users')}</h1>
+                    </div>
+                    <p className="text-surface-500 dark:text-slate-400 font-medium italic">Administration des accès et des rôles institutionnels des collaborateurs.</p>
                 </div>
                 <button 
                     onClick={() => handleOpenModal()}
-                    className="premium-button flex items-center gap-2 px-8 py-4 bg-primary text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 transition-all"
+                    className="premium-button flex items-center gap-2 px-8 py-4 bg-primary text-white font-black uppercase tracking-widest text-sm rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 transition-all"
                 >
                     <UserPlus className="w-4 h-4" />
                     Ajouter un utilisateur
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Search and Filters */}
+            <div className="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-slate-900 p-4 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm">
+                <div className="relative flex-1 w-full">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                    <input 
+                        type="text"
+                        placeholder="Rechercher par nom ou email..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-white/5 border-none rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm font-bold dark:text-white"
+                    />
+                </div>
+                <select 
+                    value={filterRole}
+                    onChange={(e) => setFilterRole(e.target.value)}
+                    className="w-full md:w-64 px-4 py-3 bg-gray-50 dark:bg-white/5 border-none rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm font-black uppercase tracking-widest appearance-none cursor-pointer dark:text-white"
+                >
+                    <option value="all">Tous les rôles</option>
+                    {roles.map(role => (
+                        <option key={role.id} value={role.name}>{t(`role_${role.name}`)}</option>
+                    ))}
+                </select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {loading ? (
                     <div className="col-span-full py-20 text-center">
                         <div className="inline-block w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-                        <p className="mt-4 text-surface-400 font-bold uppercase tracking-widest text-[10px]">{t('loading')}</p>
+                    </div>
+                ) : filteredUsers.length === 0 ? (
+                    <div className="col-span-full py-20 text-center text-surface-400 italic font-bold">
+                        Aucun utilisateur trouvé.
                     </div>
                 ) : (
-                    users.map((user) => (
-                        <motion.div key={user.id} variants={itemVariants} className="bg-card-bg rounded-2xl p-6 border border-outline-variant shadow-premium group hover:border-primary/30 transition-all relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl transition-all group-hover:bg-primary/10"></div>
-                            
-                            <div className="relative z-10 flex flex-col gap-4">
-                                <div className="flex items-start justify-between">
-                                    <div className="w-12 h-12 rounded-xl bg-surface-alt flex items-center justify-center text-primary font-black text-xl shadow-sm">
-                                        {user.name.charAt(0).toUpperCase()}
+                    <AnimatePresence>
+                        {filteredUsers.map((user, idx) => (
+                            <motion.div 
+                                key={user.id} 
+                                variants={itemVariants}
+                                initial="hidden"
+                                animate="visible"
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="premium-card p-8 group relative overflow-hidden flex flex-col justify-between h-full"
+                            >
+                                <div className="relative z-10">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="w-16 h-16 rounded-[1.5rem] bg-surface-alt dark:bg-white/5 flex items-center justify-center text-primary dark:text-white text-2xl font-black shadow-sm group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                                            {user.name.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div className="flex flex-col items-end">
+                                            <span className="text-[10px] font-black text-surface-300 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Système</span>
+                                            <span className="text-[10px] font-black text-primary dark:text-indigo-400 uppercase tracking-widest bg-primary/5 dark:bg-indigo-900/20 px-2 py-1 rounded-md">ID: #{user.id}</span>
+                                        </div>
                                     </div>
+
+                                    <div className="space-y-4">
+                                        <div>
+                                            <h3 className="text-sm font-black text-surface-900 dark:text-white tracking-tight leading-tight group-hover:text-primary dark:group-hover:text-indigo-400 transition-colors uppercase">{user.name}</h3>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <div className={`w-1.5 h-1.5 rounded-full ${user.is_active ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+                                                <span className="text-[9px] font-black text-surface-400 dark:text-slate-500 uppercase tracking-widest">
+                                                    {user.is_active ? 'Actif sur le portail' : 'Compte désactivé'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 w-fit px-3 py-1.5 bg-surface-alt/50 dark:bg-white/5 border border-outline-variant dark:border-white/10 rounded-xl group-hover:border-primary/20 transition-colors">
+                                            <Shield className="w-3 h-3 text-primary dark:text-indigo-400" />
+                                            <span className="text-[10px] font-black text-surface-900 dark:text-slate-300 uppercase tracking-widest">
+                                                {t(`role_${user.role?.name || 'user'}`)}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 text-surface-500 dark:text-slate-400">
+                                            <div className="w-7 h-7 rounded-full bg-surface-alt dark:bg-white/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                                                <Mail className="w-3.5 h-3.5 text-primary dark:text-indigo-400 opacity-60" />
+                                            </div>
+                                            <span className="text-[10px] font-bold truncate max-w-[150px]">{user.email}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-8 pt-6 border-t border-outline-variant dark:border-white/10 flex items-center justify-between relative z-10">
                                     <div className="flex gap-2">
-                                        <button 
-                                            onClick={() => handleOpenModal(user)}
-                                            className="p-2 text-surface-300 hover:text-primary transition-colors"
-                                        >
-                                            <Edit2 className="w-4 h-4" />
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDeleteUser(user)}
-                                            className="p-2 text-surface-300 hover:text-red-500 transition-colors"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
+                                            <button 
+                                                onClick={() => handleOpenModal(user)}
+                                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface-alt dark:bg-white/5 text-surface-400 dark:text-slate-500 hover:text-primary dark:hover:text-white hover:bg-primary/10 transition-all active:scale-90"
+                                                title="Modifier"
+                                            >
+                                                <Edit2 className="w-3.5 h-3.5" />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleToggleStatus(user)}
+                                                className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all active:scale-90 ${user.is_active ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-500 hover:bg-orange-100' : 'bg-green-50 dark:bg-green-900/20 text-green-500 hover:bg-green-100'}`}
+                                                title={user.is_active ? "Désactiver" : "Activer"}
+                                            >
+                                                <span className="material-symbols-outlined text-base">{user.is_active ? 'block' : 'check_circle'}</span>
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteUser(user)}
+                                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface-alt dark:bg-white/5 text-surface-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-90"
+                                                title="Supprimer"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                            </button>
                                     </div>
+                                    <button 
+                                        className="text-[10px] font-black text-surface-400 dark:text-slate-500 uppercase tracking-widest hover:text-primary dark:hover:text-white transition-colors flex items-center gap-1 group/btn"
+                                        onClick={() => handleOpenModal(user)}
+                                    >
+                                        Gérer l'accès
+                                        <span className="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+                                    </button>
                                 </div>
 
-                                <div>
-                                    <h3 className="text-lg font-black text-surface-900 truncate">{user.name}</h3>
-                                    <div className="flex items-center gap-2 mt-1 text-surface-500">
-                                        <Mail className="w-3.5 h-3.5" />
-                                        <span className="text-xs font-medium">{user.email}</span>
-                                    </div>
-                                </div>
-
-                                <div className="pt-4 mt-2 border-t border-outline-variant flex items-center justify-between">
-                                    <span className="flex items-center gap-2 px-3 py-1 bg-surface-alt rounded-full">
-                                        <Shield className="w-3 h-3 text-secondary" />
-                                        <span className="text-[9px] font-black text-surface-900 uppercase tracking-widest">
-                                            {t(`role_${user.role?.name || 'user'}`)}
-                                        </span>
-                                    </span>
-                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">ID: #{user.id}</span>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))
+                                {/* Decorative Background Element */}
+                                <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all"></div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
                 )}
             </div>
+
+
 
             {/* Admin Form Modal */}
             <AdminModal 
@@ -212,24 +321,24 @@ const ManageUsers = () => {
                 <form onSubmit={handleSubmitUser} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest">Nom Complet</label>
+                            <label className="text-xs font-black text-surface-400 uppercase tracking-widest">Nom Complet</label>
                             <input 
                                 type="text"
                                 required
                                 value={formData.name}
                                 onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-primary transition-all text-sm font-bold"
+                                className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-primary transition-all text-base font-bold"
                                 placeholder="ex: Jean Dupont"
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest">Email Académique</label>
+                            <label className="text-xs font-black text-surface-400 uppercase tracking-widest">Email Académique</label>
                             <input 
                                 type="email"
                                 required
                                 value={formData.email}
                                 onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-primary transition-all text-sm font-bold"
+                                className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-primary transition-all text-base font-bold"
                                 placeholder="ex: jean.dupont@uidt.sn"
                             />
                         </div>
@@ -237,11 +346,11 @@ const ManageUsers = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest">Rôle Institutionnel</label>
+                            <label className="text-xs font-black text-surface-400 uppercase tracking-widest">Rôle Institutionnel</label>
                             <select 
                                 value={formData.role_id}
                                 onChange={(e) => setFormData({...formData, role_id: parseInt(e.target.value)})}
-                                className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-primary transition-all text-sm font-bold appearance-none"
+                                className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-primary transition-all text-base font-bold appearance-none"
                             >
                                 {roles.map(role => (
                                     <option key={role.id} value={role.id}>
@@ -251,7 +360,7 @@ const ManageUsers = () => {
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest">
+                            <label className="text-xs font-black text-surface-400 uppercase tracking-widest">
                                 {currentUser ? "Mot de passe (Laisser vide pour ne pas changer)" : "Mot de passe"}
                             </label>
                             <div className="relative">
@@ -260,7 +369,7 @@ const ManageUsers = () => {
                                     required={!currentUser}
                                     value={formData.password}
                                     onChange={(e) => setFormData({...formData, password: e.target.value})}
-                                    className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-primary transition-all text-sm font-bold pr-12"
+                                    className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-primary transition-all text-base font-bold pr-12"
                                     placeholder="••••••••"
                                 />
                                 <button
@@ -274,17 +383,32 @@ const ManageUsers = () => {
                         </div>
                     </div>
 
+                    {currentUser && (
+                        <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <input 
+                                type="checkbox"
+                                id="is_active"
+                                checked={formData.is_active}
+                                onChange={(e) => setFormData({...formData, is_active: e.target.checked})}
+                                className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                            />
+                            <label htmlFor="is_active" className="text-sm font-black text-surface-700 uppercase tracking-widest cursor-pointer">
+                                Compte Actif
+                            </label>
+                        </div>
+                    )}
+
                     <div className="pt-6 border-t border-outline-variant flex justify-end gap-4">
                         <button 
                             type="button"
                             onClick={handleCloseModal}
-                            className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-surface-500 hover:bg-surface-50 rounded-xl transition-all"
+                            className="px-8 py-4 text-sm font-black uppercase tracking-widest text-surface-500 hover:bg-surface-50 rounded-xl transition-all"
                         >
                             {t('cancel')}
                         </button>
                         <button 
                             type="submit"
-                            className="px-10 py-4 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-105 transition-all"
+                            className="px-10 py-4 bg-primary text-white text-sm font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-105 transition-all"
                         >
                             {t('save')}
                         </button>
@@ -310,13 +434,13 @@ const ManageUsers = () => {
                         <button 
                             type="button"
                             onClick={() => setIsDeleteModalOpen(false)}
-                            className="flex-1 px-8 py-4 text-[10px] font-black uppercase tracking-widest text-surface-500 hover:bg-surface-50 rounded-xl transition-all"
+                            className="flex-1 px-8 py-4 text-sm font-black uppercase tracking-widest text-surface-500 hover:bg-surface-50 rounded-xl transition-all"
                         >
                             Annuler
                         </button>
                         <button 
                             onClick={confirmDelete}
-                            className="flex-1 px-8 py-4 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-red-500/20 hover:scale-105 transition-all"
+                            className="flex-1 px-8 py-4 bg-red-500 text-white text-sm font-black uppercase tracking-widest rounded-xl shadow-lg shadow-red-500/20 hover:scale-105 transition-all"
                         >
                             Supprimer
                         </button>

@@ -3,24 +3,32 @@ import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
     const location = useLocation();
     const { t } = useLanguage();
     const { user } = useAuth();
 
     return (
-        <aside className="no-print h-screen w-72 fixed left-0 top-0 bg-institutional z-50 flex flex-col transition-all duration-300 shadow-[20px_0_50px_rgba(0,0,0,0.1)]">
+        <aside className={`no-print h-screen w-72 fixed lg:static left-0 top-0 bg-institutional z-50 flex flex-col transition-all duration-300 shadow-[20px_0_50px_rgba(0,0,0,0.1)] ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+            {/* Close Button for Mobile */}
+            <button 
+                onClick={onClose}
+                className="lg:hidden absolute right-4 top-8 text-white/50 hover:text-white transition-colors"
+            >
+                <span className="material-symbols-outlined text-3xl">close</span>
+            </button>
+
             <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
             {/* Branding Section */}
             <div className="p-8 mb-4">
                 <div className="flex flex-col">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-[#001D3D] rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-[#001D3D]/20">
+                        <div className="w-9 h-9 bg-[#2E2F7F] rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-[#2E2F7F]/20">
                             <span className="material-symbols-outlined text-white text-xl">account_balance</span>
                         </div>
                         <div className="flex flex-col">
                             <span className="text-base font-black text-white tracking-tight leading-none uppercase">{t('app_name')}</span>
-                            <span className="text-[11px] font-black text-amber-400 mt-1.5 uppercase tracking-wide">{t('institutional_sub')}</span>
+                            <span className="text-[11px] font-black text-white/70 mt-1.5 uppercase tracking-wide">{t('institutional_sub')}</span>
                         </div>
                     </div>
                 </div>
@@ -30,11 +38,11 @@ const Sidebar = () => {
             <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
                 {user?.role?.name === 'admin' ? (
                     <>
-                        <Link to="/" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname === '/' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                            {location.pathname === '/' && (
+                        <Link to="/dashboard" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/dashboard') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                            {location.pathname.startsWith('/dashboard') && (
                                 <motion.div 
                                     layoutId="activePill"
-                                    className="absolute inset-0 bg-slate-50 rounded-2xl shadow-2xl shadow-white/20"
+                                    className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
@@ -42,11 +50,11 @@ const Sidebar = () => {
                             <span className="relative z-10 text-[15px] font-bold">{t('admin_portal')}</span>
                         </Link>
                         
-                        <Link to="/manage-users" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname === '/manage-users' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                            {location.pathname === '/manage-users' && (
+                        <Link to="/manage-users" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/manage-users') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                            {location.pathname.startsWith('/manage-users') && (
                                 <motion.div 
                                     layoutId="activePill"
-                                    className="absolute inset-0 bg-slate-50 rounded-2xl shadow-2xl shadow-white/20"
+                                    className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
@@ -54,11 +62,11 @@ const Sidebar = () => {
                             <span className="relative z-10 text-[15px] font-bold">{t('manage_users')}</span>
                         </Link>
                         
-                        <Link to="/manage-partners" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname === '/manage-partners' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                            {location.pathname === '/manage-partners' && (
+                        <Link to="/manage-partners" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/manage-partners') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                            {location.pathname.startsWith('/manage-partners') && (
                                 <motion.div 
                                     layoutId="activePill"
-                                    className="absolute inset-0 bg-slate-50 rounded-2xl shadow-2xl shadow-white/20"
+                                    className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
@@ -66,11 +74,11 @@ const Sidebar = () => {
                             <span className="relative z-10 text-[15px] font-bold">{t('manage_partners')}</span>
                         </Link>
 
-                        <Link to="/settings" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname === '/settings' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                            {location.pathname === '/settings' && (
+                        <Link to="/settings" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/settings') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                            {location.pathname.startsWith('/settings') && (
                                 <motion.div 
                                     layoutId="activePill"
-                                    className="absolute inset-0 bg-slate-50 rounded-2xl shadow-2xl shadow-white/20"
+                                    className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
@@ -78,11 +86,11 @@ const Sidebar = () => {
                             <span className="relative z-10 text-[15px] font-bold">{t('settings')}</span>
                         </Link>
 
-                        <Link to="/archived" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname === '/archived' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                            {location.pathname === '/archived' && (
+                        <Link to="/archived" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/archived') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                            {location.pathname.startsWith('/archived') && (
                                 <motion.div 
                                     layoutId="activePill"
-                                    className="absolute inset-0 bg-slate-50 rounded-2xl shadow-2xl shadow-white/20"
+                                    className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
@@ -90,25 +98,38 @@ const Sidebar = () => {
                             <span className="relative z-10 text-[15px] font-bold">{t('archived')}</span>
                         </Link>
 
-                        <Link to="/timeline" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname === '/timeline' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                            {location.pathname === '/timeline' && (
+                        <Link to="/timeline" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/timeline') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                            {location.pathname.startsWith('/timeline') && (
                                 <motion.div 
                                     layoutId="activePill"
-                                    className="absolute inset-0 bg-slate-50 rounded-2xl shadow-2xl shadow-white/20"
+                                    className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
                             <span className="relative z-10 material-symbols-outlined text-[20px]">account_tree</span>
                             <span className="relative z-10 text-[15px] font-bold">Fil d'Activité</span>
                         </Link>
+
+                        <Link to="/admin/tickets" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/admin/tickets') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                            {location.pathname.startsWith('/admin/tickets') && (
+                                <motion.div 
+                                    layoutId="activePill"
+                                    className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
+                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                />
+                            )}
+                            <span className="relative z-10 material-symbols-outlined text-[20px]">confirmation_number</span>
+                            <span className="relative z-10 text-[15px] font-bold">{t('manage_tickets')}</span>
+                        </Link>
+
                     </>
                 ) : (
                     <>
-                        <Link to="/" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname === '/' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                            {location.pathname === '/' && (
+                        <Link to="/dashboard" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/dashboard') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                            {location.pathname.startsWith('/dashboard') && (
                                 <motion.div 
                                     layoutId="activePill"
-                                    className="absolute inset-0 bg-slate-50 rounded-2xl shadow-2xl shadow-white/20"
+                                    className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
@@ -120,24 +141,24 @@ const Sidebar = () => {
                             </span>
                         </Link>
                         
-                        <Link to="/archived" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname === '/archived' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                            {location.pathname === '/archived' && (
+                        <Link to="/archived" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/archived') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                            {location.pathname.startsWith('/archived') && (
                                 <motion.div 
                                     layoutId="activePill"
-                                    className="absolute inset-0 bg-slate-50 rounded-2xl shadow-2xl shadow-white/20"
+                                    className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
-                            <span className="relative z-10 material-symbols-outlined text-[20px] text-amber-400">verified</span>
+                            <span className="relative z-10 material-symbols-outlined text-[20px]">verified</span>
                             <span className="relative z-10 text-[15px] font-bold">Répertoire Officiel</span>
                         </Link>
 
                         {user?.role?.name !== 'secretariat' && (
-                            <Link to="/conventions" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname === '/conventions' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                                {location.pathname === '/conventions' && (
+                            <Link to="/conventions" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/conventions') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                                {location.pathname.startsWith('/conventions') && (
                                     <motion.div 
                                         layoutId="activePill"
-                                        className="absolute inset-0 bg-slate-50 rounded-2xl shadow-2xl shadow-white/20"
+                                        className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                     />
                                 )}
@@ -152,11 +173,11 @@ const Sidebar = () => {
                           user?.role?.name === 'service_juridique' || 
                           user?.role?.name === 'recteur' ||
                           user?.role?.name === 'secretariat') && (
-                            <Link to="/validation" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname === '/validation' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                                {location.pathname === '/validation' && (
+                            <Link to="/validation" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/validation') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                                {location.pathname.startsWith('/validation') && (
                                     <motion.div 
                                         layoutId="activePill"
-                                        className="absolute inset-0 bg-white rounded-2xl shadow-2xl shadow-white/20"
+                                        className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                     />
                                 )}
@@ -168,11 +189,11 @@ const Sidebar = () => {
                         )}
 
                         {user?.role?.name !== 'secretariat' && (
-                            <Link to="/indicators" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname === '/indicators' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                                {location.pathname === '/indicators' && (
+                            <Link to="/indicators" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/indicators') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                                {location.pathname.startsWith('/indicators') && (
                                     <motion.div 
                                         layoutId="activePill"
-                                        className="absolute inset-0 bg-slate-50 rounded-2xl shadow-2xl shadow-white/20"
+                                        className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                     />
                                 )}
@@ -181,11 +202,11 @@ const Sidebar = () => {
                             </Link>
                         )}
 
-                        <Link to="/timeline" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname === '/timeline' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                            {location.pathname === '/timeline' && (
+                        <Link to="/timeline" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/timeline') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                            {location.pathname.startsWith('/timeline') && (
                                 <motion.div 
                                     layoutId="activePill"
-                                    className="absolute inset-0 bg-slate-50 rounded-2xl shadow-2xl shadow-white/20"
+                                    className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
@@ -194,22 +215,22 @@ const Sidebar = () => {
                         </Link>
 
                         <div className="pt-4 mt-4 border-t border-white/10 space-y-1.5">
-                            <Link to="/settings" className={`relative flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-300 group ${location.pathname === '/settings' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                                {location.pathname === '/settings' && (
+                            <Link to="/settings" className={`relative flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/settings') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                                {location.pathname.startsWith('/settings') && (
                                     <motion.div 
                                         layoutId="activePill"
-                                        className="absolute inset-0 bg-white rounded-2xl shadow-2xl shadow-white/20"
+                                        className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                     />
                                 )}
                                 <span className="relative z-10 material-symbols-outlined text-[20px]">settings</span>
                                 <span className="relative z-10 text-[15px] font-bold">{t('settings')}</span>
                             </Link>
-                            <Link to="/help" className={`relative flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-300 group ${location.pathname === '/help' ? 'text-[#001D3D] font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
-                                {location.pathname === '/help' && (
+                            <Link to="/help" className={`relative flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/help') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                                {location.pathname.startsWith('/help') && (
                                     <motion.div 
                                         layoutId="activePill"
-                                        className="absolute inset-0 bg-white rounded-2xl shadow-2xl shadow-white/20"
+                                        className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
                                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                     />
                                 )}
@@ -222,9 +243,9 @@ const Sidebar = () => {
             </nav>
 
             {/* Active Session Profile */}
-            <div className="p-6 bg-white/5 m-6 rounded-[2rem] border border-white/10 backdrop-blur-md">
+            <Link to="/settings" className="block p-6 bg-institutional m-6 rounded-[2rem] border border-white/20 backdrop-blur-md hover:bg-white/10 transition-all group">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 border border-white/20 p-1">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 border border-white/20 p-1 group-hover:scale-105 transition-transform">
                         <img 
                             src={user?.avatar_url || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=random`} 
                             alt="Profile" 
@@ -232,15 +253,15 @@ const Sidebar = () => {
                         />
                     </div>
                     <div className="flex flex-col text-left">
-                        <span className="text-[14px] font-black text-white tracking-tight truncate w-36">
+                        <span className="text-[14px] font-black text-white tracking-tight truncate w-36 group-hover:text-[#F7931E] transition-colors">
                             {user?.name || 'Utilisateur'}
                         </span>
-                        <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest mt-0.5">
+                        <span className="text-[10px] font-black text-[#F7931E] uppercase tracking-widest mt-0.5">
                             {user?.role?.name ? t(`role_${user.role.name}`) : t('chief_curator')}
                         </span>
                     </div>
                 </div>
-            </div>
+            </Link>
         </aside>
     );
 };

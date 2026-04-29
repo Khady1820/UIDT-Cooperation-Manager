@@ -8,30 +8,100 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
 // Simple Alert/Toast component for feedback
-const Toast = ({ message, type, onClose }) => {
+// Enhanced Toast component with countdown and Undo action
+const Toast = ({ message, type, onClose, onUndo, duration = 5000 }) => {
+    const [timeLeft, setTimeLeft] = useState(duration);
+    
     useEffect(() => {
-        const timer = setTimeout(onClose, 5000);
-        return () => clearTimeout(timer);
-    }, [onClose]);
+        const interval = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 100) {
+                    clearInterval(interval);
+                    return 0;
+                }
+                return prev - 100;
+            });
+        }, 100);
+
+        const timer = setTimeout(() => {
+            onClose();
+        }, duration);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timer);
+        };
+    }, [onClose, duration]);
+
+    // Progress circle calculations
+    const radius = 15;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (timeLeft / duration) * circumference;
 
     return (
         <motion.div 
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 50, opacity: 0 }}
-            onClick={onClose}
-            className={`fixed bottom-10 right-10 z-[110] px-8 py-5 rounded-[2rem] shadow-2xl flex items-center gap-4 cursor-pointer hover:scale-105 transition-all ${
-                type === 'success' ? 'bg-[#001D3D] text-white' : 'bg-red-500 text-white'
+            initial={{ y: 50, opacity: 0, scale: 0.9 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 50, opacity: 0, scale: 0.9 }}
+            className={`fixed bottom-10 right-10 z-[150] px-6 py-4 rounded-[2rem] shadow-2xl flex items-center gap-5 border border-white/10 backdrop-blur-md ${
+                type === 'success' ? 'bg-[#2E2F7F] text-white' : 
+                type === 'warning' ? 'bg-amber-500 text-white' : 'bg-red-500 text-white'
             }`}
         >
-            <span className="material-symbols-outlined text-2xl">{type === 'success' ? 'check_circle' : 'error'}</span>
-            <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-widest opacity-50">{type === 'success' ? 'Succès' : 'Attention'}</span>
-                <span className="text-xs font-bold uppercase tracking-wider leading-tight">{message}</span>
+            {/* Feedback Icon or Circular Countdown */}
+            <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
+                {type === 'error' ? (
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-2xl">error</span>
+                    </div>
+                ) : type === 'success' ? (
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-2xl">check_circle</span>
+                    </div>
+                ) : (
+                    <>
+                        <svg className="w-10 h-10 transform -rotate-90">
+                            <circle 
+                                cx="20" cy="20" r={radius} 
+                                stroke="currentColor" strokeWidth="2.5" 
+                                fill="transparent" className="opacity-20" 
+                            />
+                            <motion.circle 
+                                cx="20" cy="20" r={radius} 
+                                stroke="currentColor" strokeWidth="2.5" 
+                                fill="transparent" 
+                                strokeDasharray={circumference}
+                                animate={{ strokeDashoffset: offset }}
+                                transition={{ duration: 0.1, ease: "linear" }}
+                                strokeLinecap="round" 
+                            />
+                        </svg>
+                        <span className="absolute text-[10px] font-black">{Math.ceil(timeLeft / 1000)}s</span>
+                    </>
+                )}
             </div>
-            <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="opacity-30 hover:opacity-100 transition-opacity ml-4">
-                <span className="material-symbols-outlined text-sm">close</span>
-            </button>
+
+            <div className="flex flex-col min-w-[150px]">
+                <span className="text-sm font-black uppercase tracking-widest opacity-60">
+                    {type === 'success' ? 'Succès' : type === 'warning' ? 'Attention' : 'Erreur'}
+                </span>
+                <span className="text-sm font-bold uppercase tracking-wider leading-tight">{message}</span>
+            </div>
+
+            {onUndo && (
+                <button 
+                    onClick={(e) => { e.stopPropagation(); onUndo(); }}
+                    className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-sm font-black tracking-widest transition-all hover:scale-105 active:scale-95"
+                >
+                    ANNULER
+                </button>
+            )}
+
+            {!onUndo && (
+                <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="opacity-40 hover:opacity-100 transition-opacity">
+                    <span className="material-symbols-outlined text-xl">close</span>
+                </button>
+            )}
         </motion.div>
     );
 };
@@ -51,6 +121,9 @@ const Conventions = () => {
     const [editingId, setEditingId] = useState(null);
     const [currentStep, setCurrentStep] = useState(1);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(5);
+
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         if (params.get('new') === 'true') {
@@ -68,8 +141,8 @@ const Conventions = () => {
         year: new Date().getFullYear(),
         duration: '',
         indicator: '',
-        valeur_reference: '',
-        target: '',
+        valeur_reference: 100,
+        target: 100,
         actual_value: '',
         completion_rate: '',
         observations: '',
@@ -97,7 +170,18 @@ const Conventions = () => {
     };
 
     const handleInputChange = (field, value) => {
-        const newFormData = { ...formData, [field]: value };
+        let finalValue = value;
+        
+        // Ensure percentage fields do not exceed 100
+        if (['valeur_reference', 'target', 'actual_value'].includes(field)) {
+            const numValue = parseFloat(value);
+            if (!isNaN(numValue)) {
+                if (numValue > 100) finalValue = 100;
+                if (numValue < 0) finalValue = 0;
+            }
+        }
+
+        const newFormData = { ...formData, [field]: finalValue };
         
         // Auto-calculate completion rate
         if (field === 'target' || field === 'actual_value') {
@@ -205,8 +289,14 @@ const Conventions = () => {
             setIsModalOpen(false);
             setSelectedFile(null);
             
-            // Refresh list without automatic redirection
-            fetchConventions();
+            // Redirect project lead to the tracking page (Validation) after submission
+            if (user?.role?.name === 'porteur_projet') {
+                setTimeout(() => {
+                    navigate('/validation');
+                }, 2000);
+            } else {
+                fetchConventions();
+            }
         } catch (err) {
             console.error("Erreur de soumission:", err.response?.data || err.message);
             const errorMsg = err.response?.data?.message || 'Erreur technique. Veuillez vérifier vos accès et les données saisies.';
@@ -236,21 +326,50 @@ const Conventions = () => {
         });
     };
 
+    const pendingDeleteRef = useRef(null);
+
     const executeConfirmedAction = async () => {
         const { type, id } = confirmConfig;
         setConfirmConfig({ ...confirmConfig, open: false });
         
-        try {
-            if (type === 'delete') {
-                await api.delete(`/conventions/${id}`);
-                setToast({ message: 'Projet supprimé avec succès', type: 'success' });
-            } else if (type === 'archive') {
+        if (type === 'delete') {
+            // Store original list for potential undo
+            const originalList = [...conventions];
+            
+            // Optimistically update UI
+            setConventions(prev => prev.filter(c => c.id !== id));
+            pendingDeleteRef.current = id;
+
+            setToast({ 
+                message: 'Dossier supprimé', 
+                type: 'warning', 
+                onUndo: () => {
+                    pendingDeleteRef.current = null;
+                    setConventions(originalList);
+                    setToast(null);
+                },
+                onClose: async () => {
+                    // Only delete if undo wasn't clicked
+                    if (pendingDeleteRef.current === id) {
+                        try {
+                            await api.delete(`/conventions/${id}`);
+                            pendingDeleteRef.current = null;
+                        } catch (err) {
+                            // Restore if server delete fails
+                            setConventions(originalList);
+                            setToast({ message: 'Erreur lors de la suppression réelle', type: 'error' });
+                        }
+                    }
+                }
+            });
+        } else if (type === 'archive') {
+            try {
                 await api.put(`/conventions/${id}`, { status: 'archive' });
                 setToast({ message: 'Projet déplacé vers les archives', type: 'success' });
+                fetchConventions();
+            } catch (err) {
+                setToast({ message: 'Une erreur est survenue lors de l\'archivage', type: 'error' });
             }
-            fetchConventions();
-        } catch (err) {
-            setToast({ message: 'Une erreur est survenue', type: 'error' });
         }
     };
 
@@ -313,6 +432,13 @@ const Conventions = () => {
         return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
     });
 
+    const totalPages = Math.ceil(filteredConventions.length / itemsPerPage);
+    const paginatedConventions = filteredConventions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
+
     const handleExport = () => {
         if (conventions.length === 0) return;
         
@@ -343,31 +469,40 @@ const Conventions = () => {
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
     };
 
     return (
         <div className="space-y-10">
             {/* Header Area */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                <div>
-                    <h1 className="text-3xl font-black text-[#001D3D] tracking-tight">{t('conventions')}</h1>
-                    <p className="text-sm font-bold text-slate-600 mt-1 uppercase tracking-wider">{t('institutional_sub')} • Répertoire des Projets</p>
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-4 mb-2">
+                        <button 
+                            onClick={() => navigate('/dashboard')}
+                            className="group flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-150 active:scale-95"
+                        >
+                            <span className="material-symbols-outlined text-[#2E2F7F] dark:text-white group-hover:scale-110 transition-transform duration-150 text-sm">arrow_back</span>
+                            <span className="text-[9px] font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest">Retour</span>
+                        </button>
+                        <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
+                        <h1 className="text-xl font-black text-[#2E2F7F] dark:text-white tracking-tight uppercase tracking-widest">{t('conventions')}</h1>
+                    </div>
+                    <p className="text-xs font-bold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wider">{t('institutional_sub')} • Répertoire des Projets</p>
                 </div>
                 <div className="flex gap-4">
                     <button 
                         onClick={handleExport}
-                        className="px-6 py-4 bg-white border border-gray-100 rounded-2xl text-[#001D3D] text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2"
+                        className="px-6 py-4 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl text-[#2E2F7F] dark:text-white text-sm font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm flex items-center gap-2"
                         title="Exporter en CSV"
                     >
                         <span className="material-symbols-outlined text-[18px]">download</span>
                         Exporter
                     </button>
-                    <button onClick={() => fetchConventions()} className="p-4 bg-white border border-gray-100 rounded-2xl text-[#001D3D] hover:bg-gray-50 transition-all shadow-sm">
+                    <button onClick={() => fetchConventions()} className="p-4 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl text-[#2E2F7F] dark:text-white hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm">
                         <span className="material-symbols-outlined text-[20px] block">refresh</span>
                     </button>
-                    {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
-                        <button onClick={() => openModal()} className="px-8 py-4 bg-[#001D3D] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#002b5c] transition-all shadow-[0_20px_40px_rgba(0,29,61,0.15)] flex items-center gap-3 active:scale-95">
+                    {user?.role?.name === 'porteur_projet' && (
+                        <button onClick={() => openModal()} className="px-8 py-4 bg-[#2E2F7F] text-white rounded-2xl text-base font-black uppercase tracking-widest hover:bg-[#002b5c] transition-all shadow-[0_20px_40px_rgba(0,29,61,0.15)] flex items-center gap-3 active:scale-95">
                             {t('nouvelle_convention')}
                         </button>
                     )}
@@ -375,181 +510,171 @@ const Conventions = () => {
             </div>
 
             {/* Main Content Card with Horizontal Scroll */}
-            <div className="bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.02)] border border-gray-100 overflow-hidden">
-                <div className="p-10 border-b border-gray-50 bg-[#FBFBFB]/50 flex items-center justify-between">
+            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.02)] border border-gray-100 dark:border-slate-800 overflow-hidden">
+                <div className="p-10 border-b border-gray-50 dark:border-slate-800 bg-[#FBFBFB]/50 dark:bg-slate-900/50 flex items-center justify-between">
                     <div className="relative w-full max-w-md group">
-                        <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#001D3D] transition-colors text-[20px]">search</span>
+                        <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#2E2F7F] dark:group-focus-within:text-white transition-colors text-[20px]">search</span>
                         <input 
                             type="text" 
                             placeholder={t('search')} 
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full bg-white border border-gray-100 text-[#001D3D] rounded-2xl pl-14 pr-6 py-4 text-xs font-bold placeholder:text-slate-500 focus:outline-none focus:ring-8 focus:ring-[#001D3D]/5 focus:border-[#001D3D]/10 transition-all shadow-sm"
+                            className="w-full bg-white dark:bg-white/5 border border-gray-100 dark:border-slate-700 text-[#2E2F7F] dark:text-white rounded-2xl pl-14 pr-6 py-4 text-base font-bold placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:outline-none focus:ring-8 focus:ring-[#2E2F7F]/5 focus:border-[#2E2F7F]/10 transition-all shadow-sm"
                         />
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
+                    <div className="flex items-center gap-2 text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest bg-gray-50 dark:bg-white/5 px-4 py-2 rounded-full border border-gray-100 dark:border-white/10">
                         <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                         {filteredConventions.length} Projets Identifiés
                     </div>
                 </div>
 
-                <div className="overflow-x-auto min-h-[400px]">
-                    <table className="w-full text-left border-collapse table-fixed min-w-[2000px]">
-                        <thead>
-                            <tr className="bg-[#F1F3F5]/30 text-[11px] text-slate-600 uppercase font-black tracking-widest border-b border-gray-100">
-                                <th className="px-8 py-6 w-40">{t('num_dossier')}</th>
-                                <th className="px-8 py-6 w-80">{t('project_title_short')}</th>
-                                <th className="px-8 py-6 w-32">{t('cooperation_type')}</th>
-                                <th className="px-8 py-6 w-48">{t('status_label')}</th>
-                                <th className="px-8 py-6 w-48">{t('partner_type')}</th>
-                                <th className="px-8 py-6 w-64">{t('partner_institution')}</th>
-                                <th className="px-8 py-6 w-24">{t('year')}</th>
-                                <th className="px-8 py-6 w-64">{t('institutional_objectives')}</th>
-                                <th className="px-8 py-6 w-32">{t('duration')}</th>
-                                <th className="px-8 py-6 w-64">{t('indicator_performance')}</th>
-                                <th className="px-8 py-6 w-28">{t('target')}</th>
-                                <th className="px-8 py-6 w-28">{t('actual_value')}</th>
-                                <th className="px-8 py-6 w-48">{t('completion_rate')}</th>
-                                <th className="px-8 py-6 w-64">{t('observations')}</th>
-                                <th className="px-8 py-6 w-24">Doc.</th>
-                                <th className="px-8 py-6 w-32 text-right sticky right-0 bg-[#FBFBFB] shadow-[-10px_0_20px_rgba(0,0,0,0.02)]">Actions</th>
+                <div className="max-h-[650px] overflow-y-auto custom-scrollbar relative">
+                    <table className="w-full text-left border-separate border-spacing-0">
+                        <thead className="bg-[#F8F9FA]/50 dark:bg-slate-800 backdrop-blur-sm border-b border-gray-100 dark:border-slate-700">
+                            <tr className="text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">
+                                <th className="px-4 py-6 text-left w-40 whitespace-nowrap">N° DOSSIER</th>
+                                <th className="px-4 py-6 text-left">TITRE DU PROJET / CONVENTION</th>
+                                <th className="px-4 py-6 text-left">TYPE DE COOPÉRATION</th>
+                                <th className="px-4 py-6 text-left">INSTITUTION PARTENAIRE</th>
+                                <th className="px-4 py-6 text-left whitespace-nowrap">ANNÉE</th>
+                                <th className="px-4 py-6 text-left whitespace-nowrap">STATUT FINAL</th>
+                                <th className="px-4 py-6 text-right">ACTIONS</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
                             {loading ? (
                                 <tr>
-                                    <td colSpan="14" className="p-32 text-center bg-white">
+                                    <td colSpan="6" className="p-32 text-center bg-white dark:bg-slate-900">
                                         <div className="flex flex-col items-center gap-4">
-                                            <div className="w-10 h-10 border-4 border-[#001D3D]/10 border-t-[#001D3D] rounded-full animate-spin"></div>
-                                            <p className="text-[10px] font-black text-[#001D3D] uppercase tracking-widest opacity-40">Synchronisation des bases de données...</p>
+                                            <div className="w-10 h-10 border-4 border-[#2E2F7F]/10 border-t-[#2E2F7F] dark:border-white/10 dark:border-t-white rounded-full animate-spin"></div>
+                                            <p className="text-sm font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest opacity-40">Synchronisation des bases de données...</p>
                                         </div>
                                     </td>
                                 </tr>
                             ) : filteredConventions.length === 0 ? (
                                 <tr>
-                                    <td colSpan="14" className="p-32 text-center bg-white">
-                                        <div className="flex flex-col items-center gap-6 opacity-20 grayscale">
-                                            <span className="material-symbols-outlined text-7xl">inventory_2</span>
-                                            <p className="text-xs font-black uppercase tracking-widest">Aucune convention institutionnelle enregistrée</p>
+                                    <td colSpan="6" className="p-32 text-center bg-white dark:bg-slate-900">
+                                        <div className="flex flex-col items-center gap-6 opacity-20 grayscale dark:invert">
+                                            <span className="material-symbols-outlined text-7xl text-slate-600 dark:text-slate-400">inventory_2</span>
+                                            <p className="text-base font-black uppercase tracking-widest text-slate-900 dark:text-white">Aucune convention institutionnelle enregistrée</p>
                                         </div>
                                     </td>
                                 </tr>
                             ) : (
-                                <AnimatePresence>
-                                    {filteredConventions.map((conv, index) => (
-                                        <motion.tr 
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: index * 0.02 }}
-                                            key={conv.id} 
-                                            className="hover:bg-[#F8F9FA]/80 transition-all group"
-                                        >
-                                            <td className="px-8 py-7 text-[11px] font-black text-[#001D3D] bg-[#001D3D]/5 border-r border-gray-50">{conv.num_dossier || conv.id}</td>
-                                            <td className="px-8 py-7">
-                                                <Link to={`/conventions/${conv.id}`} className="font-black text-[#001D3D] tracking-tight group-hover:text-[#8B7355] transition-colors line-clamp-1 text-sm block">
-                                                    {conv.name}
+                                paginatedConventions.map((conv) => (
+                                    <tr 
+                                        key={conv.id} 
+                                        onClick={() => navigate(`/conventions/${conv.id}/summary`)}
+                                        className="hover:bg-white dark:hover:bg-white/5 transition-all duration-150 group cursor-pointer hover:shadow-[0_10px_30px_rgba(0,0,0,0.04)] relative z-10"
+                                    >
+                                        <td className="px-4 py-4 text-[11px] font-black text-[#2E2F7F] dark:text-indigo-300 bg-[#2E2F7F]/5 dark:bg-indigo-900/20 border-r border-gray-50 dark:border-slate-800 whitespace-nowrap">{conv.num_dossier || conv.id}</td>
+                                        <td className="px-4 py-4">
+                                            <Link to={`/conventions/${conv.id}/summary`} className="font-black text-[#2E2F7F] dark:text-white tracking-tight group-hover:text-[#F7931E] transition-colors line-clamp-1 text-xs block uppercase">
+                                                {conv.name}
+                                            </Link>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                             <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest ${
+                                                 conv.type === 'international' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900' : 
+                                                 conv.type === 'national' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900' :
+                                                 'bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-900'
+                                             }`}>
+                                                 {conv.type === 'national' ? 'National' : conv.type === 'international' ? 'International' : 'Régional'}
+                                             </span>
+                                        </td>
+                                        <td className="px-4 py-4 text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-tighter">
+                                            <div className="line-clamp-1">{conv.partners || '-'}</div>
+                                        </td>
+                                        <td className="px-4 py-4 text-[11px] font-black text-slate-500 dark:text-slate-500 whitespace-nowrap">
+                                            {conv.year || new Date(conv.created_at).getFullYear()}
+                                        </td>
+                                        <td className="px-4 py-4 whitespace-nowrap">
+                                            <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border shadow-sm transition-all whitespace-nowrap ${
+                                                conv.status === 'termine' ? 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 border-green-100 dark:border-green-900 shadow-green-100/50' :
+                                                conv.status === 'soumis' || conv.status === 'en attente' ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-500 dark:text-amber-400 border-amber-100 dark:border-amber-900 shadow-amber-100/50' : 
+                                                conv.status === 'valide_dir_initial' ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 border-purple-100 dark:border-purple-900 shadow-purple-100/50' :
+                                                conv.status === 'valide_juridique' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900 shadow-indigo-100/50' :
+                                                conv.status === 'pret_pour_signature' || conv.status === 'en cours' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400 border-blue-100 dark:border-blue-900 shadow-blue-100/50' : 
+                                                'bg-gray-50 dark:bg-white/5 text-slate-600 dark:text-slate-400 border-gray-100 dark:border-slate-800'
+                                            }`}>
+                                                {conv.status === 'termine' ? 'SIGNÉE & ARCHIVÉE' : 
+                                                 conv.status === 'soumis' || conv.status === 'en attente' ? 'En Attente Direction' :
+                                                 conv.status === 'valide_dir_initial' ? 'Visé / Attente Juridique' :
+                                                 conv.status === 'valide_juridique' ? 'Visa Juridique Accordé' :
+                                                 conv.status === 'pret_pour_signature' || conv.status === 'en cours' ? 'Validé / Signature' : 
+                                                 (conv.status || 'Brouillon').toUpperCase()}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-4 text-right">
+                                            <div className="flex justify-end items-center gap-2">
+                                                <Link 
+                                                    to={`/conventions/${conv.id}/summary`} 
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    title="Voir les détails"
+                                                    className="w-8 h-8 flex items-center justify-center bg-[#2E2F7F] text-white rounded-lg hover:bg-[#F7931E] transition-all shadow-sm"
+                                                >
+                                                    <span className="material-symbols-outlined text-[16px]">visibility</span>
                                                 </Link>
-                                            </td>
-                                            <td className="px-8 py-7">
-                                                 <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                                                     conv.type === 'international' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 
-                                                     conv.type === 'national' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
-                                                     'bg-teal-50 text-teal-600 border border-teal-100'
-                                                 }`}>
-                                                     {conv.type === 'national' ? 'Nationale' : conv.type === 'international' ? 'Internationale' : 'Régionale'}
-                                                 </span>
-                                            </td>
-                                            <td className="px-8 py-7">
-                                                <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border shadow-sm transition-all ${
-                                                    conv.status === 'termine' ? 'bg-green-50 text-green-600 border-green-100 shadow-green-100/50' :
-                                                    conv.status === 'soumis' || conv.status === 'en attente' ? 'bg-amber-50 text-amber-500 border-amber-100 shadow-amber-100/50' : 
-                                                    conv.status === 'valide_dir_initial' ? 'bg-purple-50 text-purple-600 border-purple-100 shadow-purple-100/50' :
-                                                    conv.status === 'valide_juridique' ? 'bg-indigo-50 text-indigo-600 border-indigo-100 shadow-indigo-100/50' :
-                                                    conv.status === 'pret_pour_signature' || conv.status === 'en cours' ? 'bg-blue-50 text-blue-500 border-blue-100 shadow-blue-100/50' : 
-                                                    'bg-gray-50 text-slate-600 border-gray-100'
-                                                }`}>
-                                                    {conv.status === 'termine' ? 'SIGNÉ / ACTIF' : 
-                                                     conv.status === 'soumis' || conv.status === 'en attente' ? 'En Attente Direction' :
-                                                     conv.status === 'valide_dir_initial' ? 'Visé / Attente Juridique' :
-                                                     conv.status === 'valide_juridique' ? 'Visa Juridique Accordé' :
-                                                     conv.status === 'pret_pour_signature' || conv.status === 'en cours' ? 'Validé / Signature' : 
-                                                     (conv.status || 'Brouillon').toUpperCase()}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-7 text-xs font-bold text-gray-500">{conv.partner_type || '-'}</td>
-                                            <td className="px-8 py-7 text-xs font-black text-[#001D3D] uppercase tracking-tighter">{conv.partners || '-'}</td>
-                                            <td className="px-8 py-7 text-xs font-bold text-slate-600">{conv.year || '-'}</td>
-                                            <td className="px-8 py-7 text-xs font-medium text-slate-600 line-clamp-1">{conv.objectives || '-'}</td>
-                                            <td className="px-8 py-7 text-xs font-bold text-[#8B7355]">{conv.duration || '-'}</td>
-                                            <td className="px-8 py-7 text-xs font-black text-[#001D3D] opacity-70 italic">{conv.indicator || '-'}</td>
-                                            <td className="px-8 py-7 text-xs font-black text-slate-500">{conv.target || '-'}</td>
-                                            <td className="px-8 py-7 text-xs font-black text-[#001D3D]">{conv.actual_value || '-'}</td>
-                                            <td className="px-8 py-7">
-                                                {['signe_recteur', 'termine'].includes(conv.status) ? (
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden min-w-[60px]">
-                                                            <div className="h-full bg-[#001D3D]" style={{ width: `${Math.min(conv.completion_rate || 0, 100)}%` }}></div>
-                                                        </div>
-                                                        <span className="text-[10px] font-black text-[#001D3D]">{conv.completion_rate || 0}%</span>
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100">Prévu</span>
-                                                )}
-                                            </td>
-                                            <td className="px-8 py-7 text-xs font-medium text-slate-600 italic line-clamp-1">{conv.observations || '-'}</td>
-                                            <td className="px-8 py-7">
-                                                {conv.file_path ? (
-                                                    <a 
-                                                        href={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/storage/${conv.file_path}`} 
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer"
-                                                        className="w-10 h-10 flex items-center justify-center bg-[#001D3D]/5 text-[#001D3D] rounded-xl hover:bg-[#001D3D] hover:text-white transition-all"
-                                                        title="Voir le document"
-                                                    >
-                                                        <span className="material-symbols-outlined text-[18px]">description</span>
-                                                    </a>
-                                                ) : (
-                                                    <span className="text-gray-200 material-symbols-outlined text-[18px]">block</span>
-                                                )}
-                                            </td>
-                                            <td className="px-8 py-7 text-right sticky right-0 bg-white/95 backdrop-blur-sm group-hover:bg-[#F8F9FA]/90 transition-colors shadow-[-10px_0_20px_rgba(0,0,0,0.02)]">
-                                                 {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
-                                                    <div className="flex justify-end gap-2">
-                                                        <button onClick={() => openModal(conv)} title="Modifier" className="w-9 h-9 flex items-center justify-center bg-white border border-gray-100 text-slate-600 hover:text-[#001D3D] hover:shadow-lg hover:shadow-[#001D3D]/10 rounded-xl transition-all">
-                                                            <span className="material-symbols-outlined text-[18px]">edit</span>
+                                                {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
+                                                    <div className="flex items-center gap-1.5 ml-1.5 border-l border-gray-100 dark:border-slate-800 pl-1.5">
+                                                        <button onClick={(e) => { e.stopPropagation(); openModal(conv); }} className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-[#2E2F7F] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 rounded-lg transition-all">
+                                                            <span className="material-symbols-outlined text-[16px]">edit</span>
                                                         </button>
-                                                        <button 
-                                                            onClick={() => {
-                                                                // Bloquer seulement ce qui est "Vivant" ou "En traitement"
-                                                                const nonArchivable = ['soumis', 'en attente', 'valide_dir_initial', 'valide_juridique', 'pret_pour_signature', 'signe_recteur', 'en cours'];
-                                                                if (nonArchivable.includes(conv.status)) {
-                                                                    setToast({ message: "Action bloquée : Ce dossier est actuellement ACTIF ou EN COURS DE TRAITEMENT. Il ne peut pas être archivé.", type: 'error' });
-                                                                    return;
-                                                                }
-                                                                handleArchive(conv.id);
-                                                            }} 
-                                                            title={['soumis', 'en attente', 'valide_dir_initial', 'valide_juridique', 'pret_pour_signature', 'signe_recteur', 'en cours'].includes(conv.status) ? "Archivage bloqué (Dossier Actif/En cours)" : "Archiver ce dossier"}
-                                                            className={`w-9 h-9 flex items-center justify-center bg-white border border-gray-100 rounded-xl transition-all ${
-                                                                ['soumis', 'en attente', 'valide_dir_initial', 'valide_juridique', 'pret_pour_signature', 'signe_recteur', 'en cours'].includes(conv.status)
-                                                                ? 'opacity-20 cursor-not-allowed text-gray-400' 
-                                                                : 'text-slate-600 hover:text-amber-600 hover:shadow-lg'
-                                                            }`}
-                                                        >
-                                                            <span className="material-symbols-outlined text-[18px]">archive</span>
-                                                        </button>
-                                                        <button onClick={() => handleDelete(conv.id)} title="Supprimer" className="w-9 h-9 flex items-center justify-center bg-white border border-gray-100 text-slate-600 hover:text-red-500 hover:shadow-lg hover:shadow-red-500/10 rounded-xl transition-all">
-                                                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                        <button onClick={(e) => { e.stopPropagation(); handleDelete(conv.id); }} className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all">
+                                                            <span className="material-symbols-outlined text-[16px]">delete</span>
                                                         </button>
                                                     </div>
-                                                 )}
-                                            </td>
-                                        </motion.tr>
-                                    ))}
-                                </AnimatePresence>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
                             )}
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Footer */}
+                {totalPages > 1 && (
+                    <div className="p-8 border-t border-gray-50 dark:border-slate-800 bg-[#FBFBFB]/50 dark:bg-slate-900/50 flex items-center justify-between">
+                        <p className="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                            Page {currentPage} sur {totalPages} • {filteredConventions.length} Dossiers au total
+                        </p>
+                        <div className="flex items-center gap-4">
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentPage === 1}
+                                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#2E2F7F] disabled:opacity-20 hover:gap-3 transition-all"
+                            >
+                                <span className="material-symbols-outlined text-base">chevron_left</span>
+                                Précédent
+                            </button>
+                            <div className="flex gap-1.5 px-4 border-x border-gray-100">
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <button 
+                                        key={i + 1}
+                                        onClick={() => setCurrentPage(i + 1)}
+                                        className={`w-8 h-8 rounded-lg text-[10px] font-black transition-all ${
+                                            currentPage === i + 1 
+                                            ? 'bg-[#2E2F7F] text-white shadow-lg' 
+                                            : 'text-slate-400 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                            </div>
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={currentPage === totalPages}
+                                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#2E2F7F] disabled:opacity-20 hover:gap-3 transition-all"
+                            >
+                                Suivant
+                                <span className="material-symbols-outlined text-base">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Modal Form Overhaul */}
@@ -560,7 +685,7 @@ const Conventions = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-[#001D3D]/20 backdrop-blur-sm"
+                            className="absolute inset-0 bg-[#2E2F7F]/20 backdrop-blur-sm"
                         />
                         <motion.div 
                             initial={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -572,10 +697,10 @@ const Conventions = () => {
                             <div className="p-10 border-b border-gray-50 bg-[#FBFBFB]">
                                 <div className="flex justify-between items-center mb-8">
                                     <div>
-                                        <h2 className="text-2xl font-black text-[#001D3D] tracking-tight uppercase">
+                                        <h2 className="text-2xl font-black text-[#2E2F7F] tracking-tight uppercase">
                                             {editingId ? 'MISE À JOUR REGISTRE' : 'NOUVELLE ACCRÉDITATION'}
                                         </h2>
-                                        <p className="text-[10px] font-black text-[#8B7355] uppercase tracking-[0.3em] mt-1">Étape {currentStep} sur 5</p>
+                                        <p className="text-sm font-black text-[#F7931E] uppercase tracking-[0.3em] mt-1">Étape {currentStep} sur 5</p>
                                     </div>
                                     <button onClick={() => setIsModalOpen(false)} className="w-12 h-12 flex items-center justify-center bg-white hover:bg-red-50 hover:text-red-500 rounded-2xl transition-all text-slate-500 border border-gray-100 shadow-sm">
                                         <span className="material-symbols-outlined">close</span>
@@ -592,14 +717,14 @@ const Conventions = () => {
 
                                     {[1, 2, 3, 4, 5].map((step) => (
                                         <div key={step} className="relative z-10 flex flex-col items-center gap-2">
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-xs transition-all duration-500 ${
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-base transition-all duration-500 ${
                                                 currentStep > step ? 'bg-green-500 text-white shadow-lg shadow-green-200' : 
-                                                currentStep === step ? 'bg-[#001D3D] text-white shadow-lg' : 
+                                                currentStep === step ? 'bg-[#2E2F7F] text-white shadow-lg' : 
                                                 'bg-white border-2 border-gray-100 text-slate-500'
                                             }`}>
-                                                {currentStep > step ? <span className="material-symbols-outlined text-sm">check</span> : step}
+                                                {currentStep > step ? <span className="material-symbols-outlined text-base">check</span> : step}
                                             </div>
-                                            <span className={`text-[8px] font-black uppercase tracking-widest ${currentStep >= step ? (currentStep > step ? 'text-green-600' : 'text-[#001D3D]') : 'text-slate-500'}`}>
+                                            <span className={`text-sm font-black uppercase tracking-widest ${currentStep >= step ? (currentStep > step ? 'text-green-600' : 'text-[#2E2F7F]') : 'text-slate-500'}`}>
                                                 {step === 1 ? 'Identité' : step === 2 ? 'Planification' : step === 3 ? 'Performance' : step === 4 ? 'Dépôt de dossier' : 'Validation'}
                                             </span>
                                         </div>
@@ -612,11 +737,11 @@ const Conventions = () => {
                                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                             <div className="md:col-span-2 space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#8B7355] ml-1">{t('project_title_short')}</label>
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-[#F7931E] ml-1">{t('project_title_short')}</label>
                                                 <input required type="text" className="uidt-input w-full" value={formData.name} onChange={e => handleInputChange('name', e.target.value)} placeholder="Nom de la convention..." />
                                             </div>
                                             <div className="space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#8B7355] ml-1">{t('cooperation_type')}</label>
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-[#F7931E] ml-1">{t('cooperation_type')}</label>
                                                 <select className="uidt-input w-full appearance-none cursor-pointer" value={formData.type} onChange={e => handleInputChange('type', e.target.value)}>
                                                     <option value="national">Nationale</option>
                                                     <option value="international">Internationale</option>
@@ -624,7 +749,7 @@ const Conventions = () => {
                                                 </select>
                                             </div>
                                             <div className="space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('partner_type')}</label>
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('partner_type')}</label>
                                                 <input 
                                                     list="partner_types" 
                                                     type="text" 
@@ -641,7 +766,7 @@ const Conventions = () => {
                                                 </datalist>
                                             </div>
                                             <div className="md:col-span-2 space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('partner_institution')}</label>
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('partner_institution')}</label>
                                                 <input type="text" className="uidt-input w-full" value={formData.partners} onChange={e => handleInputChange('partners', e.target.value)} placeholder="Signataires partenaires..." />
                                             </div>
                                         </div>
@@ -652,28 +777,28 @@ const Conventions = () => {
                                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('year')}</label>
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('year')}</label>
                                                 <input type="number" className="uidt-input w-full" value={formData.year} onChange={e => handleInputChange('year', e.target.value)} />
                                             </div>
-                                            <div className="space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('duration')}</label>
-                                                <input readOnly type="text" className="uidt-input w-full bg-slate-50 font-bold text-[#001D3D]" value={formData.duration} placeholder="Calculé selon les dates..." />
-                                            </div>
                                             <div className="md:col-span-2 space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('institutional_objectives')}</label>
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('institutional_objectives')}</label>
                                                 <textarea className="uidt-input w-full min-h-[100px] py-4" value={formData.objectives} onChange={e => handleInputChange('objectives', e.target.value)} placeholder="Description synthétique..." />
                                             </div>
                                             <div className="md:col-span-2 space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('observations')}</label>
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('observations')}</label>
                                                 <textarea className="uidt-input w-full min-h-[80px] py-4 border-amber-100" value={formData.observations} onChange={e => handleInputChange('observations', e.target.value)} placeholder="Remarques..." />
                                             </div>
                                             <div className="space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#8B7355] ml-1">Date de Début</label>
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-[#F7931E] ml-1">Date de Début</label>
                                                 <input required type="date" className="uidt-input w-full" value={formData.start_date} onChange={e => handleInputChange('start_date', e.target.value)} />
                                             </div>
                                             <div className="space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#8B7355] ml-1">Date de Fin</label>
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-[#F7931E] ml-1">Date de Fin</label>
                                                 <input required type="date" className="uidt-input w-full" value={formData.end_date} onChange={e => handleInputChange('end_date', e.target.value)} />
+                                            </div>
+                                            <div className="md:col-span-2 space-y-3">
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('duration')}</label>
+                                                <input readOnly type="text" className="uidt-input w-full bg-slate-50 font-bold text-[#2E2F7F]" value={formData.duration} placeholder="Calculé selon les dates..." />
                                             </div>
                                         </div>
                                     </motion.div>
@@ -683,21 +808,60 @@ const Conventions = () => {
                                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                             <div className="md:col-span-3 space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('indicator_performance')}</label>
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('indicator_performance')}</label>
                                                 <input type="text" className="uidt-input w-full" value={formData.indicator} onChange={e => handleInputChange('indicator', e.target.value)} placeholder="Nom de l'indicateur..." />
                                             </div>
                                             <div className="space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">Valeur de Référence</label>
-                                                <input type="number" className="uidt-input w-full" value={formData.valeur_reference} onChange={e => handleInputChange('valeur_reference', e.target.value)} placeholder="0.00" />
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-slate-600 ml-1">Valeur de Référence</label>
+                                                <div className="uidt-input w-full flex items-center justify-between group focus-within:border-[#2E2F7F40] focus-within:bg-white focus-within:shadow-[0_0_0_10px_#2E2F7F05] transition-all duration-75 relative">
+                                                    <div className="flex items-center">
+                                                        <input type="number" min="0" max="100" className="bg-transparent border-none outline-none p-0 w-7 text-left font-bold text-[#2E2F7F] hide-spinner" value={formData.valeur_reference} onChange={e => handleInputChange('valeur_reference', e.target.value)} placeholder="100" />
+                                                        <span className={`transition-all duration-300 font-bold ${formData.valeur_reference ? 'text-[#2E2F7F] opacity-100' : 'text-[#2E2F7F] opacity-40'}`}>%</span>
+                                                    </div>
+                                                    <div className="flex flex-col border-l border-gray-100 pl-3 gap-0 transition-all duration-75">
+                                                        <button type="button" onClick={() => handleInputChange('valeur_reference', Math.min(100, (parseInt(formData.valeur_reference) || 0) + 1))} className="text-[#2E2F7F] hover:bg-slate-50 active:scale-95 flex items-center justify-center h-4 w-6 rounded transition-all duration-75">
+                                                            <span className="material-symbols-outlined text-[14px] font-black">arrow_drop_up</span>
+                                                        </button>
+                                                        <button type="button" onClick={() => handleInputChange('valeur_reference', Math.max(0, (parseInt(formData.valeur_reference) || 0) - 1))} className="text-[#2E2F7F] hover:bg-slate-50 active:scale-95 flex items-center justify-center h-4 w-6 rounded transition-all duration-75">
+                                                            <span className="material-symbols-outlined text-[14px] font-black">arrow_drop_down</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div className="space-y-3">
-                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('target')}</label>
-                                                <input type="number" className="uidt-input w-full" value={formData.target} onChange={e => handleInputChange('target', e.target.value)} />
+                                                <label className="block text-sm font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('target')}</label>
+                                                <div className="uidt-input w-full flex items-center justify-between group focus-within:border-[#2E2F7F40] focus-within:bg-white focus-within:shadow-[0_0_0_10px_#2E2F7F05] transition-all duration-75 relative">
+                                                    <div className="flex items-center">
+                                                        <input type="number" min="0" max="100" className="bg-transparent border-none outline-none p-0 w-7 text-left font-bold text-[#2E2F7F] hide-spinner" value={formData.target} onChange={e => handleInputChange('target', e.target.value)} placeholder="100" />
+                                                        <span className={`transition-all duration-300 font-bold ${formData.target ? 'text-[#2E2F7F] opacity-100' : 'text-[#2E2F7F] opacity-40'}`}>%</span>
+                                                    </div>
+                                                    <div className="flex flex-col border-l border-gray-100 pl-3 gap-0 transition-all duration-75">
+                                                        <button type="button" onClick={() => handleInputChange('target', Math.min(100, (parseInt(formData.target) || 0) + 1))} className="text-[#2E2F7F] hover:bg-slate-50 active:scale-95 flex items-center justify-center h-4 w-6 rounded transition-all duration-75">
+                                                            <span className="material-symbols-outlined text-[14px] font-black">arrow_drop_up</span>
+                                                        </button>
+                                                        <button type="button" onClick={() => handleInputChange('target', Math.max(0, (parseInt(formData.target) || 0) - 1))} className="text-[#2E2F7F] hover:bg-slate-50 active:scale-95 flex items-center justify-center h-4 w-6 rounded transition-all duration-75">
+                                                            <span className="material-symbols-outlined text-[14px] font-black">arrow_drop_down</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                             {['signe_recteur', 'termine'].includes(formData.status) && (
                                                 <div className="space-y-3">
-                                                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('actual_value')}</label>
-                                                    <input type="number" className="uidt-input w-full font-black text-[#001D3D]" value={formData.actual_value} onChange={e => handleInputChange('actual_value', e.target.value)} />
+                                                    <label className="block text-sm font-black uppercase tracking-[0.2em] text-slate-600 ml-1">{t('actual_value')}</label>
+                                                    <div className="uidt-input w-full flex items-center justify-between group focus-within:border-[#2E2F7F40] focus-within:bg-white focus-within:shadow-[0_0_0_10px_#2E2F7F05] transition-all duration-75 relative">
+                                                        <div className="flex items-center">
+                                                            <input type="number" min="0" max="100" className="bg-transparent border-none outline-none p-0 w-7 text-left font-black text-[#2E2F7F] hide-spinner" value={formData.actual_value} onChange={e => handleInputChange('actual_value', e.target.value)} placeholder="100" />
+                                                            <span className={`transition-all duration-300 font-bold ${formData.actual_value ? 'text-[#2E2F7F] opacity-100' : 'text-[#2E2F7F] opacity-40'}`}>%</span>
+                                                        </div>
+                                                        <div className="flex flex-col border-l border-gray-100 pl-3 gap-0 transition-all duration-75">
+                                                            <button type="button" onClick={() => handleInputChange('actual_value', Math.min(100, (parseInt(formData.actual_value) || 0) + 1))} className="text-[#2E2F7F] hover:bg-slate-50 active:scale-95 flex items-center justify-center h-4 w-6 rounded transition-all duration-75">
+                                                                <span className="material-symbols-outlined text-[14px] font-black">arrow_drop_up</span>
+                                                            </button>
+                                                            <button type="button" onClick={() => handleInputChange('actual_value', Math.max(0, (parseInt(formData.actual_value) || 0) - 1))} className="text-[#2E2F7F] hover:bg-slate-50 active:scale-95 flex items-center justify-center h-4 w-6 rounded transition-all duration-75">
+                                                                <span className="material-symbols-outlined text-[14px] font-black">arrow_drop_down</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -706,14 +870,14 @@ const Conventions = () => {
 
                                 {currentStep === 4 && (
                                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
-                                        <div className="bg-gray-50/50 p-10 rounded-[2.5rem] border-2 border-dashed border-gray-100 flex flex-col items-center justify-center gap-6 group cursor-pointer hover:bg-white hover:border-[#001D3D]/20 transition-all" onClick={() => fileInputRef.current.click()}>
+                                        <div className="bg-gray-50/50 p-10 rounded-[2.5rem] border-2 border-dashed border-gray-100 flex flex-col items-center justify-center gap-6 group cursor-pointer hover:bg-white hover:border-[#2E2F7F]/20 transition-all" onClick={() => fileInputRef.current.click()}>
                                             <input ref={fileInputRef} type="file" className="hidden" onChange={(e) => setSelectedFile(e.target.files[0])} accept=".doc,.docx" />
-                                            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${selectedFile ? 'bg-green-500 text-white shadow-green-200' : 'bg-[#001D3D] text-white shadow-[#001D3D]/20'}`}>
+                                            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${selectedFile ? 'bg-green-500 text-white shadow-green-200' : 'bg-[#2E2F7F] text-white shadow-[#2E2F7F]/20'}`}>
                                                 <span className="material-symbols-outlined text-4xl">{selectedFile ? 'task' : 'upload_file'}</span>
                                             </div>
                                             <div className="text-center">
-                                                <h3 className="text-sm font-black text-[#001D3D] uppercase tracking-widest">{selectedFile ? selectedFile.name : 'DÉPOSER LE DOCUMENT (OBLIGATOIRE)'}</h3>
-                                                <p className="text-[10px] font-bold text-slate-600 mt-2 uppercase tracking-widest">Format Word (.doc, .docx) uniquement (Max 10Mo)</p>
+                                                <h3 className="text-base font-black text-[#2E2F7F] uppercase tracking-widest">{selectedFile ? selectedFile.name : 'DÉPOSER LE DOCUMENT (OBLIGATOIRE)'}</h3>
+                                                <p className="text-sm font-bold text-slate-600 mt-2 uppercase tracking-widest">Format Word (.doc, .docx) uniquement (Max 10Mo)</p>
                                             </div>
                                         </div>
                                     </motion.div>
@@ -727,8 +891,8 @@ const Conventions = () => {
                                                     <span className="material-symbols-outlined">info</span>
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-xs font-black text-[#001D3D] uppercase tracking-widest mb-2">Récapitulatif de soumission</h4>
-                                                    <p className="text-[10px] font-bold text-slate-600 leading-relaxed uppercase tracking-wider">En soumettant ce dossier, il sera transmis à la Direction de la Coopération pour instruction. Vous pourrez suivre l'avancement dans votre tableau de bord.</p>
+                                                    <h4 className="text-base font-black text-[#2E2F7F] uppercase tracking-widest mb-2">Récapitulatif de soumission</h4>
+                                                    <p className="text-sm font-bold text-slate-600 leading-relaxed uppercase tracking-wider">En soumettant ce dossier, il sera transmis à la Direction de la Coopération pour instruction. Vous pourrez suivre l'avancement dans votre tableau de bord.</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -736,8 +900,8 @@ const Conventions = () => {
                                         {selectedFile && (
                                             <div className="flex items-center gap-4 p-6 bg-green-50 rounded-3xl border border-green-100">
                                                 <span className="material-symbols-outlined text-green-500">attach_file</span>
-                                                <span className="text-xs font-black text-[#001D3D] uppercase tracking-widest">{selectedFile.name}</span>
-                                                <span className="text-[10px] font-bold text-green-600 ml-auto uppercase tracking-widest">Prêt pour envoi</span>
+                                                <span className="text-base font-black text-[#2E2F7F] uppercase tracking-widest">{selectedFile.name}</span>
+                                                <span className="text-sm font-bold text-green-600 ml-auto uppercase tracking-widest">Prêt pour envoi</span>
                                             </div>
                                         )}
                                     </motion.div>
@@ -748,9 +912,9 @@ const Conventions = () => {
                                     <button 
                                         type="button" 
                                         onClick={() => currentStep > 1 ? setCurrentStep(currentStep - 1) : setIsModalOpen(false)}
-                                        className="px-8 py-4 text-[10px] font-black text-slate-600 hover:text-[#001D3D] uppercase tracking-[0.2em] transition-all flex items-center gap-2"
+                                        className="px-8 py-4 text-sm font-black text-slate-600 hover:text-[#2E2F7F] uppercase tracking-[0.2em] transition-all flex items-center gap-2"
                                     >
-                                        <span className="material-symbols-outlined text-sm">arrow_back</span>
+                                        <span className="material-symbols-outlined text-base">arrow_back</span>
                                         {currentStep === 1 ? 'Annuler' : 'Précédent'}
                                     </button>
                                     
@@ -759,21 +923,21 @@ const Conventions = () => {
                                             <button 
                                                 type="button" 
                                                 onClick={handleNext}
-                                                className="px-12 py-5 bg-[#001D3D] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-xl shadow-[#001D3D]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
+                                                className="px-12 py-5 bg-[#2E2F7F] text-white rounded-2xl text-sm font-black uppercase tracking-[0.3em] shadow-xl shadow-[#2E2F7F]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
                                             >
                                                 {currentStep === 4 ? 'Passer à la Validation Finale' : currentStep === 3 ? 'Dernière Étape' : 'Étape Suivante'}
-                                                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                                <span className="material-symbols-outlined text-base">arrow_forward</span>
                                             </button>
                                         ) : (
                                             <button 
                                                 type="submit"
                                                 disabled={loading}
-                                                className={`px-12 py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-xl transition-all flex items-center gap-3 ${
+                                                className={`px-12 py-5 rounded-2xl text-sm font-black uppercase tracking-[0.3em] shadow-xl transition-all flex items-center gap-3 ${
                                                     loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 text-white shadow-green-600/20 hover:scale-105 active:scale-95'
                                                 }`}
                                             >
                                                 {loading ? 'Envoi en cours...' : 'Finaliser et Soumettre'}
-                                                <span className={`material-symbols-outlined text-sm ${loading ? 'animate-spin' : ''}`}>
+                                                <span className={`material-symbols-outlined text-base ${loading ? 'animate-spin' : ''}`}>
                                                     {loading ? 'progress_activity' : 'verified'}
                                                 </span>
                                             </button>
@@ -794,14 +958,14 @@ const Conventions = () => {
                     padding: 1rem 1.5rem;
                     font-size: 0.875rem;
                     font-weight: 700;
-                    color: #001D3D;
+                    color: #2E2F7F;
                     outline: none;
                     transition: all 0.2s ease;
                 }
                 .uidt-input:focus {
-                    border-color: #001D3D20;
+                    border-color: #2E2F7F20;
                     background-color: white;
-                    box-shadow: 0 0 0 10px #001D3D05;
+                    box-shadow: 0 0 0 10px #2E2F7F05;
                 }
                 .custom-scrollbar::-webkit-scrollbar {
                     width: 6px;
@@ -810,11 +974,19 @@ const Conventions = () => {
                     background: #F8F9FA;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #001D3D10;
+                    background: #2E2F7F10;
                     border-radius: 10px;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: #001D3D20;
+                    background: #2E2F7F20;
+                }
+                .hide-spinner::-webkit-outer-spin-button,
+                .hide-spinner::-webkit-inner-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
+                }
+                .hide-spinner {
+                    -moz-appearance: textfield;
                 }
             `}} />
 
@@ -827,7 +999,7 @@ const Conventions = () => {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setConfirmConfig({ ...confirmConfig, open: false })}
-                            className="absolute inset-0 bg-[#001D3D]/40 backdrop-blur-md"
+                            className="absolute inset-0 bg-[#2E2F7F]/40 backdrop-blur-md"
                         />
                         <motion.div 
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -842,19 +1014,19 @@ const Conventions = () => {
                                     {confirmConfig.type === 'delete' ? 'delete_forever' : 'archive'}
                                 </span>
                             </div>
-                            <h3 className="text-xl font-black text-[#001D3D] mb-2 uppercase tracking-tight">{confirmConfig.title}</h3>
-                            <p className="text-xs font-bold text-slate-600 leading-relaxed mb-8">{confirmConfig.message}</p>
+                            <h3 className="text-xl font-black text-[#2E2F7F] mb-2 uppercase tracking-tight">{confirmConfig.title}</h3>
+                            <p className="text-base font-bold text-slate-600 leading-relaxed mb-8">{confirmConfig.message}</p>
                             
                             <div className="flex gap-3">
                                 <button 
                                     onClick={() => setConfirmConfig({ ...confirmConfig, open: false })}
-                                    className="flex-1 px-6 py-4 bg-gray-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-100"
+                                    className="flex-1 px-6 py-4 bg-gray-50 text-slate-600 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-100"
                                 >
                                     Annuler
                                 </button>
                                 <button 
                                     onClick={executeConfirmedAction}
-                                    className={`flex-1 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white shadow-lg transition-all ${
+                                    className={`flex-1 px-6 py-4 rounded-2xl text-sm font-black uppercase tracking-widest text-white shadow-lg transition-all ${
                                         confirmConfig.type === 'delete' ? 'bg-red-500 hover:bg-red-600 shadow-red-500/20' : 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20'
                                     }`}
                                 >
@@ -869,7 +1041,11 @@ const Conventions = () => {
                     <Toast 
                         message={toast.message} 
                         type={toast.type} 
-                        onClose={() => setToast(null)} 
+                        onUndo={toast.onUndo}
+                        onClose={() => {
+                            if (toast.onClose) toast.onClose();
+                            setToast(null);
+                        }} 
                     />
                 )}
             </AnimatePresence>

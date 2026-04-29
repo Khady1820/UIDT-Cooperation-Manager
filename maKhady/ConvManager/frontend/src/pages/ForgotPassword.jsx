@@ -31,8 +31,8 @@ const ForgotPassword = () => {
     return (
         <div className="relative min-h-screen flex items-center justify-center p-6 mesh-bg overflow-hidden font-sans">
             {/* Ambient Background Elements */}
-            <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#001D3D]/5 rounded-full blur-[100px] animate-pulse"></div>
-            <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#8B7355]/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#2E2F7F]/5 rounded-full blur-[100px] animate-pulse"></div>
+            <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#F7931E]/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }}></div>
 
             <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -42,15 +42,15 @@ const ForgotPassword = () => {
             >
                 <div className="auth-glass p-10 md:p-14 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.08)]">
                     <div className="mb-10 text-center">
-                        <Link to="/login" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#8B7355] hover:text-[#001D3D] transition-colors mb-8 group mx-auto">
+                        <Link to="/login" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#F7931E] hover:text-[#2E2F7F] transition-colors mb-8 group mx-auto">
                             <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
                             Retour à la connexion
                         </Link>
                         
-                        <div className="w-20 h-20 bg-[#001D3D] rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-[#001D3D]/20">
+                        <div className="w-20 h-20 bg-[#2E2F7F] rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-[#2E2F7F]/20">
                             <span className="material-symbols-outlined text-white text-4xl">lock_reset</span>
                         </div>
-                        <h2 className="text-3xl font-black text-[#001D3D] tracking-tight mb-2">Récupération</h2>
+                        <h2 className="text-3xl font-black text-[#2E2F7F] tracking-tight mb-2">Récupération</h2>
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-loose">Réinitialisez votre accès sécurisé</p>
                     </div>
 
@@ -78,18 +78,18 @@ const ForgotPassword = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="space-y-3">
-                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#001D3D]/40 ml-1">Email Académique</label>
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#2E2F7F]/40 ml-1">Email Académique</label>
                             <div className="relative group">
                                 <input
                                     type="email"
                                     required
-                                    className="w-full bg-white border border-gray-100 focus:border-[#001D3D]/10 focus:ring-8 focus:ring-[#001D3D]/5 rounded-2xl px-6 py-5 text-sm font-bold text-[#001D3D] outline-none transition-all shadow-sm group-hover:shadow-md"
+                                    className="w-full bg-white border border-gray-100 focus:border-[#2E2F7F]/10 focus:ring-8 focus:ring-[#2E2F7F]/5 rounded-2xl px-6 py-5 text-sm font-bold text-[#2E2F7F] outline-none transition-all shadow-sm group-hover:shadow-md"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="votreemail@uidt.sn"
                                 />
                                 <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-20 group-focus-within:opacity-100 transition-opacity">
-                                    <Mail className="w-5 h-5 text-[#001D3D]" />
+                                    <Mail className="w-5 h-5 text-[#2E2F7F]" />
                                 </div>
                             </div>
                         </div>
@@ -97,7 +97,7 @@ const ForgotPassword = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group relative w-full bg-[#001D3D] text-white py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-[#001D3D]/20 hover:bg-[#002b5c] transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-4 overflow-hidden"
+                            className="group relative w-full bg-[#2E2F7F] text-white py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-[#2E2F7F]/20 hover:bg-[#002b5c] transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-4 overflow-hidden"
                         >
                             <span className="relative z-10">{loading ? "Envoi..." : "Envoyer le lien"}</span>
                             {!loading && <Send className="w-4 h-4 relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
@@ -107,7 +107,7 @@ const ForgotPassword = () => {
                 </div>
 
                 <div className="mt-16 text-center opacity-30">
-                    <p className="text-[9px] font-black text-[#001D3D] uppercase tracking-[0.4em]">
+                    <p className="text-[9px] font-black text-[#2E2F7F] uppercase tracking-[0.4em]">
                         Bureau de la Coopération Institutionnelle • UIDT
                     </p>
                 </div>

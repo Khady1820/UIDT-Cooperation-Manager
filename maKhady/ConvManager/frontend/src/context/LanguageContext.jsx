@@ -2,7 +2,8 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const translations = {
     'Français (France)': {
-        'app_name': 'Gestion de la Coopération - UIDT',
+        'app_name': 'GESTION DE LA COOPERATION - UIDT',
+
         'institutional_sub': 'Université Iba Der Thiam de Thiès',
         'dashboard': 'Tableau de bord',
         'conventions': 'Projets de Coopération',
@@ -13,6 +14,7 @@ const translations = {
         'archived': 'Archives',
         'manage_users': 'Gestion des utilisateurs',
         'manage_partners': 'Gestion des partenaires',
+        'manage_tickets': 'Support Technique',
         'help_center': 'Centre d\'Aide',
         'admin_portal': 'Portail Administration',
         'logout': 'Se déconnecter',
@@ -104,7 +106,8 @@ const translations = {
         'edit': 'Modifier',
     },
     'English (US)': {
-        'app_name': 'Cooperation Management - UIDT',
+        'app_name': 'COOPERATION MANAGEMENT - UIDT',
+
         'institutional_sub': 'Iba Der Thiam University of Thiès',
         'dashboard': 'Dashboard',
         'conventions': 'Cooperation Projects',
@@ -115,6 +118,7 @@ const translations = {
         'archived': 'Archives',
         'manage_users': 'Manage Users',
         'manage_partners': 'Manage Partners',
+        'manage_tickets': 'Technical Support',
         'help_center': 'Help Center',
         'admin_portal': 'Admin Portal',
         'logout': 'Logout',
