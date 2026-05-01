@@ -177,12 +177,12 @@ class ConventionController extends Controller
             'comment' => 'Convention soumise pour première validation (Direction)'
         ]);
 
-        // Notify Chef de Division
+        // Notify Chef de Division and Admins
         try {
-            $chefs = User::whereHas('role', function($q) {
-                $q->where('name', 'chef_division');
+            $recipients = User::whereHas('role', function($q) {
+                $q->whereIn('name', ['chef_division', 'admin']);
             })->get();
-            Notification::send($chefs, new ConventionStatusChanged($convention, 'soumis', $request->user()));
+            Notification::send($recipients, new ConventionStatusChanged($convention, 'soumis', $request->user()));
         } catch (\Exception $e) {
             \Log::error('Mail Error: ' . $e->getMessage());
         }
@@ -210,12 +210,12 @@ class ConventionController extends Controller
             'comment' => 'Pré-validation effectuée par le Chef de Division. Avis : ' . $request->comment
         ]);
 
-        // Notify Directors & Porteur
+        // Notify Directors, Porteur & Admins
         try {
-            $directors = User::whereHas('role', function($q) {
-                $q->where('name', 'directeur_cooperation');
+            $recipients = User::whereHas('role', function($q) {
+                $q->whereIn('name', ['directeur_cooperation', 'admin']);
             })->get();
-            Notification::send($directors, new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
+            Notification::send($recipients, new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
             $convention->user->notify(new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
         } catch (\Exception $e) {
             \Log::error('Mail Error: ' . $e->getMessage());
@@ -245,12 +245,12 @@ class ConventionController extends Controller
             'comment' => 'Première validation effectuée. Dossier transmis au Service Juridique.'
         ]);
 
-        // Notify Legal
+        // Notify Legal & Admins
         try {
-            $legalUsers = User::whereHas('role', function($q) {
-                $q->where('name', 'service_juridique');
+            $recipients = User::whereHas('role', function($q) {
+                $q->whereIn('name', ['service_juridique', 'admin']);
             })->get();
-            Notification::send($legalUsers, new ConventionStatusChanged($convention, 'valide_dir_initial', $request->user()));
+            Notification::send($recipients, new ConventionStatusChanged($convention, 'valide_dir_initial', $request->user()));
         } catch (\Exception $e) {
             \Log::error('Mail Error: ' . $e->getMessage());
         }
@@ -274,12 +274,12 @@ class ConventionController extends Controller
             'comment' => 'Conformité visée par le Service Juridique. Renvoi à la Direction pour contrôle final.'
         ]);
 
-        // Notify Directors
+        // Notify Directors & Admins
         try {
-            $directors = User::whereHas('role', function($q) {
-                $q->where('name', 'directeur_cooperation');
+            $recipients = User::whereHas('role', function($q) {
+                $q->whereIn('name', ['directeur_cooperation', 'admin']);
             })->get();
-            Notification::send($directors, new ConventionStatusChanged($convention, 'valide_juridique', $request->user()));
+            Notification::send($recipients, new ConventionStatusChanged($convention, 'valide_juridique', $request->user()));
         } catch (\Exception $e) {
             \Log::error('Mail Error: ' . $e->getMessage());
         }
@@ -298,12 +298,12 @@ class ConventionController extends Controller
             'comment' => 'Contrôle final effectué. Dossier transmis au Rectorat pour signature.'
         ]);
 
-        // Notify Recteurs
+        // Notify Recteurs & Admins
         try {
-            $recteurs = User::whereHas('role', function($q) {
-                $q->where('name', 'recteur');
+            $recipients = User::whereHas('role', function($q) {
+                $q->whereIn('name', ['recteur', 'admin']);
             })->get();
-            Notification::send($recteurs, new ConventionStatusChanged($convention, 'pret_pour_signature', $request->user()));
+            Notification::send($recipients, new ConventionStatusChanged($convention, 'pret_pour_signature', $request->user()));
         } catch (\Exception $e) {
             \Log::error('Mail Error: ' . $e->getMessage());
         }
@@ -334,8 +334,12 @@ class ConventionController extends Controller
             'comment' => 'Dossier signé officiellement par le Recteur. Document final archivé.'
         ]);
 
-        // Notify Porteur
+        // Notify Porteur & Admins
         try {
+            $admins = User::whereHas('role', function($q) {
+                $q->where('name', 'admin');
+            })->get();
+            Notification::send($admins, new ConventionStatusChanged($convention, 'termine', $request->user()));
             $convention->user->notify(new ConventionStatusChanged($convention, 'termine', $request->user()));
         } catch (\Exception $e) {
             \Log::error('Mail Error: ' . $e->getMessage());
@@ -377,6 +381,11 @@ class ConventionController extends Controller
 
         // Notify 
         try {
+            $admins = User::whereHas('role', function($q) {
+                $q->where('name', 'admin');
+            })->get();
+            Notification::send($admins, new ConventionStatusChanged($convention, $newStatus, $user));
+
             if ($newStatus === 'soumis') {
                 $directors = User::whereHas('role', function($q) {
                     $q->where('name', 'directeur_cooperation');
@@ -471,16 +480,16 @@ class ConventionController extends Controller
 
     public function publicStats()
     {
-        $activeConventions = Convention::where('status', 'termine')->count();
-        $totalPartners = Convention::distinct('partners')->count('partners');
-        
-        // We can use a realistic multiplier if the user wants to show 'impact' 
-        // or just show real numbers. I'll stick to real numbers but formatted nicely.
-        return response()->json([
-            'active_partnerships' => $activeConventions,
-            'countries' => 12, // For now, maybe hardcode if not in DB or fetch if country column exists
-            'mobilities' => $activeConventions * 15 // Example logic
-        ]);
+        return \Illuminate\Support\Facades\Cache::remember('public_stats', 3600, function () {
+            $activeConventions = Convention::where('status', 'termine')->count();
+            $totalPartners = Convention::distinct('partners')->count('partners');
+            
+            return [
+                'active_partnerships' => $activeConventions,
+                'countries' => 12, // Statistique fixe ou calculée
+                'mobilities' => max(450, $activeConventions * 15) // Valeur réaliste minimum
+            ];
+        });
     }
 
     public function destroy($id)

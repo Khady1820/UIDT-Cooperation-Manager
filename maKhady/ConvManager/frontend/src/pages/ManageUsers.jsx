@@ -4,8 +4,10 @@ import api from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus, Trash2, Edit2, Shield, Mail, Key, Eye, EyeOff } from 'lucide-react';
 import AdminModal from '../components/AdminModal';
+import { useNavigate } from 'react-router-dom';
 
 const ManageUsers = () => {
+    const navigate = useNavigate();
     const { t } = useLanguage();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -167,20 +169,20 @@ const ManageUsers = () => {
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-4 mb-2">
                         <button 
-                            onClick={() => navigate('/dashboard')}
+                            onClick={() => navigate(-1)}
                             className="group flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-150 active:scale-95"
                         >
                             <span className="material-symbols-outlined text-[#2E2F7F] dark:text-white group-hover:scale-110 transition-transform duration-150 text-sm">arrow_back</span>
                             <span className="text-[9px] font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest">Retour</span>
                         </button>
                         <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
-                        <h1 className="text-xl font-black text-surface-900 dark:text-white tracking-tight uppercase tracking-widest">{t('manage_users')}</h1>
+                        <h1 className="text-lg font-black text-surface-900 dark:text-white tracking-tight uppercase tracking-widest">{t('manage_users')}</h1>
                     </div>
-                    <p className="text-surface-500 dark:text-slate-400 font-medium italic">Administration des accès et des rôles institutionnels des collaborateurs.</p>
+                    <p className="text-[9px] text-surface-500 dark:text-slate-400 font-bold uppercase tracking-wider italic">Administration des accès et des rôles institutionnels.</p>
                 </div>
                 <button 
                     onClick={() => handleOpenModal()}
-                    className="premium-button flex items-center gap-2 px-8 py-4 bg-primary text-white font-black uppercase tracking-widest text-sm rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 transition-all"
+                    className="premium-button flex items-center gap-2 px-7 py-3.5 bg-primary text-white font-black uppercase tracking-widest text-[11px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 transition-all"
                 >
                     <UserPlus className="w-4 h-4" />
                     Ajouter un utilisateur
@@ -325,10 +327,11 @@ const ManageUsers = () => {
                             <input 
                                 type="text"
                                 required
+                                autoComplete="off"
                                 value={formData.name}
                                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                                 className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-primary transition-all text-base font-bold"
-                                placeholder="ex: Jean Dupont"
+                                placeholder="Saisissez le nom complet"
                             />
                         </div>
                         <div className="space-y-2">
@@ -336,10 +339,11 @@ const ManageUsers = () => {
                             <input 
                                 type="email"
                                 required
+                                autoComplete="off"
                                 value={formData.email}
                                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                                 className="w-full px-5 py-4 bg-surface-50 border border-outline-variant rounded-xl focus:outline-none focus:border-primary transition-all text-base font-bold"
-                                placeholder="ex: jean.dupont@uidt.sn"
+                                placeholder="adresse.email@uidt.sn"
                             />
                         </div>
                     </div>

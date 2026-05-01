@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Landing.css';
 import api from '../services/api';
+import { motion } from 'framer-motion';
+import { Globe, Handshake, Users, ArrowUpRight } from 'lucide-react';
 
 
 const Landing = () => {
@@ -9,23 +11,28 @@ const Landing = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 50);
+          ticking = false;
+        });
+        ticking = true;
       }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     fetchStats();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const [stats, setStats] = useState({
-    active_partnerships: 0,
-    countries: 0,
-    mobilities: 0
+    active_partnerships: 124,
+    countries: 18,
+    mobilities: 450
   });
+
+  const [loadingStats, setLoadingStats] = useState(true);
 
   const fetchStats = async () => {
     try {
@@ -33,211 +40,244 @@ const Landing = () => {
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching stats:', error);
+    } finally {
+      setLoadingStats(false);
     }
   };
 
-
   return (
     <div className="landing-container">
-      {/* Navbar */}
-      <nav className={`landing-navbar ${isScrolled ? 'scrolled' : ''}`}>
-        <Link to="/" className="nav-logo">
-          GESTION DE LA COOPERATION - UIDT
-        </Link>
+      {/* Header Premium */}
+      <nav className={`premium-nav ${isScrolled ? 'nav-scrolled' : ''}`}>
+        <div className="nav-content">
+          <Link to="/" className="nav-brand">
+            <div className="brand-text">
+              <span className="brand-title">GESTION DE LA COOPERATION - UIDT</span>
+            </div>
+          </Link>
 
+          <div className="nav-menu">
+            <a href="#features">Fonctionnalités</a>
+            <a href="#impact">Impact</a>
+            <a href="#support">Support</a>
+          </div>
 
-        
-        <div className="nav-links">
-          <a href="#platform" className="nav-link">Fonctionnalités</a>
-          <a href="#stats" className="nav-link">Impact</a>
-          <a href="#support" className="nav-link">Support</a>
+          <div className="nav-actions">
+            <Link to="/login" className="link-login">Connexion</Link>
+            <Link to="/register" className="btn-get-started">S'inscrire</Link>
+          </div>
         </div>
-
-
-        <div className="nav-auth">
-          <Link to="/login" className="btn-login">Connexion</Link>
-          <Link to="/register" className="btn-register">S'inscrire</Link>
-
-
-        </div>
-
       </nav>
 
-      {/* Hero Section */}
-      <header 
-        className="hero-section" 
-        style={{ backgroundImage: 'url(/img_uidt.jpg)' }}
-      >
-        <div className="hero-overlay"></div>
+      {/* Hero Section Refined */}
+      <header className="hero-v2">
+        <div className="hero-background">
+          <img 
+            src="/img_uidt.jpg" 
+            alt="UIDT Campus" 
+            className="bg-image" 
+            fetchPriority="high" 
+          />
+          <div className="bg-gradient"></div>
+        </div>
         
-        <div className="hero-content">
-          <div className="hero-tag">UIDT Global Cooperation</div>
-          <h1 className="hero-title">
-            Pilotez vos <br />
-            <span>Coopérations</span> <br />
-            Universitaires <br />
-            avec Clarté
-          </h1>
-          
-          <p className="hero-description">
-            Une plateforme intégrée pour la gestion, le suivi et la performance de 
-            vos partenariats institutionnels. Digitalisez l'excellence académique.
-          </p>
+        <div className="hero-main-content hero-split-layout">
+          {/* Left Side: Content */}
+          <div className="hero-left-content">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="hero-badge"
+            >
+              UIDT GLOBAL COOPERATION
+            </motion.div>
+            
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="hero-h1"
+            >
+              Pilotez vos<br />
+              Coopérations<br />
+              Universitaires<br />
+              avec Clarté
+            </motion.h1>
+            
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="hero-p"
+            >
+              Une plateforme intégrée pour la gestion, le suivi et la performance de vos partenariats institutionnels. Digitalisez l'excellence académique.
+            </motion.p>
 
-          <div className="hero-features-small">
-            <div className="small-feature">
-              <i>📊</i>
-              <span>Centralisation</span>
-              <p>Tous vos dossiers en un point unique.</p>
-            </div>
-            <div className="small-feature">
-              <i>⚡</i>
-              <span>Workflow</span>
-              <p>Validation automatisée sans frictions.</p>
-            </div>
-            <div className="small-feature">
-              <i>📈</i>
-              <span>Indicateurs</span>
-              <p>Performance en temps réel.</p>
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="hero-features-row"
+            >
+              <div className="hero-feature">
+                <div className="hf-icon">📊</div>
+                <h4>Centralisation</h4>
+                <p>Tous vos dossiers en un point unique.</p>
+              </div>
+              <div className="hero-feature">
+                <div className="hf-icon">⚡</div>
+                <h4>Workflow</h4>
+                <p>Validation automatisée sans frictions.</p>
+              </div>
+              <div className="hero-feature">
+                <div className="hf-icon">📈</div>
+                <h4>Indicateurs</h4>
+                <p>Performance en temps réel.</p>
+              </div>
+            </motion.div>
           </div>
+
+          {/* Right Side: Action Cards */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="hero-right-cards"
+          >
+            {/* Card 1: Login */}
+            <div className="hero-action-card">
+              <div className="card-header">
+                <div className="card-icon">🔑</div>
+                <div className="card-tag">ESPACE MEMBRE</div>
+              </div>
+              <h3>Se Connecter</h3>
+              <p>Accédez à votre tableau de bord et gérez vos partenariats actifs.</p>
+              <Link to="/login" className="card-btn btn-dark">
+                Connexion ➔
+              </Link>
+            </div>
+
+            {/* Card 2: Register */}
+            <div className="hero-action-card">
+              <div className="card-header">
+                <div className="card-icon">🤝</div>
+                <div className="card-tag">PORTEUR DE PROJET</div>
+              </div>
+              <h3>Créer un Compte</h3>
+              <p>Rejoignez le réseau de coopération et initiez de nouvelles collaborations.</p>
+              <Link to="/register" className="card-btn btn-light">
+                Inscription ✦
+              </Link>
+            </div>
+          </motion.div>
         </div>
-
-        <div className="hero-cards">
-          {/* Login Card */}
-          <div className="glass-card">
-            <div className="card-header">
-              <div className="card-icon">🔑</div>
-              <span className="card-tag">Espace Membre</span>
-            </div>
-            <h3 className="card-title">Se Connecter</h3>
-            <p className="card-desc">
-              Accédez à votre tableau de bord et gérez vos partenariats actifs.
-            </p>
-            <Link to="/login" className="card-btn btn-primary-card">
-              Connexion ➔
-            </Link>
-          </div>
-
-          {/* Register Card */}
-          <div className="glass-card">
-            <div className="card-header">
-              <div className="card-icon">🤝</div>
-              <span className="card-tag">Porteur de Projet</span>
-            </div>
-            <h3 className="card-title">Créer un Compte</h3>
-            <p className="card-desc">
-              Rejoignez le réseau de coopération et initiez de nouvelles collaborations.
-            </p>
-            <Link to="/register" className="card-btn btn-secondary-card">
-              Inscription ✦
-            </Link>
-          </div>
-        </div>
-
       </header>
 
-      {/* Features Section */}
-      <section className="features-section" id="platform">
-        <div className="section-header">
-          <h2 className="section-title">L'excellence au service de la gestion</h2>
-          <p className="section-subtitle">
-            Optimisez chaque étape du cycle de vie de vos coopérations internationales et locales avec des outils conçus pour l'administration universitaire moderne.
-          </p>
-        </div>
-
-
-        <div className="features-container">
-          <div className="feature-main">
-            <div className="feature-image">
-              <img src="/img_uidt.jpg" alt="Unified Folders" />
-            </div>
-            <div className="feature-text">
-              <span className="feature-tag">Centralisation Intelligente</span>
-              <h3>Dossiers de Coopération Unifiés</h3>
-              <p>Archivez, indexez et retrouvez instantanément tous les documents légaux, conventions et avenants liés à vos partenariats.</p>
-            </div>
+      {/* Bento Grid Features */}
+      <section className="bento-features" id="features">
+        <div className="container">
+          <div className="section-intro">
+            <span className="intro-tag">Services Numériques</span>
+            <h2>Une plateforme, des possibilités infinies</h2>
           </div>
 
-          <div className="features-side">
-            <div className="feature-card accent">
-              <div className="feature-card-icon">⚡</div>
-              <h4>Automatisations</h4>
-              <p>Gagnez 40% de temps sur le circuit de signature électronique et de validation administrative.</p>
+          <div className="features-presentation-image">
+            <img src="/img_uidt.jpg" alt="Présentation de l'UIDT" loading="lazy" />
+          </div>
+
+          <div className="bento-grid">
+            <div className="bento-item large">
+              <div className="bento-content">
+                <div className="bento-icon"><Handshake size={32} /></div>
+                <h3>Gestion Intégrale</h3>
+                <p>Suivez le cycle de vie complet de vos conventions, de l'ébauche initiale à la signature officielle du Recteur.</p>
+                <div className="bento-visual">
+                  {/* Mock UI visual */}
+                  <div className="ui-mockup">
+                    <div className="ui-line"></div>
+                    <div className="ui-line short"></div>
+                    <div className="ui-check"></div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="feature-card">
-              <div className="feature-card-icon">📊</div>
-              <h4>Analyses Prédictives</h4>
-              <p>Visualisez l'impact de vos coopérations à travers des tableaux de bord dynamiques et des KPIs personnalisables.</p>
+
+            <div className="bento-item tall">
+              <div className="bento-content">
+                <div className="bento-icon"><Globe size={32} /></div>
+                <h3>Rayonnement Mondial</h3>
+                <p>Cartographie dynamique de vos partenariats internationaux en temps réel.</p>
+              </div>
+            </div>
+
+            <div className="bento-item medium">
+              <div className="bento-content">
+                <div className="bento-icon"><ArrowUpRight size={32} /></div>
+                <h3>KPIs & Analytics</h3>
+                <p>Tableaux de bord automatisés pour une prise de décision basée sur les données.</p>
+              </div>
+            </div>
+
+            <div className="bento-item small">
+              <div className="bento-content">
+                <h3>Sécurité</h3>
+                <p>Archivage certifié et accès sécurisés.</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="stats-section" id="stats">
-
-        <div className="stats-header">
-          <h2>Chiffres Clés du Réseau</h2>
-          <p>L'UIDT s'engage pour une coopération structurée, durable et génératrice de valeur académique.</p>
-        </div>
-        <div className="stats-grid">
-
-          <div className="stat-item">
-            <div className="stat-number">{stats.active_partnerships}+</div>
-            <div className="stat-label">Partenariats Actifs</div>
+      {/* Modern Stats */}
+      <section className="modern-stats" id="impact">
+        <div className="container">
+          <div className="stats-header-centered">
+            <h2>L'UIDT en Chiffres</h2>
           </div>
-          <div className="stat-item">
-            <div className="stat-number">{stats.countries}</div>
-            <div className="stat-label">Pays Représentés</div>
+          <div className="stats-flex">
+            <div className="stat-card-v2">
+              <span className="s-num">{loadingStats ? '...' : stats.active_partnerships}</span>
+              <span className="s-label">Conventions Actives</span>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-card-v2">
+              <span className="s-num">{loadingStats ? '...' : stats.countries}</span>
+              <span className="s-label">Pays Partenaires</span>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-card-v2">
+              <span className="s-num">{loadingStats ? '...' : stats.mobilities}+</span>
+              <span className="s-label">Mobilités Facilitées</span>
+            </div>
           </div>
-          <div className="stat-item">
-            <div className="stat-number">{stats.mobilities > 100 ? stats.mobilities : '500'}+</div>
-            <div className="stat-label">Impact Mobilité</div>
-          </div>
-
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="landing-footer" id="support">
-
-        <div className="footer-top">
-          <div className="footer-logo-area">
-            <Link to="/" className="nav-logo" style={{ marginBottom: '1rem' }}>
-              GESTION DE LA COOPERATION - UIDT
-            </Link>
-
-
-
-            <p>
-              Le futur de la coopération académique digitale par University Cooperation Management System.
-            </p>
-          </div>
-          
-          <div className="footer-links-area">
-            <div className="footer-col">
-              <h4>Légal</h4>
-              <ul>
-                <li><a href="#">Politique de Confidentialité</a></li>
-                <li><a href="#">Conditions d'Utilisation</a></li>
-              </ul>
+      {/* Footer Premium */}
+      <footer className="premium-footer" id="support">
+        <div className="container">
+          <div className="footer-main">
+            <div className="footer-brand">
+              <h3>UIDT</h3>
+              <p>L'excellence par l'innovation digitale.</p>
             </div>
-            <div className="footer-col">
-              <h4>Support</h4>
-              <ul>
-                <li><a href="#">Accessibilité</a></li>
-                <li><a href="#">Contacter le Support</a></li>
-              </ul>
+            <div className="footer-nav">
+              <div className="f-col">
+                <h4>Navigation</h4>
+                <a href="#features">Plateforme</a>
+                <a href="#impact">Impact</a>
+              </div>
+              <div className="f-col">
+                <h4>Support</h4>
+                <Link to="/contact">Contact</Link>
+                <a href="#">FAQ</a>
+              </div>
             </div>
           </div>
+          <div className="footer-legal">
+            <p>© 2026 Université Iba Der Thiam de Thiès. Tous droits réservés.</p>
+          </div>
         </div>
-        
-        <div className="footer-bottom">
-          <p>© 2026 Système de Gestion de la Coopération Universitaire. Tous droits réservés.</p>
-        </div>
-
-
       </footer>
     </div>
   );

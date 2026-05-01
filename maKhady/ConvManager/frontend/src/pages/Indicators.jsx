@@ -6,8 +6,10 @@ import {
     Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Cell
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const Indicators = () => {
+    const navigate = useNavigate();
     const { t } = useLanguage();
     const [kpis, setKpis] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -89,8 +91,18 @@ const Indicators = () => {
             className="space-y-10"
         >
             <div className="flex flex-col gap-2">
-                <h1 className="text-xl font-black text-[#2E2F7F] dark:text-white tracking-tight">{t('indicators')}</h1>
-                <p className="text-xs font-bold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wider">{t('institutional_sub')} • Pilotage Stratégique</p>
+                <div className="flex items-center gap-4 mb-2">
+                    <button 
+                        onClick={() => navigate(-1)}
+                        className="group flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-150 active:scale-95"
+                    >
+                        <span className="material-symbols-outlined text-[#2E2F7F] dark:text-white group-hover:scale-110 transition-transform duration-150 text-sm">arrow_back</span>
+                        <span className="text-[9px] font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest">Retour</span>
+                    </button>
+                    <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
+                    <h1 className="text-lg font-black text-[#2E2F7F] dark:text-white tracking-tight uppercase tracking-widest">{t('indicators')}</h1>
+                </div>
+                <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wider italic">{t('institutional_sub')} • Pilotage Stratégique</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -106,7 +118,7 @@ const Indicators = () => {
                         </div>
                     </div>
                     <div className="h-[360px] w-full">
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={1}>
+                        <ResponsiveContainer width="100%" height={360} minWidth={0} minHeight={0}>
                             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
                                 <PolarGrid stroke="#e2e8f0" />
                                 <PolarAngleAxis dataKey="subject" tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 900}} />
@@ -128,8 +140,8 @@ const Indicators = () => {
                             </RadarChart>
                         </ResponsiveContainer>
                     </div>
-                    <div className="mt-8 p-6 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/10">
-                        <p className="text-sm font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-wider">
+                    <div className="mt-6 p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/10">
+                        <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-wider">
                             <span className="text-[#2E2F7F] dark:text-indigo-400 font-black mr-2">Interprétation :</span>
                             Ce radar compare le taux de succès de vos 12 indicateurs principaux. Une zone étendue vers les bords (100%) indique que les objectifs stratégiques de ces axes sont quasiment atteints.
                         </p>
@@ -148,7 +160,7 @@ const Indicators = () => {
                         </div>
                     </div>
                     <div className="h-[360px] w-full">
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={1}>
+                        <ResponsiveContainer width="100%" height={360} minWidth={0} minHeight={0}>
                             <BarChart data={barData} layout="vertical" margin={{ left: 20 }}>
                                 <XAxis type="number" hide />
                                 <YAxis dataKey="name" type="category" width={100} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 800}} axisLine={false} tickLine={false} />
@@ -169,9 +181,9 @@ const Indicators = () => {
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
-                    <div className="mt-8 p-6 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/10">
-                        <p className="text-sm font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-wider">
-                            <span className="text-[#F7931E] font-black mr-2">Interprétation :</span>
+                    <div className="mt-6 p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/10">
+                        <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-wider">
+                            <span className="text-[#2E2F7F] dark:text-indigo-400 font-black mr-2">Interprétation :</span>
                             Chaque barre représente la progression d'un indicateur spécifique. Les barres sombres et dorées alternées permettent de visualiser l'écart restant jusqu'à la cible de 100%.
                         </p>
                     </div>
@@ -202,19 +214,19 @@ const Indicators = () => {
                         />
                     </div>
 
-                    <span className="text-sm bg-[#2E2F7F] text-white px-4 py-1.5 rounded-full font-black uppercase tracking-widest shadow-md whitespace-nowrap">{filteredKpis.length} Identifiés</span>
+                    <span className="text-[10px] bg-[#2E2F7F] text-white px-4 py-1.5 rounded-full font-black uppercase tracking-widest shadow-md whitespace-nowrap">{filteredKpis.length} Identifiés</span>
                 </div>
                 <div className="overflow-x-auto max-h-[550px] overflow-y-auto custom-scrollbar relative">
                     <table className="w-full text-left min-w-[1200px]">
                         <thead>
                             <tr className="sticky top-0 z-10 bg-[#F1F3F5] dark:bg-slate-800 shadow-sm">
-                                <th className="px-4 py-3 text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Indicateur</th>
-                                <th className="px-4 py-3 text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Projet</th>
-                                <th className="px-4 py-3 text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Réf.</th>
-                                <th className="px-4 py-3 text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Cible</th>
-                                <th className="px-4 py-3 text-xs font-black text-[#F7931E] uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Atteint</th>
-                                <th className="px-4 py-3 text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Fréquence</th>
-                                <th className="px-4 py-3 text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Responsable</th>
+                                <th className="px-4 py-3 text-[9px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Indicateur</th>
+                                <th className="px-4 py-3 text-[9px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Projet</th>
+                                <th className="px-4 py-3 text-[9px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Réf.</th>
+                                <th className="px-4 py-3 text-[9px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Cible</th>
+                                <th className="px-4 py-3 text-[9px] font-black text-[#F7931E] uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Atteint</th>
+                                <th className="px-4 py-3 text-[9px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Fréquence</th>
+                                <th className="px-4 py-3 text-[9px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">Responsable</th>
                             </tr>
                         </thead>
                         <tbody className="text-base">
@@ -260,41 +272,62 @@ const Indicators = () => {
 
                 {/* Pagination Footer */}
                 {totalPages > 1 && (
-                    <div className="p-8 border-t border-gray-50 bg-[#FBFBFB]/50 flex items-center justify-between">
-                        <p className="text-xs font-black text-slate-500 uppercase tracking-widest">
-                            Page {currentPage} sur {totalPages} • {filteredKpis.length} Indicateurs
-                        </p>
-                        <div className="flex gap-2">
+                    <div className="p-8 border-t border-gray-50 dark:border-slate-800 bg-[#FBFBFB]/50 dark:bg-slate-900/50 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-3 bg-white dark:bg-white/5 px-6 py-3 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm">
+                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Page</span>
+                            <span className="text-xs font-black text-[#2E2F7F] dark:text-white bg-[#2E2F7F]/5 dark:bg-indigo-900/20 px-3 py-1 rounded-lg border border-[#2E2F7F]/10">{currentPage}</span>
+                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">sur</span>
+                            <span className="text-xs font-black text-slate-900 dark:text-white">{totalPages}</span>
+                            <div className="w-1 h-4 bg-gray-200 dark:bg-slate-700 mx-2"></div>
+                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{filteredKpis.length} Indicateurs</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
                             <button 
-                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                onClick={() => {
+                                    setCurrentPage(prev => Math.max(1, prev - 1));
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
                                 disabled={currentPage === 1}
-                                className="px-5 py-3 rounded-xl bg-white border border-gray-100 text-[#2E2F7F] text-xs font-black uppercase tracking-widest hover:bg-[#2E2F7F] hover:text-white disabled:opacity-30 transition-all shadow-sm flex items-center gap-2"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-[#2E2F7F] dark:text-white disabled:opacity-20 hover:bg-gray-50 dark:hover:bg-slate-700 transition-all active:scale-90 shadow-sm"
                             >
-                                <span className="material-symbols-outlined text-base">chevron_left</span>
-                                Précédent
+                                <span className="material-symbols-outlined text-base font-black">chevron_left</span>
                             </button>
-                            <div className="flex gap-1">
-                                {[...Array(totalPages)].map((_, i) => (
-                                    <button 
-                                        key={i + 1}
-                                        onClick={() => setCurrentPage(i + 1)}
-                                        className={`w-10 h-10 rounded-xl text-xs font-black transition-all ${
-                                            currentPage === i + 1 
-                                            ? 'bg-[#2E2F7F] text-white shadow-lg' 
-                                            : 'bg-white border border-gray-100 text-slate-400 hover:bg-gray-50'
-                                        }`}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                ))}
+
+                            <div className="flex items-center gap-1 mx-2">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                    .filter(p => p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1))
+                                    .map((p, i, arr) => (
+                                        <div key={p} className="flex items-center gap-1">
+                                            {i > 0 && arr[i-1] !== p - 1 && (
+                                                <span className="text-slate-300 dark:text-slate-700 font-black px-1">...</span>
+                                            )}
+                                            <button 
+                                                onClick={() => {
+                                                    setCurrentPage(p);
+                                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                }}
+                                                className={`w-10 h-10 rounded-xl text-[10px] font-black transition-all active:scale-90 ${
+                                                    currentPage === p 
+                                                    ? 'bg-[#2E2F7F] text-white shadow-lg shadow-[#2E2F7F]/20' 
+                                                    : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/5'
+                                                }`}
+                                            >
+                                                {p}
+                                            </button>
+                                        </div>
+                                    ))}
                             </div>
+
                             <button 
-                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                onClick={() => {
+                                    setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
                                 disabled={currentPage === totalPages}
-                                className="px-5 py-3 rounded-xl bg-white border border-gray-100 text-[#2E2F7F] text-xs font-black uppercase tracking-widest hover:bg-[#2E2F7F] hover:text-white disabled:opacity-30 transition-all shadow-sm flex items-center gap-2"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-[#2E2F7F] dark:text-white disabled:opacity-20 hover:bg-gray-50 dark:hover:bg-slate-700 transition-all active:scale-90 shadow-sm"
                             >
-                                Suivant
-                                <span className="material-symbols-outlined text-base">chevron_right</span>
+                                <span className="material-symbols-outlined text-base font-black">chevron_right</span>
                             </button>
                         </div>
                     </div>

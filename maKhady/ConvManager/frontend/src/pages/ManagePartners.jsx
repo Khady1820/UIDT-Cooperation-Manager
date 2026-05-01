@@ -183,20 +183,20 @@ const ManagePartners = () => {
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-4 mb-2">
                         <button 
-                            onClick={() => navigate('/dashboard')}
+                            onClick={() => navigate(-1)}
                             className="group flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-150 active:scale-95"
                         >
                             <span className="material-symbols-outlined text-[#2E2F7F] dark:text-white group-hover:scale-110 transition-transform duration-150 text-sm">arrow_back</span>
                             <span className="text-[9px] font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest">Retour</span>
                         </button>
                         <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
-                        <h1 className="text-xl font-black text-surface-900 dark:text-white tracking-tight uppercase tracking-widest">{t('manage_partners')}</h1>
+                        <h1 className="text-lg font-black text-surface-900 dark:text-white tracking-tight uppercase tracking-widest">{t('manage_partners')}</h1>
                     </div>
-                    <p className="text-surface-500 dark:text-slate-400 font-medium italic">Gestion du réseau institutionnel et des institutions partenaires.</p>
+                    <p className="text-[9px] text-surface-500 dark:text-slate-400 font-bold uppercase tracking-wider italic">Gestion du réseau institutionnel et des institutions partenaires.</p>
                 </div>
                 <button 
                     onClick={() => handleOpenModal()}
-                    className="flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-[#1a1b5c] transition-all shadow-lg active:scale-95"
+                    className="flex items-center gap-2 px-7 py-3.5 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#1a1b5c] transition-all shadow-lg active:scale-95"
                 >
                     <Plus className="w-5 h-5" />
                     Ajouter un Partenaire

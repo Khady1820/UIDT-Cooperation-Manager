@@ -84,6 +84,7 @@ const translations = {
         'status_en_attente': 'En attente',
         'status_en_cours': 'En cours de validation',
         'status_termine': 'Terminé',
+        'status_valide_chef_division': 'Visa Chef de Division',
         'status_rejete': 'Rejeté',
         
         // Institutional Table Fields
@@ -189,6 +190,7 @@ const translations = {
         'status_en_attente': 'Pending',
         'status_en_cours': 'In Validation',
         'status_termine': 'Completed',
+        'status_valide_chef_division': 'Division Chief Visa',
         'status_rejete': 'Rejected',
 
         // Institutional Table Fields

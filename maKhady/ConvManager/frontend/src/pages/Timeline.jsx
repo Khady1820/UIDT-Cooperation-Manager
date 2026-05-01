@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 
 const Timeline = () => {
+    const navigate = useNavigate();
     const [logs, setLogs] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('all');
@@ -87,20 +89,20 @@ const Timeline = () => {
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-4 mb-2">
                         <button 
-                            onClick={() => navigate('/dashboard')}
+                            onClick={() => navigate(-1)}
                             className="group flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-150 active:scale-95"
                         >
                             <span className="material-symbols-outlined text-[#2E2F7F] dark:text-white group-hover:scale-110 transition-transform duration-150 text-sm">arrow_back</span>
                             <span className="text-[9px] font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest">Retour</span>
                         </button>
                         <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
-                        <h1 className="text-xl font-black text-slate-900 tracking-tight uppercase tracking-widest">{t('timeline')}</h1>
+                        <h1 className="text-lg font-black text-slate-900 tracking-tight uppercase tracking-widest">{t('timeline')}</h1>
                     </div>
                     <div className="flex items-center gap-6">
-                        <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center shadow-xl shadow-slate-900/20">
-                            <span className="material-symbols-outlined text-white text-2xl">account_tree</span>
+                        <div className="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center shadow-xl shadow-slate-900/20">
+                            <span className="material-symbols-outlined text-white text-xl">account_tree</span>
                         </div>
-                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.3em] mt-1 italic">{t('institutional_sub')}</p>
+                        <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.3em] mt-1 italic">{t('institutional_sub')}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -116,9 +118,9 @@ const Timeline = () => {
                     </div>
                     <button 
                         onClick={fetchLogs}
-                        className="flex items-center gap-3 px-6 py-4 text-sm font-black text-slate-900 uppercase tracking-widest bg-slate-50 hover:bg-slate-100 rounded-xl transition-all border border-slate-100 active:scale-95 shadow-sm"
+                        className="flex items-center gap-3 px-6 py-3.5 text-[10px] font-black text-slate-900 uppercase tracking-widest bg-slate-50 hover:bg-slate-100 rounded-xl transition-all border border-slate-100 active:scale-95 shadow-sm"
                     >
-                        <span className="material-symbols-outlined text-[18px]">refresh</span>
+                        <span className="material-symbols-outlined text-[16px]">refresh</span>
                         Actualiser
                     </button>
                 </div>
@@ -232,50 +234,62 @@ const Timeline = () => {
 
             {/* Pagination Footer */}
             {totalPages > 1 && (
-                <div className="flex items-center justify-between bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm mt-10">
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                        Page {currentPage} sur {totalPages} • {filteredLogs.length} Activités
-                    </p>
-                    <div className="flex items-center gap-4">
+                <div className="flex flex-col md:flex-row items-center justify-between bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm mt-12 gap-6">
+                    <div className="flex items-center gap-3 bg-slate-50 dark:bg-white/5 px-6 py-3 rounded-2xl border border-slate-100 dark:border-white/10">
+                        <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Page</span>
+                        <span className="text-xs font-black text-slate-900 dark:text-white bg-white dark:bg-slate-800 px-3 py-1 rounded-lg shadow-sm border border-slate-100 dark:border-slate-700">{currentPage}</span>
+                        <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">sur</span>
+                        <span className="text-xs font-black text-slate-900 dark:text-white">{totalPages}</span>
+                        <div className="w-1 h-4 bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                        <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em]">{filteredLogs.length} Activités</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
                         <button 
                             onClick={() => {
                                 setCurrentPage(prev => Math.max(1, prev - 1));
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                             }}
                             disabled={currentPage === 1}
-                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 disabled:opacity-20 hover:gap-3 transition-all"
+                            className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-900 dark:text-white disabled:opacity-20 hover:bg-slate-50 dark:hover:bg-white/5 transition-all active:scale-90 shadow-sm"
                         >
-                            <span className="material-symbols-outlined text-base">chevron_left</span>
-                            Précédent
+                            <span className="material-symbols-outlined">chevron_left</span>
                         </button>
-                        <div className="flex gap-1.5 px-4 border-x border-slate-100">
-                            {[...Array(totalPages)].map((_, i) => (
-                                <button 
-                                    key={i + 1}
-                                    onClick={() => {
-                                        setCurrentPage(i + 1);
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                    }}
-                                    className={`w-10 h-10 rounded-lg text-[10px] font-black transition-all ${
-                                        currentPage === i + 1 
-                                        ? 'bg-slate-900 text-white shadow-xl' 
-                                        : 'text-slate-400 hover:bg-slate-50'
-                                    }`}
-                                >
-                                    {i + 1}
-                                </button>
-                            ))}
+
+                        <div className="flex items-center gap-1 mx-2">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                .filter(p => p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1))
+                                .map((p, i, arr) => (
+                                    <div key={p} className="flex items-center gap-1">
+                                        {i > 0 && arr[i-1] !== p - 1 && (
+                                            <span className="text-slate-300 dark:text-slate-700 font-black px-1">...</span>
+                                        )}
+                                        <button 
+                                            onClick={() => {
+                                                setCurrentPage(p);
+                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                            }}
+                                            className={`w-12 h-12 rounded-2xl text-[11px] font-black transition-all active:scale-90 ${
+                                                currentPage === p 
+                                                ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20 dark:bg-white dark:text-slate-900' 
+                                                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'
+                                            }`}
+                                        >
+                                            {p}
+                                        </button>
+                                    </div>
+                                ))}
                         </div>
+
                         <button 
                             onClick={() => {
                                 setCurrentPage(prev => Math.min(totalPages, prev + 1));
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                             }}
                             disabled={currentPage === totalPages}
-                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 disabled:opacity-20 hover:gap-3 transition-all"
+                            className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-900 dark:text-white disabled:opacity-20 hover:bg-slate-50 dark:hover:bg-white/5 transition-all active:scale-90 shadow-sm"
                         >
-                            Suivant
-                            <span className="material-symbols-outlined text-base">chevron_right</span>
+                            <span className="material-symbols-outlined">chevron_right</span>
                         </button>
                     </div>
                 </div>

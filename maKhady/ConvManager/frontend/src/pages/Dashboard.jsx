@@ -98,20 +98,20 @@ const Dashboard = () => {
             {/* Header */}
             <div className="flex justify-between items-center mb-10">
                 <div>
-                    <h1 className="text-xl font-black text-[#2E2F7F] dark:text-white tracking-tight">{t('dashboard')}</h1>
-                    <p className="text-xs font-bold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wider">{t('institutional_sub')} • {new Date().toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }).toUpperCase()}</p>
+                    <h1 className="text-lg font-black text-[#2E2F7F] dark:text-white tracking-tight uppercase tracking-widest">{t('dashboard')}</h1>
+                    <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wider italic">{t('institutional_sub')} • {new Date().toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }).toUpperCase()}</p>
                 </div>
                 <div className="flex gap-4 no-print">
                     <button 
                         onClick={() => window.print()}
-                        className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm"
+                        className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-[10px] font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm"
                     >
                         Exporter Rapport
                     </button>
                     {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
-                        <Link to="/conventions" className="px-6 py-2.5 bg-[#2E2F7F] dark:bg-indigo-600 border border-[#2E2F7F] dark:border-indigo-600 rounded-xl text-sm font-black text-white uppercase tracking-widest hover:bg-[#002b5c] dark:hover:bg-indigo-700 transition-all shadow-xl shadow-[#2E2F7F]/20 dark:shadow-indigo-600/20 flex items-center gap-2">
+                        <Link to="/conventions" className="px-6 py-2.5 bg-[#2E2F7F] dark:bg-indigo-600 border border-[#2E2F7F] dark:border-indigo-600 rounded-xl text-[11px] font-black text-white uppercase tracking-widest hover:bg-[#002b5c] dark:hover:bg-indigo-700 transition-all shadow-xl shadow-[#2E2F7F]/20 dark:shadow-indigo-600/20 flex items-center gap-2">
                             NOUVEAU PROJET
-                            <span className="material-symbols-outlined text-[16px]">add</span>
+                            <span className="material-symbols-outlined text-[14px]">add</span>
                         </Link>
                     )}
                 </div>
@@ -228,14 +228,14 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="h-[350px] w-full">
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={1}>
+                        <ResponsiveContainer width="100%" height={350} minWidth={0} minHeight={0}>
                             <PieChart>
                                 <Pie
                                     data={stats.status_distribution}
                                     cx="40%"
                                     cy="50%"
-                                    innerRadius={80}
-                                    outerRadius={120}
+                                    innerRadius={60}
+                                    outerRadius={100}
                                     paddingAngle={8}
                                     dataKey="count"
                                     nameKey="status"

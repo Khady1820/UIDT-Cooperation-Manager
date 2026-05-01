@@ -178,10 +178,11 @@ const Login = () => {
                                     <input
                                         required
                                         type="email"
+                                        autoComplete="off"
                                         className="w-full bg-white border-2 border-gray-200 focus:border-black focus:ring-8 focus:ring-black/5 rounded-2xl px-6 py-6 text-base font-black text-black outline-none transition-all shadow-sm group-hover:shadow-md"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="admin@uidt.sn"
+                                        placeholder="votre.identifiant@uidt.sn"
                                     />
                                     <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-20 group-focus-within:opacity-100 transition-opacity">
                                         <span className="material-symbols-outlined text-[20px] text-[#2E2F7F]">alternate_email</span>

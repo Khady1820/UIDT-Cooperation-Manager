@@ -33,6 +33,14 @@ class User extends Authenticatable
         return $this->hasMany(ConventionLog::class);
     }
 
+    public function hasRole($roleName)
+    {
+        if (!$this->role) {
+            $this->load('role');
+        }
+        return $this->role && $this->role->name === $roleName;
+    }
+
     /**
      * Get the attributes that should be cast.
      *

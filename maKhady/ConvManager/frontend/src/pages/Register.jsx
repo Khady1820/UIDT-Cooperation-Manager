@@ -103,10 +103,11 @@ const Register = () => {
                                 <input
                                     type="email"
                                     required
+                                    autoComplete="off"
                                     className="w-full bg-white border-2 border-gray-200 focus:border-black focus:ring-8 focus:ring-black/5 rounded-2xl px-6 py-4 text-base font-black text-black outline-none transition-all shadow-sm"
                                     value={formData.email}
                                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                    placeholder="nom@uidt.sn"
+                                    placeholder="votre.email@uidt.sn"
                                 />
                             </div>
 

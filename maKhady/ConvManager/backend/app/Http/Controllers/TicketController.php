@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Auth;
 
 class TicketController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Seul l'admin ou le staff peut voir tous les tickets
-        if (!Auth::user()->hasRole('admin')) {
+        // Protected by middleware, but adding direct check for safety
+        if ($request->user()->role->name !== 'admin') {
             return response()->json(['message' => 'Non autorisé'], 403);
         }
 
@@ -28,7 +28,7 @@ class TicketController extends Controller
         ]);
 
         $ticket = Ticket::create([
-            'user_id' => Auth::id(),
+            'user_id' => $request->user()->id,
             'type' => $request->type,
             'subject' => $request->subject,
             'message' => $request->message,
@@ -42,12 +42,13 @@ class TicketController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $ticket = Ticket::with('user')->findOrFail($id);
         
+        $user = $request->user();
         // Un utilisateur ne peut voir que ses propres tickets, sauf s'il est admin
-        if (!Auth::user()->hasRole('admin') && $ticket->user_id !== Auth::id()) {
+        if ($user->role->name !== 'admin' && $ticket->user_id !== $user->id) {
             return response()->json(['message' => 'Non autorisé'], 403);
         }
 
@@ -56,7 +57,8 @@ class TicketController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->hasRole('admin')) {
+        // Protected by middleware
+        if ($request->user()->role->name !== 'admin') {
             return response()->json(['message' => 'Non autorisé'], 403);
         }
 
@@ -69,9 +71,10 @@ class TicketController extends Controller
         ]);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        if (!Auth::user()->hasRole('admin')) {
+        // Protected by middleware
+        if ($request->user()->role->name !== 'admin') {
             return response()->json(['message' => 'Non autorisé'], 403);
         }
 
@@ -79,8 +82,8 @@ class TicketController extends Controller
         return response()->json(['message' => 'Ticket supprimé']);
     }
 
-    public function myTickets()
+    public function myTickets(Request $request)
     {
-        return Ticket::where('user_id', Auth::id())->latest()->get();
+        return Ticket::where('user_id', $request->user()->id)->latest()->get();
     }
 }

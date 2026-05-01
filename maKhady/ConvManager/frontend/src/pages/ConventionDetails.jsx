@@ -305,7 +305,7 @@ const ConventionDetails = () => {
     );
     
     if (!convention) return (
-        <div className="p-20 text-center bg-white rounded-3xl shadow-sm border border-gray-100 italic text-slate-600">
+        <div className="p-20 text-center bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 italic text-slate-600 dark:text-slate-400">
             Dossier introuvable ou archivé.
         </div>
     );
@@ -363,25 +363,25 @@ const ConventionDetails = () => {
             <div className="flex items-center gap-4 no-print">
                 <button 
                     onClick={() => navigate(-1)}
-                    className="group flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm hover:bg-gray-50 transition-all"
+                    className="group flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700 transition-all"
                 >
-                    <span className="material-symbols-outlined text-slate-600 group-hover:text-[#2E2F7F] transition-colors">arrow_back</span>
-                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#2E2F7F] transition-colors">Retour</span>
+                    <span className="material-symbols-outlined text-slate-600 dark:text-slate-400 group-hover:text-[#2E2F7F] dark:group-hover:text-indigo-400 transition-colors">arrow_back</span>
+                    <span className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest group-hover:text-[#2E2F7F] dark:group-hover:text-indigo-400 transition-colors">Retour</span>
                 </button>
-                <div className="h-4 w-px bg-gray-200"></div>
+                <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
                 <button 
                     onClick={() => window.print()}
-                    className="group flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm hover:bg-gray-50 transition-all text-[#2E2F7F]"
+                    className="group flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700 transition-all text-[#2E2F7F] dark:text-indigo-400"
                 >
                     <span className="material-symbols-outlined text-sm">print</span>
                     <span className="text-[10px] font-black uppercase tracking-widest">Imprimer Fiche</span>
                 </button>
-                <div className="h-4 w-px bg-gray-200"></div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Détails du Dossier</p>
+                <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
+                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Détails du Dossier</p>
             </div>
 
             {/* Action Bar / Status */}
-            <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-8 bg-gradient-to-r from-white to-gray-50/50">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-8 bg-gradient-to-r from-white to-gray-50/50 dark:from-slate-900 dark:to-slate-800">
                 <div className="flex items-center gap-6">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
@@ -441,7 +441,7 @@ const ConventionDetails = () => {
             </div>
 
             {/* Workflow Progress Bar */}
-            <div className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-800">
                 <div className="flex justify-between relative">
                     <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-50 -translate-y-1/2 z-0"></div>
                     <div 
@@ -455,11 +455,11 @@ const ConventionDetails = () => {
                         
                         return (
                             <div key={`step-${s.id || idx}`} className="relative z-10 flex flex-col items-center gap-4">
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${isDone ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : isCurrent ? 'bg-[#2E2F7F] text-white shadow-2xl shadow-[#2E2F7F]/30 scale-125' : 'bg-white border-4 border-gray-50 text-gray-200'}`}>
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${isDone ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : isCurrent ? 'bg-[#2E2F7F] dark:bg-indigo-600 text-white shadow-2xl shadow-[#2E2F7F]/30 scale-125' : 'bg-white dark:bg-slate-800 border-4 border-gray-50 dark:border-slate-700 text-gray-200 dark:text-slate-700'}`}>
                                     <span className="material-symbols-outlined text-[24px]">{isDone ? 'check' : s.icon}</span>
                                 </div>
                                 <div className="text-center">
-                                    <p className={`text-[10px] font-black uppercase tracking-widest ${isCurrent ? 'text-[#2E2F7F]' : 'text-slate-500'}`}>{s.label}</p>
+                                    <p className={`text-[10px] font-black uppercase tracking-widest ${isCurrent ? 'text-[#2E2F7F] dark:text-indigo-400' : 'text-slate-500 dark:text-slate-500'}`}>{s.label}</p>
                                 </div>
                             </div>
                         );
@@ -483,29 +483,29 @@ const ConventionDetails = () => {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
                 {/* Details Content */}
                 <div className="lg:col-span-3 space-y-8">
-                    <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100 space-y-12">
+                    <div className="bg-white dark:bg-slate-900 p-12 rounded-[3.5rem] shadow-sm border border-gray-100 dark:border-slate-800 space-y-12">
                         <div className="grid grid-cols-3 gap-12">
                             <div className="space-y-1">
-                                <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Classification</label>
-                                <p className="text-sm font-black text-[#2E2F7F] uppercase">
+                                <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em]">Classification</label>
+                                <p className="text-sm font-black text-[#2E2F7F] dark:text-white uppercase">
                                     {convention.type === 'national' ? 'Nationale' : convention.type === 'international' ? 'Internationale' : 'Régionale'}
                                 </p>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Partenaire Stratégique</label>
-                                <p className="text-sm font-black text-[#2E2F7F]">{convention.partners || '—'}</p>
+                                <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em]">Partenaire Stratégique</label>
+                                <p className="text-sm font-black text-[#2E2F7F] dark:text-white">{convention.partners || '—'}</p>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Année de Référence</label>
-                                <p className="text-sm font-black text-[#2E2F7F]">{convention.year || '2024'}</p>
+                                <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em]">Année de Référence</label>
+                                <p className="text-sm font-black text-[#2E2F7F] dark:text-white">{convention.year || '2024'}</p>
                             </div>
                         </div>
 
-                        <div className="h-px bg-gray-50"></div>
+                        <div className="h-px bg-gray-50 dark:bg-slate-800"></div>
 
                         <div className="space-y-6">
-                            <h3 className="text-sm font-black text-[#2E2F7F] uppercase tracking-[0.2em]">Objectifs Institutionnels</h3>
-                            <p className="text-sm text-gray-500 leading-[1.8] font-medium italic bg-gray-50/30 p-8 rounded-[2.5rem] border border-gray-50 whitespace-pre-wrap">
+                            <h3 className="text-sm font-black text-[#2E2F7F] dark:text-indigo-400 uppercase tracking-[0.2em]">Objectifs Institutionnels</h3>
+                            <p className="text-sm text-gray-500 dark:text-slate-400 leading-[1.8] font-medium italic bg-gray-50/30 dark:bg-white/5 p-8 rounded-[2.5rem] border border-gray-50 dark:border-white/5 whitespace-pre-wrap">
                                 {convention.objectives || 'Aucun objectif spécifié pour le moment.'}
                             </p>
                         </div>
@@ -566,16 +566,16 @@ const ConventionDetails = () => {
                             <div className="grid grid-cols-1 gap-6">
                                 {convention.kpis?.length > 0 ? (
                                     convention.kpis.map((kpi, kIdx) => (
-                                        <div key={`kpi-${kpi.id || kIdx}`} className="bg-gray-50/50 border border-gray-100 rounded-[2rem] p-8 group hover:bg-white hover:shadow-xl transition-all">
+                                        <div key={`kpi-${kpi.id || kIdx}`} className="bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-slate-800 rounded-[2rem] p-8 group hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl transition-all">
                                             <div className="flex justify-between items-start mb-6">
                                                 <div className="space-y-1">
-                                                    <h4 className="text-sm font-black text-[#2E2F7F] uppercase tracking-tight">{kpi.name}</h4>
-                                                    <p className="text-[10px] text-slate-600 font-bold italic">"{kpi.description || 'Pas de description'}"</p>
+                                                    <h4 className="text-sm font-black text-[#2E2F7F] dark:text-white uppercase tracking-tight">{kpi.name}</h4>
+                                                    <p className="text-[10px] text-slate-600 dark:text-slate-400 font-bold italic">"{kpi.description || 'Pas de description'}"</p>
                                                 </div>
                                                 {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
                                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <button onClick={() => openKpiModal(kpi)} className="p-2 text-slate-600 hover:text-[#2E2F7F] transition-colors"><span className="material-symbols-outlined text-sm">edit</span></button>
-                                                        <button onClick={() => handleKpiDelete(kpi.id)} className="p-2 text-slate-600 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-sm">delete</span></button>
+                                                        <button onClick={() => openKpiModal(kpi)} className="p-2 text-slate-600 dark:text-slate-400 hover:text-[#2E2F7F] dark:hover:text-indigo-400 transition-colors"><span className="material-symbols-outlined text-sm">edit</span></button>
+                                                        <button onClick={() => handleKpiDelete(kpi.id)} className="p-2 text-slate-600 dark:text-slate-400 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-sm">delete</span></button>
                                                     </div>
                                                 )}
                                             </div>
@@ -596,10 +596,10 @@ const ConventionDetails = () => {
                                                         </div>
                                                         <div className="md:col-span-2">
                                                             <div className="flex justify-between items-center mb-1.5">
-                                                                <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">Progression</span>
-                                                                <span className="text-[9px] font-black text-[#2E2F7F]">{Math.min(100, Math.round((parseFloat(kpi.valeur_atteinte) / parseFloat(kpi.valeur_cible)) * 100)) || 0}%</span>
+                                                                <span className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em]">Progression</span>
+                                                                <span className="text-[9px] font-black text-[#2E2F7F] dark:text-indigo-400">{Math.min(100, Math.round((parseFloat(kpi.valeur_atteinte) / parseFloat(kpi.valeur_cible)) * 100)) || 0}%</span>
                                                             </div>
-                                                            <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                                            <div className="w-full bg-gray-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
                                                                 <motion.div 
                                                                     initial={{ width: 0 }}
                                                                     animate={{ width: `${Math.min(100, (parseFloat(kpi.valeur_atteinte) / parseFloat(kpi.valeur_cible)) * 100) || 0}%` }}
@@ -618,9 +618,9 @@ const ConventionDetails = () => {
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="py-12 text-center bg-gray-50/50 rounded-[2rem] border border-dashed border-gray-200">
-                                        <span className="material-symbols-outlined text-slate-500 text-4xl mb-4">analytics</span>
-                                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Aucun indicateur de suivi spécifique pour ce projet.</p>
+                                    <div className="py-12 text-center bg-gray-50/50 dark:bg-white/5 rounded-[2rem] border border-dashed border-gray-200 dark:border-slate-800">
+                                        <span className="material-symbols-outlined text-slate-500 dark:text-slate-600 text-4xl mb-4">analytics</span>
+                                        <p className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em]">Aucun indicateur de suivi spécifique pour ce projet.</p>
                                     </div>
                                 )}
                             </div>
@@ -628,11 +628,11 @@ const ConventionDetails = () => {
                     </div>
 
                     {/* Documents Section */}
-                    <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100">
+                    <div className="bg-white dark:bg-slate-900 p-12 rounded-[3.5rem] shadow-sm border border-gray-100 dark:border-slate-800">
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
-                                <span className="material-symbols-outlined text-[#2E2F7F]">attach_file</span>
-                                <h3 className="text-sm font-black text-[#2E2F7F] uppercase tracking-[0.2em]">Documents du Dossier</h3>
+                                <span className="material-symbols-outlined text-[#2E2F7F] dark:text-indigo-400">attach_file</span>
+                                <h3 className="text-sm font-black text-[#2E2F7F] dark:text-indigo-400 uppercase tracking-[0.2em]">Documents du Dossier</h3>
                             </div>
                             <div className="flex gap-2">
                                 {user?.role?.name === 'secretariat' && (
@@ -660,16 +660,16 @@ const ConventionDetails = () => {
                         
                         <div className="space-y-4">
                             {convention.file_path ? (
-                                <div className="group flex items-center justify-between p-6 bg-gray-50/50 rounded-3xl border border-gray-100 hover:bg-white hover:shadow-lg transition-all">
+                                <div className="group flex items-center justify-between p-6 bg-gray-50/50 dark:bg-white/5 rounded-3xl border border-gray-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:shadow-lg transition-all">
                                     <div className="flex items-center gap-6">
-                                        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform">
+                                        <div className="w-14 h-14 bg-white dark:bg-slate-700 rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm group-hover:scale-110 transition-transform">
                                             <span className="material-symbols-outlined text-3xl">
                                                 {convention.file_path.toLowerCase().endsWith('.docx') || convention.file_path.toLowerCase().endsWith('.doc') ? 'description' : 'picture_as_pdf'}
                                             </span>
                                         </div>
                                         <div>
-                                            <p className="text-xs font-black text-[#2E2F7F] uppercase tracking-tight line-clamp-1">{convention.file_path.split('/').pop()}</p>
-                                            <p className="text-[9px] font-bold text-slate-500 uppercase mt-1">
+                                            <p className="text-xs font-black text-[#2E2F7F] dark:text-white uppercase tracking-tight line-clamp-1">{convention.file_path.split('/').pop()}</p>
+                                            <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase mt-1">
                                                 Document Principal • {convention.file_path.toLowerCase().endsWith('.docx') || convention.file_path.toLowerCase().endsWith('.doc') ? 'Word' : 'PDF'}
                                             </p>
                                         </div>
@@ -703,27 +703,27 @@ const ConventionDetails = () => {
                     </div>
 
                     {/* Timeline / Audit Log */}
-                    <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100">
+                    <div className="bg-white dark:bg-slate-900 p-12 rounded-[3.5rem] shadow-sm border border-gray-100 dark:border-slate-800">
                         <div className="flex items-center gap-4 mb-12">
-                            <span className="material-symbols-outlined text-[#2E2F7F]">history_edu</span>
-                            <h3 className="text-sm font-black text-[#2E2F7F] uppercase tracking-[0.2em]">Historique de Validation (Audit)</h3>
+                            <span className="material-symbols-outlined text-[#2E2F7F] dark:text-indigo-400">history_edu</span>
+                            <h3 className="text-sm font-black text-[#2E2F7F] dark:text-indigo-400 uppercase tracking-[0.2em]">Historique de Validation (Audit)</h3>
                         </div>
                         <div className="space-y-10 relative">
-                            <div className="absolute left-[31px] top-4 bottom-4 w-px bg-gray-50"></div>
+                            <div className="absolute left-[31px] top-4 bottom-4 w-px bg-gray-50 dark:bg-slate-800"></div>
                             {(convention.logs || []).map((log, idx) => (
-                                <div key={`log-${log.id || idx}`} className="flex gap-10 items-start relative bg-white group">
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 z-10 transition-all ${idx === 0 ? 'bg-[#2E2F7F] text-white shadow-xl shadow-[#2E2F7F]/20' : 'bg-gray-50 text-slate-500 border border-gray-100'}`}>
+                                <div key={`log-${log.id || idx}`} className="flex gap-10 items-start relative bg-white dark:bg-slate-900 group">
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 z-10 transition-all ${idx === 0 ? 'bg-[#2E2F7F] dark:bg-indigo-600 text-white shadow-xl shadow-[#2E2F7F]/20' : 'bg-gray-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-gray-100 dark:border-slate-700'}`}>
                                         <span className="material-symbols-outlined text-[20px]">
                                             {log.action === 'creation' ? 'add' : log.action === 'rejet' ? 'close' : 'check'}
                                         </span>
                                     </div>
                                     <div className="flex-1 pt-3">
                                         <div className="flex justify-between items-center mb-2">
-                                            <h4 className="text-[11px] font-black text-[#2E2F7F] uppercase tracking-wider">{log.action.replace('_', ' ')}</h4>
-                                            <span className="text-[9px] font-bold text-slate-600">{format(new Date(log.created_at), 'dd/MM/yyyy HH:mm')}</span>
+                                            <h4 className="text-[11px] font-black text-[#2E2F7F] dark:text-indigo-400 uppercase tracking-wider">{log.action.replace('_', ' ')}</h4>
+                                            <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400">{format(new Date(log.created_at), 'dd/MM/yyyy HH:mm')}</span>
                                         </div>
-                                        <p className="text-xs font-bold text-gray-500">Par {log.user?.name}</p>
-                                        {log.comment && <p className="mt-3 text-[10px] text-slate-600 italic bg-gray-50/50 p-4 rounded-xl">"{log.comment}"</p>}
+                                        <p className="text-xs font-bold text-gray-500 dark:text-slate-500">Par {log.user?.name}</p>
+                                        {log.comment && <p className="mt-3 text-[10px] text-slate-600 dark:text-slate-400 italic bg-gray-50/50 dark:bg-white/5 p-4 rounded-xl">"{log.comment}"</p>}
                                     </div>
                                 </div>
                             ))}
@@ -776,7 +776,7 @@ const ConventionDetails = () => {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden border border-gray-100"
+                            className="bg-white dark:bg-slate-900 rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden border border-gray-100 dark:border-slate-800"
                         >
                             <div className={`p-10 border-b border-gray-50 flex justify-between items-center ${activeModalAction === 'reject' ? 'bg-red-50/30' : 'bg-blue-50/30'}`}>
                                 <div className="flex items-center gap-4">
@@ -806,7 +806,7 @@ const ConventionDetails = () => {
                                         </label>
                                         <textarea 
                                             required={activeModalAction !== 'sign'}
-                                            className={`w-full bg-gray-50 border-2 border-gray-100 rounded-[2rem] p-8 text-sm font-bold text-[#2E2F7F] outline-none transition-all min-h-[150px] placeholder:italic ${activeModalAction === 'reject' ? 'focus:border-red-200' : 'focus:border-blue-200'}`}
+                                            className={`w-full bg-gray-50 dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 rounded-[2rem] p-8 text-sm font-bold text-[#2E2F7F] dark:text-white outline-none transition-all min-h-[150px] placeholder:italic ${activeModalAction === 'reject' ? 'focus:border-red-200' : 'focus:border-blue-200'}`}
                                             placeholder={activeModalAction === 'reject' ? "Veuillez spécifier les corrections nécessaires..." : 
                                                          activeModalAction === 'sign' ? "Ajouter une note finale avant l'archivage..." : 
                                                          "Détaillez votre avis sur la pertinence et cohérence..."}
@@ -850,19 +850,19 @@ const ConventionDetails = () => {
                             initial={{ opacity: 0, scale: 0.95, y: 30 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                            className="bg-white rounded-[3rem] shadow-2xl w-full max-w-3xl overflow-hidden border border-gray-100 flex flex-col"
+                            className="bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl w-full max-w-3xl overflow-hidden border border-gray-100 dark:border-slate-800 flex flex-col"
                         >
-                            <div className="p-10 border-b border-gray-50 flex justify-between items-center bg-[#FBFBFB]">
+                            <div className="p-10 border-b border-gray-50 dark:border-slate-800 flex justify-between items-center bg-[#FBFBFB] dark:bg-slate-800/50">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-[#2E2F7F] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#2E2F7F]/20">
+                                    <div className="w-12 h-12 bg-[#2E2F7F] dark:bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#2E2F7F]/20">
                                         <span className="material-symbols-outlined">{editingKpi ? 'edit_note' : 'add_chart'}</span>
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-black text-[#2E2F7F] uppercase tracking-tight">{editingKpi ? 'Modifier l’Indicateur' : 'Nouvel Indicateur de Performance'}</h2>
+                                        <h2 className="text-xl font-black text-[#2E2F7F] dark:text-white uppercase tracking-tight">{editingKpi ? 'Modifier l’Indicateur' : 'Nouvel Indicateur de Performance'}</h2>
                                         <p className="text-[9px] font-black text-[#F7931E] uppercase tracking-widest mt-1">Saisie des métriques stratégiques</p>
                                     </div>
                                 </div>
-                                <button onClick={() => setIsKpiModalOpen(false)} className="w-10 h-10 flex items-center justify-center hover:bg-red-50 hover:text-red-500 rounded-full transition-all text-slate-500">
+                                <button onClick={() => setIsKpiModalOpen(false)} className="w-10 h-10 flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 rounded-full transition-all text-slate-500 dark:text-slate-400">
                                     <span className="material-symbols-outlined">close</span>
                                 </button>
                             </div>
@@ -870,11 +870,11 @@ const ConventionDetails = () => {
                             <form onSubmit={handleKpiSave} className="p-10 space-y-8 overflow-y-auto max-h-[70vh] custom-scrollbar">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="md:col-span-2 space-y-2">
-                                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Nom de l’indicateur</label>
+                                        <label className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-1">Nom de l’indicateur</label>
                                         <input 
                                             required
                                             type="text"
-                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#2E2F7F] outline-none focus:border-[#2E2F7F]/10 transition-all"
+                                            className="w-full bg-gray-50 dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 rounded-2xl px-6 py-4 text-sm font-bold text-[#2E2F7F] dark:text-white outline-none focus:border-[#2E2F7F]/10 transition-all"
                                             placeholder="Ex : Taux de réussite des étudiants en mobilité"
                                             value={kpiFormData.name}
                                             onChange={(e) => setKpiFormData({...kpiFormData, name: e.target.value})}
@@ -882,9 +882,9 @@ const ConventionDetails = () => {
                                     </div>
 
                                     <div className="md:col-span-2 space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description / Observations</label>
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest ml-1">Description / Observations</label>
                                         <textarea 
-                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold text-[#2E2F7F] outline-none focus:border-[#2E2F7F]/10 transition-all min-h-[80px]"
+                                            className="w-full bg-gray-50 dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 rounded-2xl px-6 py-4 text-sm font-bold text-[#2E2F7F] dark:text-white outline-none focus:border-[#2E2F7F]/10 transition-all min-h-[80px]"
                                             placeholder="Détails sur la méthode de calcul ou le contexte..."
                                             value={kpiFormData.description}
                                             onChange={(e) => setKpiFormData({...kpiFormData, description: e.target.value})}
@@ -985,32 +985,32 @@ const ConventionDetails = () => {
                             initial={{ opacity: 0, scale: 0.9, y: 30 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                            className="relative z-[130] w-full max-w-4xl bg-white rounded-[3rem] shadow-[0_50px_150px_rgba(0,0,0,0.3)] border border-gray-100 flex flex-col overflow-hidden max-h-[90vh]"
+                            className="relative z-[130] w-full max-w-4xl bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_50px_150px_rgba(0,0,0,0.3)] border border-gray-100 dark:border-slate-800 flex flex-col overflow-hidden max-h-[90vh]"
                         >
-                            <div className="p-10 border-b border-gray-50 bg-[#FBFBFB] flex justify-between items-center">
+                            <div className="p-10 border-b border-gray-50 dark:border-slate-800 bg-[#FBFBFB] dark:bg-slate-800/50 flex justify-between items-center">
                                 <div>
-                                    <h2 className="text-2xl font-black text-[#2E2F7F] tracking-tight uppercase">
+                                    <h2 className="text-2xl font-black text-[#2E2F7F] dark:text-white tracking-tight uppercase">
                                         {user?.role?.name === 'secretariat' ? 'ARCHIVAGE DU DOSSIER' : 'ÉDITION DU DOSSIER'}
                                     </h2>
                                     <p className="text-[10px] font-black text-[#F7931E] uppercase tracking-[0.3em] mt-1">
                                         {user?.role?.name === 'secretariat' ? 'Mise en ligne du scan final' : 'Mise à jour des informations et documents'}
                                     </p>
                                 </div>
-                                <button onClick={() => setIsEditModalOpen(false)} className="w-12 h-12 flex items-center justify-center bg-white hover:bg-red-50 hover:text-red-500 rounded-2xl transition-all text-slate-500 border border-gray-100">
+                                <button onClick={() => setIsEditModalOpen(false)} className="w-12 h-12 flex items-center justify-center bg-white dark:bg-slate-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 rounded-2xl transition-all text-slate-500 dark:text-slate-400 border border-gray-100 dark:border-slate-600">
                                     <span className="material-symbols-outlined">close</span>
                                 </button>
                             </div>
 
                             <form onSubmit={handleEditSave} className="p-12 space-y-8 overflow-y-auto custom-scrollbar">
                                 <div className="space-y-6">
-                                    <div className="bg-amber-50/50 p-8 rounded-[2rem] border border-amber-100/50 mb-6">
+                                    <div className="bg-amber-50/50 dark:bg-amber-900/10 p-8 rounded-[2rem] border border-amber-100/50 dark:border-amber-900/20 mb-6">
                                         <div className="flex items-start gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-amber-600 shadow-sm">
+                                            <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-sm">
                                                 <span className="material-symbols-outlined">info</span>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest mb-1">Mise à jour du document</p>
-                                                <p className="text-[9px] font-bold text-amber-700/70 leading-relaxed uppercase tracking-wider">
+                                                <p className="text-[10px] font-black text-amber-800 dark:text-amber-200 uppercase tracking-widest mb-1">Mise à jour du document</p>
+                                                <p className="text-[9px] font-bold text-amber-700/70 dark:text-amber-400/60 leading-relaxed uppercase tracking-wider">
                                                     Vous pouvez modifier le document joint (Word, PDF) en téléchargeant la version corrigée. 
                                                     Les informations d'identité du dossier restent figées.
                                                 </p>
@@ -1018,7 +1018,7 @@ const ConventionDetails = () => {
                                         </div>
                                     </div>
 
-                                    <div className="p-10 bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2.5rem] flex flex-col items-center justify-center group hover:border-amber-300 transition-all">
+                                    <div className="p-10 bg-gray-50 dark:bg-slate-800/50 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-[2.5rem] flex flex-col items-center justify-center group hover:border-amber-300 transition-all">
                                         <input 
                                             type="file" 
                                             id="dossier-file-update"
@@ -1030,20 +1030,20 @@ const ConventionDetails = () => {
                                             htmlFor="dossier-file-update"
                                             className="cursor-pointer flex flex-col items-center"
                                         >
-                                            <div className="w-20 h-20 bg-white rounded-[2rem] shadow-xl shadow-amber-500/10 flex items-center justify-center text-amber-500 mb-6 group-hover:scale-110 transition-transform">
+                                            <div className="w-20 h-20 bg-white dark:bg-slate-700 rounded-[2rem] shadow-xl shadow-amber-500/10 flex items-center justify-center text-amber-500 mb-6 group-hover:scale-110 transition-transform">
                                                 <span className="material-symbols-outlined text-4xl">upload_file</span>
                                             </div>
-                                            <p className="text-sm font-black text-[#2E2F7F] uppercase tracking-widest">
+                                            <p className="text-sm font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest">
                                                 {selectedFile ? selectedFile.name : (user?.role?.name === 'secretariat' ? 'DÉPOSER LE SCAN FINAL' : 'Charger la version Word corrigée')}
                                             </p>
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-2 italic">Format PDF ou Word supportés</p>
+                                            <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-2 italic">Format PDF ou Word supportés</p>
                                         </label>
                                     </div>
 
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Observations internes (Optionnel)</label>
+                                        <label className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-1">Observations internes (Optionnel)</label>
                                         <textarea 
-                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-6 text-sm font-bold text-[#2E2F7F] outline-none focus:border-[#2E2F7F]/20 transition-all min-h-[100px]"
+                                            className="w-full bg-gray-50 dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 rounded-2xl p-6 text-sm font-bold text-[#2E2F7F] dark:text-white outline-none focus:border-[#2E2F7F]/20 transition-all min-h-[100px]"
                                             placeholder="Notes sur les modifications apportées..."
                                             value={editFormData.observations}
                                             onChange={(e) => setEditFormData({ ...editFormData, observations: e.target.value })}
@@ -1052,19 +1052,19 @@ const ConventionDetails = () => {
                                 </div>
 
                                 {user?.role?.name === 'secretariat' && (
-                                    <div className="p-8 px-10 bg-amber-50/50 border-y border-amber-100/50">
+                                    <div className="p-8 px-10 bg-amber-50/50 dark:bg-amber-900/10 border-y border-amber-100/50 dark:border-amber-900/20">
                                         <label className="flex items-start gap-4 cursor-pointer group">
                                             <div className="pt-1">
                                                 <input 
                                                     type="checkbox" 
                                                     checked={hasStamp}
                                                     onChange={(e) => setHasStamp(e.target.checked)}
-                                                    className="w-6 h-6 rounded-lg border-amber-300 text-amber-600 focus:ring-amber-500 transition-all cursor-pointer" 
+                                                    className="w-6 h-6 rounded-lg border-amber-300 dark:border-amber-800 text-amber-600 dark:text-amber-500 focus:ring-amber-500 transition-all cursor-pointer bg-white dark:bg-slate-800" 
                                                 />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-sm font-black text-amber-900 uppercase tracking-tight">Validation du Cachet Institutionnel</p>
-                                                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest mt-1 leading-relaxed">
+                                                <p className="text-sm font-black text-amber-900 dark:text-amber-200 uppercase tracking-tight">Validation du Cachet Institutionnel</p>
+                                                <p className="text-[10px] font-bold text-amber-700 dark:text-amber-400/60 uppercase tracking-widest mt-1 leading-relaxed">
                                                     Je certifie avoir apposé le cachet officiel de l'UIDT sur le document physique avant le scan.
                                                 </p>
                                             </div>
@@ -1072,18 +1072,18 @@ const ConventionDetails = () => {
                                     </div>
                                 )}
 
-                                <div className="p-8 px-10 flex justify-end gap-4 bg-gray-50/30">
+                                <div className="p-8 px-10 flex justify-end gap-4 bg-gray-50/30 dark:bg-slate-800/50">
                                     <button 
                                         type="button"
                                         onClick={() => setIsEditModalOpen(false)}
-                                        className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest"
+                                        className="px-8 py-4 text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest"
                                     >
                                         Annuler
                                     </button>
                                     <button 
                                         type="submit"
                                         disabled={(!selectedFile && !submitting) || (user?.role?.name === 'secretariat' && !hasStamp)}
-                                        className="px-12 py-5 bg-[#2E2F7F] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#2E2F7F]/20 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
+                                        className="px-12 py-5 bg-[#2E2F7F] dark:bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#2E2F7F]/20 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
                                     >
                                         {submitting ? 'Enregistrement...' : (user?.role?.name === 'secretariat' ? 'ARCHIVER LE DOCUMENT SCANNÉ' : 'Valider la nouvelle version')}
                                     </button>

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Partenaire;
 use App\Models\Convention;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
@@ -14,6 +15,7 @@ class AdminDashboardController extends Controller
         $totalUsers = User::count();
         $totalPartners = Partenaire::count();
         $totalArchives = Convention::where('status', 'archive')->count();
+        $totalConventions = Convention::count();
         
         $recentLogins = User::with('role')
             ->whereNotNull('last_login_at')
@@ -21,7 +23,7 @@ class AdminDashboardController extends Controller
             ->take(10)
             ->get();
 
-        $statusDistribution = Convention::select('status', \DB::raw('count(*) as count'))
+        $statusDistribution = Convention::select('status', DB::raw('count(*) as count'))
             ->groupBy('status')
             ->get();
 
@@ -31,12 +33,19 @@ class AdminDashboardController extends Controller
             ->with('user')
             ->get();
 
+        $rolesDistribution = User::join('roles', 'users.role_id', '=', 'roles.id')
+            ->select('roles.name', DB::raw('count(*) as count'))
+            ->groupBy('roles.name')
+            ->get();
+
         return response()->json([
             'total_users' => $totalUsers,
             'total_partners' => $totalPartners,
+            'total_conventions' => $totalConventions,
             'total_archives' => $totalArchives,
             'recent_logins' => $recentLogins,
             'status_distribution' => $statusDistribution,
+            'roles_distribution' => $rolesDistribution,
             'upcoming_deadlines' => $upcomingDeadlines
         ]);
     }

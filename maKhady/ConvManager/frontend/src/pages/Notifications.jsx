@@ -50,20 +50,28 @@ const Notifications = () => {
     const getIcon = (status) => {
         switch (status) {
             case 'soumis': return 'assignment';
-            case 'valide_dir': return 'task_alt';
+            case 'valide_chef_division': return 'fact_check';
+            case 'valide_dir_initial': return 'task_alt';
+            case 'valide_juridique': return 'gavel';
+            case 'pret_pour_signature': return 'draw';
             case 'termine': return 'verified';
             case 'brouillon': return 'error_outline';
+            case 'rejete': return 'cancel';
             default: return 'notifications';
         }
     };
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'soumis': return 'text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20';
-            case 'valide_dir': return 'text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20';
-            case 'termine': return 'text-emerald-500 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20';
-            case 'brouillon': return 'text-rose-500 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20';
-            default: return 'text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-800';
+            case 'soumis': return 'text-blue-500 bg-blue-50 dark:bg-blue-900/20';
+            case 'valide_chef_division': return 'text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20';
+            case 'valide_dir_initial': return 'text-amber-500 bg-amber-50 dark:bg-amber-900/20';
+            case 'valide_juridique': return 'text-cyan-500 bg-cyan-50 dark:bg-cyan-900/20';
+            case 'pret_pour_signature': return 'text-purple-500 bg-purple-50 dark:bg-purple-900/20';
+            case 'termine': return 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20';
+            case 'brouillon':
+            case 'rejete': return 'text-rose-500 bg-rose-50 dark:bg-rose-900/20';
+            default: return 'text-gray-500 bg-gray-50 dark:bg-slate-800';
         }
     };
 

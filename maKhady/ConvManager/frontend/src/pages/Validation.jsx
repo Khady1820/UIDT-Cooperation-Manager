@@ -82,7 +82,7 @@ const Validation = () => {
                 {user?.role?.name === 'porteur_projet' && (
                     <button 
                         onClick={() => navigate('/conventions?new=true')}
-                        className="px-8 py-4 bg-[#2E2F7F] text-white rounded-2xl text-base font-black uppercase tracking-widest hover:bg-[#002b5c] transition-all shadow-[0_20px_40px_rgba(0,29,61,0.15)] flex items-center gap-3 active:scale-95"
+                        className="px-8 py-4 bg-[#2E2F7F] text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-[#002b5c] transition-all shadow-[0_20px_40px_rgba(0,29,61,0.15)] flex items-center gap-3 active:scale-95"
                     >
                         <span className="material-symbols-outlined text-lg">add_circle</span>
                         Soumettre un nouveau Projet

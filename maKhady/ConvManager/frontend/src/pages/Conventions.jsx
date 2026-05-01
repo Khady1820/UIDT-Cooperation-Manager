@@ -478,31 +478,31 @@ const Conventions = () => {
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-4 mb-2">
                         <button 
-                            onClick={() => navigate('/dashboard')}
+                            onClick={() => navigate(-1)}
                             className="group flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-150 active:scale-95"
                         >
                             <span className="material-symbols-outlined text-[#2E2F7F] dark:text-white group-hover:scale-110 transition-transform duration-150 text-sm">arrow_back</span>
                             <span className="text-[9px] font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest">Retour</span>
                         </button>
                         <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
-                        <h1 className="text-xl font-black text-[#2E2F7F] dark:text-white tracking-tight uppercase tracking-widest">{t('conventions')}</h1>
+                        <h1 className="text-lg font-black text-[#2E2F7F] dark:text-white tracking-tight uppercase tracking-widest">{t('conventions')}</h1>
                     </div>
-                    <p className="text-xs font-bold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wider">{t('institutional_sub')} • Répertoire des Projets</p>
+                    <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wider italic">{t('institutional_sub')} • Répertoire des Projets</p>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex gap-3">
                     <button 
                         onClick={handleExport}
-                        className="px-6 py-4 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl text-[#2E2F7F] dark:text-white text-sm font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm flex items-center gap-2"
+                        className="px-6 py-3 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl text-[#2E2F7F] dark:text-white text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm flex items-center gap-2"
                         title="Exporter en CSV"
                     >
-                        <span className="material-symbols-outlined text-[18px]">download</span>
+                        <span className="material-symbols-outlined text-[16px]">download</span>
                         Exporter
                     </button>
-                    <button onClick={() => fetchConventions()} className="p-4 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl text-[#2E2F7F] dark:text-white hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm">
-                        <span className="material-symbols-outlined text-[20px] block">refresh</span>
+                    <button onClick={() => fetchConventions()} className="w-11 h-11 flex items-center justify-center bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl text-[#2E2F7F] dark:text-white hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm">
+                        <span className="material-symbols-outlined text-[18px] block">refresh</span>
                     </button>
                     {user?.role?.name === 'porteur_projet' && (
-                        <button onClick={() => openModal()} className="px-8 py-4 bg-[#2E2F7F] text-white rounded-2xl text-base font-black uppercase tracking-widest hover:bg-[#002b5c] transition-all shadow-[0_20px_40px_rgba(0,29,61,0.15)] flex items-center gap-3 active:scale-95">
+                        <button onClick={() => openModal()} className="px-7 py-3.5 bg-[#2E2F7F] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#002b5c] transition-all shadow-[0_20px_40px_rgba(0,29,61,0.15)] flex items-center gap-3 active:scale-95">
                             {t('nouvelle_convention')}
                         </button>
                     )}
@@ -519,10 +519,10 @@ const Conventions = () => {
                             placeholder={t('search')} 
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full bg-white dark:bg-white/5 border border-gray-100 dark:border-slate-700 text-[#2E2F7F] dark:text-white rounded-2xl pl-14 pr-6 py-4 text-base font-bold placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:outline-none focus:ring-8 focus:ring-[#2E2F7F]/5 focus:border-[#2E2F7F]/10 transition-all shadow-sm"
+                            className="w-full bg-white dark:bg-white/5 border border-gray-100 dark:border-slate-700 text-[#2E2F7F] dark:text-white rounded-2xl pl-14 pr-6 py-3.5 text-sm font-bold placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:outline-none focus:ring-8 focus:ring-[#2E2F7F]/5 focus:border-[#2E2F7F]/10 transition-all shadow-sm"
                         />
                     </div>
-                    <div className="flex items-center gap-2 text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest bg-gray-50 dark:bg-white/5 px-4 py-2 rounded-full border border-gray-100 dark:border-white/10">
+                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest bg-gray-50 dark:bg-white/5 px-4 py-2 rounded-full border border-gray-100 dark:border-white/10">
                         <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                         {filteredConventions.length} Projets Identifiés
                     </div>
@@ -531,7 +531,7 @@ const Conventions = () => {
                 <div className="max-h-[650px] overflow-y-auto custom-scrollbar relative">
                     <table className="w-full text-left border-separate border-spacing-0">
                         <thead className="bg-[#F8F9FA]/50 dark:bg-slate-800 backdrop-blur-sm border-b border-gray-100 dark:border-slate-700">
-                            <tr className="text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">
+                            <tr className="text-[9px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">
                                 <th className="px-4 py-6 text-left w-40 whitespace-nowrap">N° DOSSIER</th>
                                 <th className="px-4 py-6 text-left">TITRE DU PROJET / CONVENTION</th>
                                 <th className="px-4 py-6 text-left">TYPE DE COOPÉRATION</th>
@@ -636,41 +636,62 @@ const Conventions = () => {
 
                 {/* Pagination Footer */}
                 {totalPages > 1 && (
-                    <div className="p-8 border-t border-gray-50 dark:border-slate-800 bg-[#FBFBFB]/50 dark:bg-slate-900/50 flex items-center justify-between">
-                        <p className="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                            Page {currentPage} sur {totalPages} • {filteredConventions.length} Dossiers au total
-                        </p>
-                        <div className="flex items-center gap-4">
+                    <div className="p-8 border-t border-gray-50 dark:border-slate-800 bg-[#FBFBFB]/50 dark:bg-slate-900/50 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-3 bg-white dark:bg-white/5 px-6 py-3 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm">
+                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Page</span>
+                            <span className="text-xs font-black text-[#2E2F7F] dark:text-white bg-[#2E2F7F]/5 dark:bg-indigo-900/20 px-3 py-1 rounded-lg border border-[#2E2F7F]/10">{currentPage}</span>
+                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">sur</span>
+                            <span className="text-xs font-black text-slate-900 dark:text-white">{totalPages}</span>
+                            <div className="w-1 h-4 bg-gray-200 dark:bg-slate-700 mx-2"></div>
+                            <span className="text-[10px] font-black text-[#F7931E] uppercase tracking-[0.2em]">{filteredConventions.length} Dossiers</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
                             <button 
-                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                onClick={() => {
+                                    setCurrentPage(prev => Math.max(1, prev - 1));
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
                                 disabled={currentPage === 1}
-                                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#2E2F7F] disabled:opacity-20 hover:gap-3 transition-all"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-[#2E2F7F] dark:text-white disabled:opacity-20 hover:bg-gray-50 dark:hover:bg-slate-700 transition-all active:scale-90 shadow-sm"
                             >
-                                <span className="material-symbols-outlined text-base">chevron_left</span>
-                                Précédent
+                                <span className="material-symbols-outlined text-base font-black">chevron_left</span>
                             </button>
-                            <div className="flex gap-1.5 px-4 border-x border-gray-100">
-                                {[...Array(totalPages)].map((_, i) => (
-                                    <button 
-                                        key={i + 1}
-                                        onClick={() => setCurrentPage(i + 1)}
-                                        className={`w-8 h-8 rounded-lg text-[10px] font-black transition-all ${
-                                            currentPage === i + 1 
-                                            ? 'bg-[#2E2F7F] text-white shadow-lg' 
-                                            : 'text-slate-400 hover:bg-gray-50'
-                                        }`}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                ))}
+
+                            <div className="flex items-center gap-1 mx-2">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                    .filter(p => p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1))
+                                    .map((p, i, arr) => (
+                                        <div key={p} className="flex items-center gap-1">
+                                            {i > 0 && arr[i-1] !== p - 1 && (
+                                                <span className="text-slate-300 dark:text-slate-700 font-black px-1">...</span>
+                                            )}
+                                            <button 
+                                                onClick={() => {
+                                                    setCurrentPage(p);
+                                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                }}
+                                                className={`w-10 h-10 rounded-xl text-[10px] font-black transition-all active:scale-90 ${
+                                                    currentPage === p 
+                                                    ? 'bg-[#2E2F7F] text-white shadow-lg shadow-[#2E2F7F]/20' 
+                                                    : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/5'
+                                                }`}
+                                            >
+                                                {p}
+                                            </button>
+                                        </div>
+                                    ))}
                             </div>
+
                             <button 
-                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                onClick={() => {
+                                    setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
                                 disabled={currentPage === totalPages}
-                                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#2E2F7F] disabled:opacity-20 hover:gap-3 transition-all"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-[#2E2F7F] dark:text-white disabled:opacity-20 hover:bg-gray-50 dark:hover:bg-slate-700 transition-all active:scale-90 shadow-sm"
                             >
-                                Suivant
-                                <span className="material-symbols-outlined text-base">chevron_right</span>
+                                <span className="material-symbols-outlined text-base font-black">chevron_right</span>
                             </button>
                         </div>
                     </div>

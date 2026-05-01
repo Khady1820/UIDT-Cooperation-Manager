@@ -154,7 +154,11 @@ const Topnav = ({ onMenuClick }) => {
                                                 {!n.read_at && <div className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-blue-500 rounded-full shadow-sm"></div>}
                                                 <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 flex items-center justify-center text-[#2E2F7F] dark:text-indigo-400 shrink-0 shadow-sm">
                                                     <span className="material-symbols-outlined text-[18px]">
-                                                        {n.data.status === 'rejete' ? 'cancel' : n.data.status === 'termine' ? 'verified' : 'assignment'}
+                                                        {n.data.status === 'rejete' || n.data.status === 'brouillon' ? 'cancel' : 
+                                                         n.data.status === 'termine' ? 'verified' : 
+                                                         n.data.status === 'valide_juridique' ? 'gavel' :
+                                                         n.data.status === 'pret_pour_signature' ? 'draw' :
+                                                         'assignment'}
                                                     </span>
                                                 </div>
                                                 <div className="flex-1 space-y-1">

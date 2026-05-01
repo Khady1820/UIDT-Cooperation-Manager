@@ -8,22 +8,22 @@
   :root {
     /* Official UIDT Institutional Palette */
     --primary: #2E2F7F;      /* Deep Royal Blue */
-    --primary-rgb: 46, 47, 127;
+    --primary-rgb: 46 47 127;
     
     --accent: #F7931E;       /* Institutional Orange */
-    --accent-rgb: 247, 147, 30;
+    --accent-rgb: 247 147 30;
     
     --background: #FFFFFF;
-    --background-rgb: 255, 255, 255;
+    --background-rgb: 255 255 255;
     
     --surface: #F9FAFB;
-    --surface-rgb: 249, 250, 251;
+    --surface-rgb: 249 250 251;
     
     --on-surface: #1F2937;   /* Dark Grey Text */
-    --on-surface-rgb: 31, 41, 55;
+    --on-surface-rgb: 31 41 55;
     
     --border: #E5E7EB;
-    --border-rgb: 229, 231, 235;
+    --border-rgb: 229 231 235;
     --outline-variant: #F3F4F6;
     
     --success: #10B981;
@@ -40,13 +40,13 @@
 
   .dark {
     --background: #0F172A;
-    --background-rgb: 15, 23, 42;
+    --background-rgb: 15 23 42;
     --on-surface: #F1F5F9;
-    --on-surface-rgb: 241, 245, 249;
+    --on-surface-rgb: 241 245 249;
     --surface: #1E293B;
-    --surface-rgb: 30, 41, 59;
+    --surface-rgb: 30 41 59;
     --border: #334155;
-    --border-rgb: 51, 65, 85;
+    --border-rgb: 51 65 85;
     --bg-main: var(--background-rgb);
     --text-main: var(--on-surface-rgb);
     color-scheme: dark;

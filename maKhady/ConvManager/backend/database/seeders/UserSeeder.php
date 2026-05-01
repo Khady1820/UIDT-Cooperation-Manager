@@ -33,6 +33,15 @@ class UserSeeder extends Seeder
         );
 
         \App\Models\User::firstOrCreate(
+            ['email' => 'idrissa.gaye@uidt.sn'],
+            [
+                'name' => 'Dr. Idrissa Gaye',
+                'password' => bcrypt('password'),
+                'role_id' => \App\Models\Role::where('name', 'porteur_projet')->first()->id ?? null,
+            ]
+        );
+
+        \App\Models\User::firstOrCreate(
             ['email' => 'directeur@uidt.sn'],
             [
                 'name' => 'Directeur Coopération',

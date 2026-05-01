@@ -12,13 +12,13 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const checkAuth = async () => {
-        const token = localStorage.getItem('access_token');
+        const token = sessionStorage.getItem('access_token');
         if (token) {
             try {
                 const response = await api.get('/me');
                 setUser(response.data);
             } catch (error) {
-                localStorage.removeItem('access_token');
+                sessionStorage.removeItem('access_token');
                 setUser(null);
             }
         }
@@ -28,13 +28,13 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         // Assume Sanctum CSRF is already handled or not needed if strictly API tokens
         const response = await api.post('/login', { email, password });
-        localStorage.setItem('access_token', response.data.access_token);
+        sessionStorage.setItem('access_token', response.data.access_token);
         setUser(response.data.user);
     };
 
     const register = async (userData) => {
         const response = await api.post('/register', userData);
-        localStorage.setItem('access_token', response.data.access_token);
+        sessionStorage.setItem('access_token', response.data.access_token);
         setUser(response.data.user);
     };
 
@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
         try {
             await api.post('/logout');
         } finally {
-            localStorage.removeItem('access_token');
+            sessionStorage.removeItem('access_token');
             setUser(null);
             window.location.href = '/login';
         }

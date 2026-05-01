@@ -16,7 +16,8 @@ const STATUS_COLORS = {
     'signe_recteur': '#059669',
     'archive': '#64748b',
     'rejete': '#ef4444',
-    'termine': '#2E2F7F'
+    'termine': '#2E2F7F',
+    'valide_chef_division': '#6366f1'
 };
 
 const AdminDashboard = () => {
@@ -72,7 +73,7 @@ const AdminDashboard = () => {
     );
 
     const pieData = stats.status_distribution?.map(item => ({
-        name: t(`status_${item.status}`) || item.status.replace('_', ' ').toUpperCase(),
+        name: t(`status_${item.status.replace(/ /g, '_')}`) || item.status.replace('_', ' ').toUpperCase(),
         value: item.count,
         color: STATUS_COLORS[item.status] || '#CBD5E1'
     })) || [];
@@ -137,14 +138,14 @@ const AdminDashboard = () => {
                         Distribution des Conventions par Statut
                     </h3>
                     <div className="h-[400px]">
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={1}>
+                        <ResponsiveContainer width="100%" height={400} minWidth={0} minHeight={0}>
                             <PieChart>
                                 <Pie
                                     data={pieData}
-                                    cx="50%"
+                                    cx="35%"
                                     cy="50%"
-                                    innerRadius={80}
-                                    outerRadius={140}
+                                    innerRadius={60}
+                                    outerRadius={100}
                                     paddingAngle={5}
                                     dataKey="value"
                                     stroke="none"
@@ -168,7 +169,7 @@ const AdminDashboard = () => {
                                     layout="vertical" 
                                     align="right" 
                                     verticalAlign="middle"
-                                    formatter={(value) => <span className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-2">{value}</span>}
+                                    formatter={(value) => <span className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-3">{value}</span>}
                                 />
                             </PieChart>
                         </ResponsiveContainer>

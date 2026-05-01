@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 const ManageTickets = () => {
+    const navigate = useNavigate();
     const { t } = useLanguage();
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -52,21 +54,31 @@ const ManageTickets = () => {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8"
         >
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-black text-[#2E2F7F] uppercase tracking-tighter mb-2">Gestion du Support</h1>
-                    <p className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em] opacity-60">Consulter et résoudre les demandes d'assistance</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-4 mb-2">
+                        <button 
+                            onClick={() => navigate(-1)}
+                            className="group flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-150 active:scale-95"
+                        >
+                            <span className="material-symbols-outlined text-[#2E2F7F] dark:text-white group-hover:scale-110 transition-transform duration-150 text-sm">arrow_back</span>
+                            <span className="text-[9px] font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest">Retour</span>
+                        </button>
+                        <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
+                        <h1 className="text-lg font-black text-[#2E2F7F] dark:text-white tracking-tight uppercase tracking-widest">Gestion du Support</h1>
+                    </div>
+                    <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] opacity-60 italic">Consulter et résoudre les demandes d'assistance</p>
                 </div>
-                <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-sm">
-                    <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
-                    <span className="text-xs font-black text-[#2E2F7F] uppercase tracking-widest">{tickets.length} TICKETS ACTIFS</span>
+                <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-5 py-2.5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
+                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span className="text-[10px] font-black text-[#2E2F7F] uppercase tracking-widest">{tickets.length} TICKETS ACTIFS</span>
                 </div>
             </div>
 
-            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden">
                 <table className="w-full text-left border-separate border-spacing-0">
-                    <thead className="bg-gray-50/50">
-                        <tr className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                    <thead className="bg-gray-50/50 dark:bg-slate-800/50">
+                        <tr className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">
                             <th className="px-8 py-6">Utilisateur</th>
                             <th className="px-8 py-6">Sujet</th>
                             <th className="px-8 py-6">Type</th>
@@ -96,25 +108,25 @@ const ManageTickets = () => {
                             </tr>
                         ) : (
                             tickets.map(ticket => (
-                                <tr key={ticket.id} className="hover:bg-gray-50/50 transition-colors group">
-                                    <td className="px-8 py-5">
+                                <tr key={ticket.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50 transition-colors group">
+                                    <td className="px-8 py-5 border-b border-gray-50 dark:border-slate-800/50">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-[#2E2F7F]/5 flex items-center justify-center text-[#2E2F7F] font-black text-xs border border-[#2E2F7F]/10">
+                                            <div className="w-10 h-10 rounded-xl bg-[#2E2F7F]/5 dark:bg-white/5 flex items-center justify-center text-[#2E2F7F] dark:text-white font-black text-xs border border-[#2E2F7F]/10 dark:border-white/10">
                                                 {ticket.user?.name?.charAt(0)}
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-black text-[#2E2F7F] uppercase tracking-tight">{ticket.user?.name}</span>
-                                                <span className="text-[10px] font-bold text-slate-400">{ticket.user?.email}</span>
+                                                <span className="text-sm font-black text-[#2E2F7F] dark:text-white uppercase tracking-tight">{ticket.user?.name}</span>
+                                                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500">{ticket.user?.email}</span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5">
-                                        <span className="text-sm font-bold text-slate-700 line-clamp-1">{ticket.subject}</span>
+                                    <td className="px-8 py-5 border-b border-gray-50 dark:border-slate-800/50">
+                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300 line-clamp-1">{ticket.subject}</span>
                                     </td>
-                                    <td className="px-8 py-5">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-gray-100 px-2 py-1 rounded-md">{ticket.type}</span>
+                                    <td className="px-8 py-5 border-b border-gray-50 dark:border-slate-800/50">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-gray-100 dark:bg-white/5 px-2 py-1 rounded-md">{ticket.type}</span>
                                     </td>
-                                    <td className="px-8 py-5">
+                                    <td className="px-8 py-5 border-b border-gray-50 dark:border-slate-800/50">
                                         <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${
                                             ticket.priority === 'urgent' ? 'bg-red-50 text-red-500 border border-red-100' :
                                             ticket.priority === 'high' ? 'bg-orange-50 text-orange-500 border border-orange-100' :
@@ -123,12 +135,12 @@ const ManageTickets = () => {
                                             {ticket.priority}
                                         </span>
                                     </td>
-                                    <td className="px-8 py-5">
-                                        <span className={`text-[9px] font-black uppercase tracking-[0.15em] px-3 py-1.5 rounded-full border shadow-sm ${getStatusColor(ticket.status)}`}>
+                                    <td className="px-8 py-5 border-b border-gray-50 dark:border-slate-800/50">
+                                        <span className={`text-[9px] font-black uppercase tracking-[0.15em] px-3 py-1.5 rounded-full border shadow-sm dark:bg-opacity-10 dark:border-opacity-20 ${getStatusColor(ticket.status)}`}>
                                             {ticket.status.replace('_', ' ')}
                                         </span>
                                     </td>
-                                    <td className="px-8 py-5 text-right">
+                                    <td className="px-8 py-5 text-right border-b border-gray-50 dark:border-slate-800/50">
                                         <button 
                                             onClick={() => setSelectedTicket(ticket)}
                                             className="w-10 h-10 rounded-xl bg-[#2E2F7F] text-white flex items-center justify-center hover:bg-[#F7931E] transition-all shadow-lg shadow-[#2E2F7F]/20"
@@ -158,50 +170,50 @@ const ManageTickets = () => {
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-12 overflow-hidden"
+                            className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl p-12 overflow-hidden border border-gray-100 dark:border-slate-800"
                         >
                             <div className="flex items-center justify-between mb-10">
                                 <div className="flex items-center gap-4">
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${getStatusColor(selectedTicket.status)} border-2`}>
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center dark:bg-opacity-10 dark:border-opacity-20 ${getStatusColor(selectedTicket.status)} border-2`}>
                                         <span className="material-symbols-outlined text-2xl">confirmation_number</span>
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-black text-[#2E2F7F] uppercase tracking-tight">Détails du Ticket #{selectedTicket.id}</h3>
-                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Ouvert le {format(new Date(selectedTicket.created_at), 'dd/MM/yyyy à HH:mm')}</p>
+                                        <h3 className="text-xl font-black text-[#2E2F7F] dark:text-white uppercase tracking-tight">Détails du Ticket #{selectedTicket.id}</h3>
+                                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Ouvert le {format(new Date(selectedTicket.created_at), 'dd/MM/yyyy à HH:mm')}</p>
                                     </div>
                                 </div>
-                                <button onClick={() => setSelectedTicket(null)} className="text-slate-400 hover:text-[#2E2F7F] transition-colors">
+                                <button onClick={() => setSelectedTicket(null)} className="text-slate-400 dark:text-slate-500 hover:text-[#2E2F7F] dark:hover:text-white transition-colors">
                                     <span className="material-symbols-outlined text-3xl">close</span>
                                 </button>
                             </div>
 
                             <div className="grid grid-cols-2 gap-8 mb-10">
-                                <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Utilisateur</p>
-                                    <p className="text-sm font-black text-[#2E2F7F] uppercase">{selectedTicket.user?.name}</p>
-                                    <p className="text-xs font-bold text-slate-500">{selectedTicket.user?.email}</p>
+                                <div className="p-6 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-slate-800">
+                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Utilisateur</p>
+                                    <p className="text-sm font-black text-[#2E2F7F] dark:text-white uppercase">{selectedTicket.user?.name}</p>
+                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400">{selectedTicket.user?.email}</p>
                                 </div>
-                                <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Type & Priorité</p>
+                                <div className="p-6 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-slate-800">
+                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Type & Priorité</p>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-xs font-black text-[#2E2F7F] uppercase">{selectedTicket.type}</span>
-                                        <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                        <span className="text-xs font-black text-[#2E2F7F] dark:text-white uppercase">{selectedTicket.type}</span>
+                                        <span className="w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></span>
                                         <span className="text-xs font-black text-orange-500 uppercase">{selectedTicket.priority}</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="mb-10">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Sujet & Message</p>
-                                <h4 className="text-lg font-black text-[#2E2F7F] mb-4 uppercase leading-tight">{selectedTicket.subject}</h4>
-                                <div className="p-6 bg-[#2E2F7F]/5 rounded-2xl border border-[#2E2F7F]/10">
-                                    <p className="text-sm font-bold text-slate-700 leading-relaxed whitespace-pre-wrap">{selectedTicket.message}</p>
+                                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Sujet & Message</p>
+                                <h4 className="text-lg font-black text-[#2E2F7F] dark:text-white mb-4 uppercase leading-tight">{selectedTicket.subject}</h4>
+                                <div className="p-6 bg-[#2E2F7F]/5 dark:bg-white/5 rounded-2xl border border-[#2E2F7F]/10 dark:border-white/10">
+                                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{selectedTicket.message}</p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between pt-8 border-t border-gray-100">
+                            <div className="flex items-center justify-between pt-8 border-t border-gray-100 dark:border-slate-800">
                                 <div className="flex items-center gap-3">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Changer le statut :</p>
+                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Changer le statut :</p>
                                     <div className="flex gap-2">
                                         <button 
                                             onClick={() => updateStatus(selectedTicket.id, 'in_progress')}
