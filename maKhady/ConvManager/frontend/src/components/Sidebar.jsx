@@ -122,6 +122,18 @@ const Sidebar = ({ isOpen, onClose }) => {
                             <span className="relative z-10 text-[15px] font-bold">{t('manage_tickets')}</span>
                         </Link>
 
+                        <Link to="/help" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/help') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
+                            {location.pathname.startsWith('/help') && (
+                                <motion.div 
+                                    layoutId="activePill"
+                                    className="absolute inset-0 bg-[#F7931E] rounded-2xl shadow-xl shadow-[#F7931E]/20"
+                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                />
+                            )}
+                            <span className="relative z-10 material-symbols-outlined text-[20px]">help_center</span>
+                            <span className="relative z-10 text-[15px] font-bold">{t('help_center')}</span>
+                        </Link>
+
                     </>
                 ) : (
                     <>
@@ -172,6 +184,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                           user?.role?.name === 'directeur_cooperation' || 
                           user?.role?.name === 'service_juridique' || 
                           user?.role?.name === 'recteur' ||
+                          user?.role?.name === 'secretaire_general' ||
                           user?.role?.name === 'secretariat') && (
                             <Link to="/validation" className={`relative flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-300 group ${location.pathname.startsWith('/validation') ? 'text-white font-black' : 'text-white/90 hover:text-white hover:bg-white/10'}`}>
                                 {location.pathname.startsWith('/validation') && (
@@ -247,7 +260,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 border border-white/20 p-1 group-hover:scale-105 transition-transform">
                         <img 
-                            src={user?.avatar_url || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=random`} 
+                            src={user?.avatar_url ? `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/storage/${user.avatar_url}` : `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=random`} 
                             alt="Profile" 
                             className="w-full h-full object-cover rounded-lg" 
                         />

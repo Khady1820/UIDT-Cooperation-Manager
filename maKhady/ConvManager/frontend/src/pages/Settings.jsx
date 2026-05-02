@@ -66,6 +66,42 @@ const Settings = () => {
         }
     };
 
+    const handleAvatarUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('avatar', file);
+        formData.append('name', user.name);
+
+        try {
+            const res = await api.post('/update-profile', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            updateUser(res.data.user);
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 3000);
+        } catch (err) {
+            console.error("Erreur téléchargement avatar", err);
+        }
+    };
+
+    const handleAvatarDelete = async () => {
+        if (!window.confirm("Voulez-vous supprimer votre photo de profil ?")) return;
+        
+        try {
+            const res = await api.post('/update-profile', { 
+                name: user.name,
+                delete_avatar: true 
+            });
+            updateUser(res.data.user);
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 3000);
+        } catch (err) {
+            console.error("Erreur suppression avatar", err);
+        }
+    };
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -102,7 +138,7 @@ const Settings = () => {
                         <div className="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center">
                             <CheckCircle className="w-5 h-5" />
                         </div>
-                        <p className="font-black text-[10px] uppercase tracking-[0.2em] dark:text-white">Configuration mise à jour</p>
+                        <p className="font-black text-[10px] uppercase tracking-[0.2em] dark:text-white">{t('save_changes')}</p>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -119,7 +155,7 @@ const Settings = () => {
                         </div>
                         <div>
                             <h1 className="text-xl font-black tracking-tight">{t('settings')}</h1>
-                            <p className="text-white/60 font-bold uppercase tracking-[0.3em] text-[9px] mt-1 italic">Centre de Configuration Institutionnel</p>
+                            <p className="text-white/60 font-bold uppercase tracking-[0.3em] text-[9px] mt-1 italic">{t('interface_settings')}</p>
                         </div>
                     </div>
                     <div className="flex gap-4">
@@ -136,16 +172,44 @@ const Settings = () => {
                 <motion.div variants={itemVariants} className="space-y-10">
                     <div className="premium-card p-10 flex flex-col items-center text-center relative group">
                         <div className="relative mb-8">
+                            <input 
+                                type="file" 
+                                id="avatar-upload" 
+                                className="hidden" 
+                                accept="image/*"
+                                onChange={handleAvatarUpload}
+                            />
                             <motion.div 
                                 whileHover={{ scale: 1.02 }}
-                                className="w-32 h-32 rounded-[40px] bg-gradient-to-br from-[#2E2F7F] to-[#003566] text-white flex items-center justify-center text-5xl font-black shadow-2xl shadow-[#2E2F7F]/30 border-4 border-white dark:border-slate-800"
+                                className="w-32 h-32 rounded-[40px] bg-gradient-to-br from-[#2E2F7F] to-[#003566] text-white flex items-center justify-center shadow-2xl shadow-[#2E2F7F]/30 border-4 border-white dark:border-slate-800 overflow-hidden"
                             >
-                                {user?.name?.charAt(0).toUpperCase()}
+                                {user?.avatar_url ? (
+                                    <img 
+                                        src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/storage/${user.avatar_url}`} 
+                                        alt="Avatar" 
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-5xl font-black">{user?.name?.charAt(0).toUpperCase()}</span>
+                                )}
                             </motion.div>
-                            <button className="absolute -bottom-2 -right-2 w-11 h-11 bg-white border border-gray-100 rounded-2xl shadow-xl text-[#2E2F7F] flex items-center justify-center hover:scale-110 transition-transform dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                            <label 
+                                htmlFor="avatar-upload"
+                                className="absolute -bottom-2 -right-2 w-11 h-11 bg-white border border-gray-100 rounded-2xl shadow-xl text-[#2E2F7F] flex items-center justify-center hover:scale-110 transition-transform cursor-pointer dark:bg-slate-800 dark:border-slate-700 dark:text-white"
+                            >
                                 <Camera className="w-5 h-5" />
-                            </button>
+                            </label>
                         </div>
+
+                        {user?.avatar_url && (
+                            <button 
+                                onClick={handleAvatarDelete}
+                                className="mb-6 px-4 py-1 text-[9px] font-black text-rose-500 uppercase tracking-widest hover:text-rose-600 transition-colors flex items-center gap-2"
+                            >
+                                <span className="material-symbols-outlined text-sm">delete</span>
+                                Supprimer la photo
+                            </button>
+                        )}
 
                         <div className="w-full space-y-2 mb-10">
                             {isEditing ? (
@@ -175,14 +239,14 @@ const Settings = () => {
 
                         <div className="w-full pt-8 border-t border-gray-50 space-y-6 text-left">
                             <div className="space-y-1">
-                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest dark:text-slate-400">Adresse de contact</p>
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest dark:text-slate-400">{t('contact_address')}</p>
                                 <p className="text-sm font-bold text-[#2E2F7F] dark:text-white">{user?.email}</p>
                             </div>
                             <div className="space-y-1">
-                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest dark:text-slate-400">Statut du Compte</p>
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest dark:text-slate-400">{t('account_status')}</p>
                                 <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                                    <p className="text-sm font-bold text-[#2E2F7F] dark:text-white">Actif & Certifié</p>
+                                    <p className="text-sm font-bold text-[#2E2F7F] dark:text-white">{t('active_certified')}</p>
                                 </div>
                             </div>
                         </div>
@@ -208,8 +272,8 @@ const Settings = () => {
                                 <span className="material-symbols-outlined text-[24px]">palette</span>
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-[#2E2F7F] tracking-tight dark:text-white">Préférences d'Interface</h3>
-                                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1 dark:text-slate-400">Personnalisation de l'environnement</p>
+                                <h3 className="text-xl font-black text-[#2E2F7F] tracking-tight dark:text-white">{t('interface_preferences')}</h3>
+                                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1 dark:text-slate-400">{t('interface_desc')}</p>
                             </div>
                         </div>
 
@@ -225,7 +289,7 @@ const Settings = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm font-black text-[#2E2F7F] uppercase tracking-widest dark:text-white">{t('dark_mode')}</p>
-                                        <p className="text-[10px] text-slate-600 font-bold italic mt-0.5 dark:text-slate-400">Optimisation pour le confort visuel nocturne.</p>
+                                        <p className="text-[10px] text-slate-600 font-bold italic mt-0.5 dark:text-slate-400">{t('dark_mode_desc')}</p>
                                     </div>
                                 </div>
                                 <div className={`relative w-14 h-7 rounded-full transition-colors duration-500 p-1 ${darkMode ? 'bg-indigo-600' : 'bg-gray-200'}`}>
@@ -235,7 +299,7 @@ const Settings = () => {
 
                             {/* Language Selector */}
                             <div className="space-y-4">
-                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Langue de l'espace de travail</label>
+                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">{t('workspace_language')}</label>
                                 <div className="relative group/lang">
                                     <div className="absolute left-6 top-1/2 -translate-y-1/2 text-[#2E2F7F] z-10">
                                         <Globe className="w-5 h-5" />
@@ -271,16 +335,16 @@ const Settings = () => {
                                 <Lock className="w-5 h-5" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-[#2E2F7F] tracking-tight dark:text-white">Sécurité du Compte</h3>
-                                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1 dark:text-slate-400">Gestion des accès et mots de passe</p>
+                                <h3 className="text-xl font-black text-[#2E2F7F] tracking-tight dark:text-white">{t('account_security')}</h3>
+                                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1 dark:text-slate-400">{t('security_desc')}</p>
                             </div>
                         </div>
                         
                         <div className="bg-rose-50/30 p-8 rounded-[2.5rem] border border-rose-100 border-dashed dark:bg-rose-500/5 dark:border-rose-500/20">
                             <div className="flex flex-col md:flex-row items-center gap-10">
                                 <div className="flex-1 space-y-2">
-                                    <p className="text-sm font-black text-[#2E2F7F] uppercase tracking-tight dark:text-white">Code d'Authentification</p>
-                                    <p className="text-xs text-slate-600 font-bold leading-relaxed italic dark:text-slate-400">Il est recommandé de changer votre mot de passe tous les 90 jours pour maintenir l'intégrité de vos accès institutionnels.</p>
+                                    <p className="text-sm font-black text-[#2E2F7F] uppercase tracking-tight dark:text-white">{t('auth_code')}</p>
+                                    <p className="text-xs text-slate-600 font-bold leading-relaxed italic dark:text-slate-400">{t('auth_code_desc')}</p>
                                 </div>
                                 <button 
                                     onClick={() => setShowPasswordModal(true)}
@@ -316,7 +380,7 @@ const Settings = () => {
                                     </div>
                                     <div>
                                         <h3 className="text-base font-black text-[#2E2F7F] uppercase tracking-widest">{t('change_password')}</h3>
-                                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Sécurité renforcée requise</p>
+                                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">{t('secure_password_required')}</p>
                                     </div>
                                 </div>
                                 <button onClick={() => setShowPasswordModal(false)} className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors text-slate-400">
@@ -332,19 +396,19 @@ const Settings = () => {
                                 )}
                                 <div className="space-y-6">
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Ancien mot de passe</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">{t('current_password')}</label>
                                         <input type="password" required className="uidt-input w-full bg-gray-50" value={passwordData.current_password} onChange={(e) => setPasswordData({...passwordData, current_password: e.target.value})} />
                                     </div>
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Nouveau mot de passe</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">{t('new_password')}</label>
                                         <input type="password" required className="uidt-input w-full bg-gray-50" value={passwordData.new_password} onChange={(e) => setPasswordData({...passwordData, new_password: e.target.value})} />
                                     </div>
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Confirmation du nouveau mot de passe</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">{t('confirm_new_password')}</label>
                                         <input type="password" required className="uidt-input w-full bg-gray-50" value={passwordData.new_password_confirmation} onChange={(e) => setPasswordData({...passwordData, new_password_confirmation: e.target.value})} />
                                     </div>
                                 </div>
-                                <button type="submit" className="institution-button mt-4">Actualiser la sécurité</button>
+                                <button type="submit" className="institution-button mt-4">{t('update_security')}</button>
                             </form>
                         </motion.div>
                     </div>

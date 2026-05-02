@@ -425,7 +425,8 @@ const Dashboard = () => {
                     <span className="text-sm font-black text-slate-600 uppercase tracking-[0.2em] border border-gray-100 px-3 py-1 rounded-full">
                         {user?.role?.name === 'directeur_cooperation' ? 'Vue Direction' : 
                          user?.role?.name === 'service_juridique' ? 'Vue Juridique' :
-                         user?.role?.name === 'recteur' ? 'Vue Rectorat' : 
+                         user?.role?.name === 'recteur' ? 'Vue Recteur' : 
+                         user?.role?.name === 'secretaire_general' ? 'Vue Secrétaire Général' :
                          user?.role?.name === 'secretariat' ? 'Vue Secrétariat' : 'Vue Admin'}
                     </span>
                 </div>

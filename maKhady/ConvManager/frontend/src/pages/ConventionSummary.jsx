@@ -3,10 +3,12 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const ConventionSummary = () => {
     const { id } = useParams();
     const { t } = useLanguage();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [convention, setConvention] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -53,13 +55,15 @@ const ConventionSummary = () => {
                     <span className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest group-hover:text-[#2E2F7F] dark:group-hover:text-white transition-colors">Retour à la liste</span>
                 </button>
                 <div className="flex gap-4">
-                    <button 
-                        onClick={() => window.print()}
-                        className="px-6 py-2 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-700 transition-all flex items-center gap-2"
-                    >
-                        <span className="material-symbols-outlined text-sm">print</span>
-                        Imprimer Fiche
-                    </button>
+                    {user?.role?.name !== 'admin' && (
+                        <button 
+                            onClick={() => window.print()}
+                            className="px-6 py-2 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-700 transition-all flex items-center gap-2"
+                        >
+                            <span className="material-symbols-outlined text-sm">print</span>
+                            Imprimer Fiche
+                        </button>
+                    )}
                     <Link 
                         to={`/conventions/${id}`}
                         className="px-6 py-2 bg-[#2E2F7F] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#F7931E] transition-all shadow-lg flex items-center gap-2"

@@ -43,7 +43,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:6',
+            'password' => 'sometimes|nullable|string|min:6',
             'role_id' => 'required|exists:roles,id',
             'is_active' => 'boolean',
         ]);
@@ -54,7 +54,15 @@ class UserController extends Controller
             $user->password = Hash::make($validated['password']);
         }
         $user->role_id = $validated['role_id'];
-        $user->is_active = $request->get('is_active', $user->is_active);
+        
+        if ($request->has('is_active')) {
+            $user->is_active = $request->boolean('is_active');
+            // Force logout by deleting all tokens if deactivated
+            if (!$user->is_active) {
+                $user->tokens()->delete();
+            }
+        }
+        
         $user->save();
 
         return response()->json($user);
@@ -62,10 +70,22 @@ class UserController extends Controller
 
     public function destroy($id)
     {
+        $user = User::findOrFail($id);
+        
         if (auth()->id() == $id) {
             return response()->json(['message' => 'Impossible de supprimer votre propre compte.'], 403);
         }
-        User::destroy($id);
-        return response()->json(null, 204);
+
+        try {
+            // Clear notifications before deleting user (polymorphic relationship)
+            if (method_exists($user, 'notifications')) {
+                $user->notifications()->delete();
+            }
+            
+            $user->delete();
+            return response()->json(['message' => 'Utilisateur supprimé avec succès.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Erreur lors de la suppression : ' . $e->getMessage()], 500);
+        }
     }
 }

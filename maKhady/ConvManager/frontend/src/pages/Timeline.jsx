@@ -10,6 +10,7 @@ const Timeline = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('all');
     const [loading, setLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const { t } = useLanguage();
 
     useEffect(() => {
@@ -41,12 +42,15 @@ const Timeline = () => {
     const paginatedLogs = filteredLogs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const fetchLogs = async () => {
+        setIsRefreshing(true);
         try {
             const response = await api.get('/logs');
             setLogs(response.data);
+            setCurrentPage(1); // Reset to first page on refresh
         } catch (error) {
             console.error('Error fetching logs:', error);
         } finally {
+            setIsRefreshing(false);
             setLoading(false);
         }
     };
@@ -118,10 +122,11 @@ const Timeline = () => {
                     </div>
                     <button 
                         onClick={fetchLogs}
-                        className="flex items-center gap-3 px-6 py-3.5 text-[10px] font-black text-slate-900 uppercase tracking-widest bg-slate-50 hover:bg-slate-100 rounded-xl transition-all border border-slate-100 active:scale-95 shadow-sm"
+                        disabled={isRefreshing}
+                        className={`flex items-center gap-3 px-6 py-3.5 text-[10px] font-black text-slate-900 uppercase tracking-widest bg-slate-50 hover:bg-slate-100 rounded-xl transition-all border border-slate-100 active:scale-95 shadow-sm ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                        <span className="material-symbols-outlined text-[16px]">refresh</span>
-                        Actualiser
+                        <span className={`material-symbols-outlined text-[16px] ${isRefreshing ? 'animate-spin text-indigo-600' : ''}`}>refresh</span>
+                        {isRefreshing ? 'Mise à jour...' : 'Actualiser'}
                     </button>
                 </div>
             </div>

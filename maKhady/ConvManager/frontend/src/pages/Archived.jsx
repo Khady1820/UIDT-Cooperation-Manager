@@ -217,14 +217,6 @@ const Archived = () => {
                                                 >
                                                     <span className="material-symbols-outlined text-[16px]">visibility</span>
                                                 </Link>
-                                                <div className="flex items-center gap-1.5 ml-1.5 border-l border-gray-100 dark:border-slate-800 pl-1.5">
-                                                    <button onClick={() => handleRestore(conv.id)} className="w-8 h-8 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-all" title="Restaurer">
-                                                        <span className="material-symbols-outlined text-[16px]">unarchive</span>
-                                                    </button>
-                                                    <button onClick={() => handleDelete(conv.id)} className="w-8 h-8 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" title="Supprimer">
-                                                        <span className="material-symbols-outlined text-[16px]">delete</span>
-                                                    </button>
-                                                </div>
                                             </div>
                                         </td>
                                     </tr>

@@ -47,11 +47,12 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Routes for Management (Validation/Signature)
-    Route::middleware('role:admin,directeur_cooperation,recteur,service_juridique,chef_division')->group(function () {
+    Route::middleware('role:admin,directeur_cooperation,recteur,service_juridique,chef_division,secretaire_general')->group(function () {
         Route::post('/conventions/{id}/validate-chef', [ConventionController::class, 'preValidateByChef']);
         Route::post('/conventions/{id}/validate-director', [ConventionController::class, 'validateByDirector']);
         Route::post('/conventions/{id}/validate-legal', [ConventionController::class, 'validateByLegal']);
         Route::post('/conventions/{id}/finalize-director', [ConventionController::class, 'finalizeByDirector']);
+        Route::post('/conventions/{id}/validate-sg', [ConventionController::class, 'validateBySG']);
         Route::post('/conventions/{id}/sign-rector', [ConventionController::class, 'signByRector']);
         Route::post('/conventions/{id}/reject', [ConventionController::class, 'reject']);
     });

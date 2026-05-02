@@ -34,7 +34,7 @@ class AdminDashboardController extends Controller
             ->get();
 
         $rolesDistribution = User::join('roles', 'users.role_id', '=', 'roles.id')
-            ->select('roles.name', DB::raw('count(*) as count'))
+            ->select('roles.name', DB::raw('count(*) as count'), DB::raw('max(users.last_login_at) as last_login'))
             ->groupBy('roles.name')
             ->get();
 

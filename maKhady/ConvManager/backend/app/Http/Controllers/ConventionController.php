@@ -56,6 +56,13 @@ class ConventionController extends Controller
             } else {
                 $query->whereIn('status', ['pret_pour_signature', 'termine']);
             }
+        } elseif ($role === 'secretaire_general') {
+            // SG sees dossiers waiting for visa or already processed
+            if ($request->has('pending')) {
+                $query->where('status', 'attente_sg');
+            } else {
+                $query->whereIn('status', ['attente_sg', 'pret_pour_signature', 'termine']);
+            }
         } elseif ($role === 'partenaire') {
             $query->where('partners', 'like', '%' . $user->name . '%')
                   ->where('status', 'termine');
@@ -113,7 +120,7 @@ class ConventionController extends Controller
 
     public function show($id)
     {
-        $convention = Convention::with('kpis')->findOrFail($id);
+        $convention = Convention::with(['kpis', 'logs.user', 'user'])->findOrFail($id);
         return response()->json($convention);
     }
 
@@ -290,12 +297,41 @@ class ConventionController extends Controller
     public function finalizeByDirector(Request $request, $id)
     {
         $convention = Convention::findOrFail($id);
-        $convention->update(['status' => 'pret_pour_signature']);
+        $convention->update(['status' => 'attente_sg']);
 
         $convention->logs()->create([
             'user_id' => $request->user()->id,
             'action' => 'finalisation_directeur',
-            'comment' => 'Contrôle final effectué. Dossier transmis au Rectorat pour signature.'
+            'comment' => 'Contrôle final effectué par la Direction de la Coopération. Dossier transmis au Secrétariat Général UIDT.'
+        ]);
+
+        // Notify SG & Admins
+        try {
+            $recipients = User::whereHas('role', function($q) {
+                $q->whereIn('name', ['secretaire_general', 'admin']);
+            })->get();
+            Notification::send($recipients, new ConventionStatusChanged($convention, 'attente_sg', $request->user()));
+        } catch (\Exception $e) {
+            \Log::error('Mail Error: ' . $e->getMessage());
+        }
+
+        return response()->json($convention);
+    }
+
+    public function validateBySG(Request $request, $id)
+    {
+        $convention = Convention::findOrFail($id);
+        $convention->update(['status' => 'pret_pour_signature']);
+
+        $comment = 'Visa accordé par le Secrétaire Général de l\'UIDT. Dossier transmis au Recteur pour signature.';
+        if ($request->filled('comment')) {
+            $comment .= ' Avis SG : ' . $request->comment;
+        }
+
+        $convention->logs()->create([
+            'user_id' => $request->user()->id,
+            'action' => 'validation_sg',
+            'comment' => $comment
         ]);
 
         // Notify Recteurs & Admins
@@ -416,8 +452,22 @@ class ConventionController extends Controller
         }
 
         $activeCount = (clone $query)->where('status', 'termine')->count();
-        $pendingStatuses = ['soumis', 'valide_dir_initial', 'valide_juridique', 'pret_pour_signature', 'en attente', 'en cours'];
-        $pendingCount = (clone $query)->whereIn('status', $pendingStatuses)->count();
+        
+        // Dynamic pending count based on role
+        if ($role === 'secretaire_general') {
+            $pendingCount = (clone $query)->where('status', 'attente_sg')->count();
+        } elseif ($role === 'recteur') {
+            $pendingCount = (clone $query)->where('status', 'pret_pour_signature')->count();
+        } elseif ($role === 'service_juridique') {
+            $pendingCount = (clone $query)->where('status', 'valide_dir_initial')->count();
+        } elseif ($role === 'directeur_cooperation') {
+            $pendingCount = (clone $query)->whereIn('status', ['valide_chef_division', 'valide_juridique'])->count();
+        } elseif ($role === 'chef_division') {
+            $pendingCount = (clone $query)->whereIn('status', ['soumis', 'en attente'])->count();
+        } else {
+            $pendingStatuses = ['soumis', 'valide_dir_initial', 'valide_juridique', 'attente_sg', 'pret_pour_signature', 'en attente', 'en cours'];
+            $pendingCount = (clone $query)->whereIn('status', $pendingStatuses)->count();
+        }
         $avgEfficiency = (clone $query)->avg('completion_rate') ?? 0;
         
         // Distribution by type
@@ -436,8 +486,23 @@ class ConventionController extends Controller
         $recentActivity = $activityQuery->take(4)->get();
  
         // Pending Actions for the "Urgentes" section
-        $pendingActions = (clone $query)
-            ->whereIn('status', $pendingStatuses)
+        $urgencyQuery = (clone $query);
+        if ($role === 'secretaire_general') {
+            $urgencyQuery->where('status', 'attente_sg');
+        } elseif ($role === 'recteur') {
+            $urgencyQuery->where('status', 'pret_pour_signature');
+        } elseif ($role === 'service_juridique') {
+            $urgencyQuery->where('status', 'valide_dir_initial');
+        } elseif ($role === 'directeur_cooperation') {
+            $urgencyQuery->whereIn('status', ['valide_chef_division', 'valide_juridique']);
+        } elseif ($role === 'chef_division') {
+            $urgencyQuery->whereIn('status', ['soumis', 'en attente']);
+        } else {
+            $pendingStatuses = ['soumis', 'valide_dir_initial', 'valide_juridique', 'attente_sg', 'pret_pour_signature', 'en attente', 'en cours'];
+            $urgencyQuery->whereIn('status', $pendingStatuses);
+        }
+
+        $pendingActions = $urgencyQuery
             ->with('user')
             ->latest()
             ->take(3)

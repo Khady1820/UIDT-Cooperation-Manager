@@ -21,7 +21,8 @@ class RoleSeeder extends Seeder
             'partenaire',
             'service_juridique',
             'chef_division',
-            'secretariat'
+            'secretariat',
+            'secretaire_general'
         ];
 
         foreach ($roles as $role) {

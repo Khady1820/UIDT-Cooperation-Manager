@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus, Trash2, Edit2, Shield, Mail, Key, Eye, EyeOff } from 'lucide-react';
 import AdminModal from '../components/AdminModal';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const ManageUsers = () => {
     const navigate = useNavigate();
@@ -58,9 +60,10 @@ const ManageUsers = () => {
     const handleToggleStatus = async (user) => {
         try {
             await api.put(`/users/${user.id}`, {
-                ...user,
-                is_active: !user.is_active,
-                role_id: user.role_id // Ensure role_id is passed as expected by backend
+                name: user.name,
+                email: user.email,
+                role_id: user.role_id,
+                is_active: !user.is_active
             });
             fetchUsers();
         } catch (error) {
@@ -235,8 +238,18 @@ const ManageUsers = () => {
                             >
                                 <div className="relative z-10">
                                     <div className="flex justify-between items-start mb-6">
-                                        <div className="w-16 h-16 rounded-[1.5rem] bg-surface-alt dark:bg-white/5 flex items-center justify-center text-primary dark:text-white text-2xl font-black shadow-sm group-hover:bg-primary group-hover:text-white transition-all duration-500">
-                                            {user.name.charAt(0).toUpperCase()}
+                                        <div className="w-16 h-16 rounded-[1.5rem] bg-surface-alt dark:bg-white/5 flex items-center justify-center shadow-sm group-hover:shadow-lg transition-all duration-500 overflow-hidden">
+                                            {user.avatar_url ? (
+                                                <img 
+                                                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/storage/${user.avatar_url}`} 
+                                                    alt={user.name} 
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-primary dark:text-white text-2xl font-black group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                                                    {user.name.charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="flex flex-col items-end">
                                             <span className="text-[10px] font-black text-surface-300 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Système</span>
@@ -267,6 +280,17 @@ const ManageUsers = () => {
                                                 <Mail className="w-3.5 h-3.5 text-primary dark:text-indigo-400 opacity-60" />
                                             </div>
                                             <span className="text-[10px] font-bold truncate max-w-[150px]">{user.email}</span>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 text-surface-400 dark:text-slate-500 pt-2 border-t border-gray-50 dark:border-white/5">
+                                            <div className="w-7 h-7 rounded-full flex items-center justify-center">
+                                                <span className="material-symbols-outlined text-[16px] opacity-40">history</span>
+                                            </div>
+                                            <span className="text-[9px] font-black uppercase tracking-tight italic">
+                                                {user.last_login_at 
+                                                    ? `Dernière connexion : ${format(new Date(user.last_login_at), 'dd/MM/yyyy HH:mm', { locale: fr })}`
+                                                    : 'Aucune connexion enregistrée'}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>

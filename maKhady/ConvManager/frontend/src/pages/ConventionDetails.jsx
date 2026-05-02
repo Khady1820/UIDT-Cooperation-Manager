@@ -258,6 +258,10 @@ const ConventionDetails = () => {
                 case 'validate': endpoint = `/conventions/${id}/validate-director`; break;
                 case 'validate-legal': endpoint = `/conventions/${id}/validate-legal`; break;
                 case 'finalize': endpoint = `/conventions/${id}/finalize-director`; break;
+                case 'validate-sg': 
+                    endpoint = `/conventions/${id}/validate-sg`; 
+                    payload = { comment: reason };
+                    break;
                 case 'sign': endpoint = `/conventions/${id}/sign-rector`; break;
                 case 'reject': 
                     endpoint = `/conventions/${id}/reject`; 
@@ -286,13 +290,15 @@ const ConventionDetails = () => {
                 'validate-chef': 'Pré-validation effectuée. Dossier transmis au Directeur.',
                 'validate': 'Première validation effectuée. Dossier transmis au Juridique.',
                 'validate-legal': 'Visa juridique accordé. Dossier retourné à la Direction.',
-                'finalize': 'Dossier finalisé et transmis au Rectorat.',
+                'finalize': 'Dossier finalisé par la Coopération. Transmis au Secrétariat Général.',
+                'validate-sg': 'Visa du Secrétariat Général accordé. Transmis au Recteur.',
                 'sign': 'Opération réussie ! Le protocole a été officiellement signé.',
                 'reject': 'Le dossier a été renvoyé.'
             };
             setToast({ message: messages[action] || 'Action effectuée avec succès.', type: 'success' });
         } catch (err) {
-            setToast({ message: 'Une erreur est survenue lors du traitement.', type: 'error' });
+            const errorMsg = err.response?.data?.message || 'Une erreur est survenue lors du traitement.';
+            setToast({ message: errorMsg, type: 'error' });
         } finally {
             setSubmitting(false);
         }
@@ -316,6 +322,7 @@ const ConventionDetails = () => {
         { id: 'valide_chef_division', label: 'Instruction (Dir)', icon: 'account_balance' },
         { id: 'valide_dir_initial', label: 'Conformité (Jur)', icon: 'gavel' },
         { id: 'valide_juridique', label: 'Contrôle Final', icon: 'verified_user' },
+        { id: 'attente_sg', label: 'Visa SG', icon: 'verified_user' },
         { id: 'pret_pour_signature', label: 'Signature', icon: 'ink_pen' },
         { id: 'termine', label: 'Archivé', icon: 'task_alt' }
     ];
@@ -369,14 +376,18 @@ const ConventionDetails = () => {
                     <span className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest group-hover:text-[#2E2F7F] dark:group-hover:text-indigo-400 transition-colors">Retour</span>
                 </button>
                 <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
-                <button 
-                    onClick={() => window.print()}
-                    className="group flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700 transition-all text-[#2E2F7F] dark:text-indigo-400"
-                >
-                    <span className="material-symbols-outlined text-sm">print</span>
-                    <span className="text-[10px] font-black uppercase tracking-widest">Imprimer Fiche</span>
-                </button>
-                <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
+                {user?.role?.name !== 'admin' && (
+                    <>
+                        <button 
+                            onClick={() => window.print()}
+                            className="group flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700 transition-all text-[#2E2F7F] dark:text-indigo-400"
+                        >
+                            <span className="material-symbols-outlined text-sm">print</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Imprimer Fiche</span>
+                        </button>
+                        <div className="h-4 w-px bg-gray-200 dark:bg-slate-700"></div>
+                    </>
+                )}
                 <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Détails du Dossier</p>
             </div>
 
@@ -401,37 +412,42 @@ const ConventionDetails = () => {
                         </button>
                     )}
 
-                    {(user?.role?.name === 'chef_division' || user?.role?.name === 'admin') && (convention.status === 'soumis' || convention.status === 'en attente') && (
+                    {(user?.role?.name === 'chef_division') && (convention.status === 'soumis' || convention.status === 'en attente') && (
                         <div className="flex gap-4">
                             <button onClick={() => setActiveModalAction('validate-chef')} disabled={submitting} className="px-10 py-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-600/20 hover:bg-blue-700 transition-all">Accorder Pré-validation</button>
-                            {user?.role?.name === 'admin' && (
-                                <button onClick={() => setActiveModalAction('reject')} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Rejeter</button>
-                            )}
+                            <button onClick={() => setActiveModalAction('reject')} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Rejeter</button>
                         </div>
                     )}
 
-                    {(user?.role?.name === 'directeur_cooperation' || user?.role?.name === 'admin') && convention.status === 'valide_chef_division' && (
+                    {(user?.role?.name === 'directeur_cooperation') && convention.status === 'valide_chef_division' && (
                         <div className="flex gap-4">
                             <button onClick={() => handleWorkflowAction('validate')} disabled={submitting} className="px-10 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-green-600/20 hover:bg-green-700 transition-all">Transmettre au Juridique</button>
                             <button onClick={() => setActiveModalAction('reject')} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Rejeter</button>
                         </div>
                     )}
 
-                    {(user?.role?.name === 'service_juridique' || user?.role?.name === 'admin') && convention.status === 'valide_dir_initial' && (
+                    {(user?.role?.name === 'service_juridique') && convention.status === 'valide_dir_initial' && (
                         <div className="flex gap-4">
                             <button onClick={() => handleWorkflowAction('validate-legal')} disabled={submitting} className="px-10 py-4 bg-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-purple-600/20 hover:bg-purple-700 transition-all">Accorder le Visa Juridique</button>
                             <button onClick={() => setActiveModalAction('reject')} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Refuser le Visa</button>
                         </div>
                     )}
 
-                    {(user?.role?.name === 'directeur_cooperation' || user?.role?.name === 'admin') && convention.status === 'valide_juridique' && (
+                    {(user?.role?.name === 'directeur_cooperation') && convention.status === 'valide_juridique' && (
                         <div className="flex gap-4">
-                            <button onClick={() => handleWorkflowAction('finalize')} disabled={submitting} className="px-10 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all">Finaliser pour Signature</button>
+                            <button onClick={() => handleWorkflowAction('finalize')} disabled={submitting} className="px-10 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all">Transmettre au Secrétaire Général</button>
                             <button onClick={() => setActiveModalAction('reject')} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Renvoyer en Correction</button>
                         </div>
                     )}
 
-                    {(user?.role?.name === 'recteur' || user?.role?.name === 'admin') && convention.status === 'pret_pour_signature' && (
+                    {(user?.role?.name === 'secretaire_general') && convention.status === 'attente_sg' && (
+                        <div className="flex gap-4">
+                            <button onClick={() => setActiveModalAction('validate-sg')} disabled={submitting} className="px-10 py-4 bg-blue-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-700/20 hover:bg-blue-800 transition-all">Accorder le Visa SG</button>
+                            <button onClick={() => setActiveModalAction('reject')} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Renvoyer à la Coopération</button>
+                        </div>
+                    )}
+
+                    {(user?.role?.name === 'recteur') && convention.status === 'pret_pour_signature' && (
                         <div className="flex gap-4">
                             <button onClick={() => setActiveModalAction('sign')} disabled={submitting} className="px-10 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-green-600/20 hover:bg-green-700 transition-all">Apposer Signature Finale</button>
                             <button onClick={() => setActiveModalAction('reject')} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Rejeter Protocol</button>
@@ -552,7 +568,7 @@ const ConventionDetails = () => {
                                     <h3 className="text-sm font-black text-[#2E2F7F] uppercase tracking-[0.2em]">Indicateurs Stratégiques Spécifiques</h3>
                                     <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1">Suivi métrique détaillé par axe</p>
                                 </div>
-                                {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
+                                {(user?.role?.name === 'porteur_projet') && (
                                     <button 
                                         onClick={() => openKpiModal()}
                                         className="px-6 py-3 bg-[#2E2F7F] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[#F7931E] transition-all flex items-center gap-2 shadow-lg shadow-[#2E2F7F]/10"
@@ -572,7 +588,7 @@ const ConventionDetails = () => {
                                                     <h4 className="text-sm font-black text-[#2E2F7F] dark:text-white uppercase tracking-tight">{kpi.name}</h4>
                                                     <p className="text-[10px] text-slate-600 dark:text-slate-400 font-bold italic">"{kpi.description || 'Pas de description'}"</p>
                                                 </div>
-                                                {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
+                                                {(user?.role?.name === 'porteur_projet') && (
                                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <button onClick={() => openKpiModal(kpi)} className="p-2 text-slate-600 dark:text-slate-400 hover:text-[#2E2F7F] dark:hover:text-indigo-400 transition-colors"><span className="material-symbols-outlined text-sm">edit</span></button>
                                                         <button onClick={() => handleKpiDelete(kpi.id)} className="p-2 text-slate-600 dark:text-slate-400 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-sm">delete</span></button>
@@ -644,7 +660,7 @@ const ConventionDetails = () => {
                                         Télécharger pour Impression
                                     </button>
                                 )}
-                                {['chef_division', 'directeur_cooperation', 'service_juridique', 'recteur', 'admin', 'secretariat'].includes(user?.role?.name) && (
+                                {['chef_division', 'directeur_cooperation', 'service_juridique', 'recteur', 'secretariat'].includes(user?.role?.name) && (
                                     <button 
                                         onClick={openEditModal}
                                         className="px-4 py-2 bg-amber-50 text-amber-700 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-100 transition-all flex items-center gap-2 border border-amber-100"
@@ -710,23 +726,27 @@ const ConventionDetails = () => {
                         </div>
                         <div className="space-y-10 relative">
                             <div className="absolute left-[31px] top-4 bottom-4 w-px bg-gray-50 dark:bg-slate-800"></div>
-                            {(convention.logs || []).map((log, idx) => (
-                                <div key={`log-${log.id || idx}`} className="flex gap-10 items-start relative bg-white dark:bg-slate-900 group">
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 z-10 transition-all ${idx === 0 ? 'bg-[#2E2F7F] dark:bg-indigo-600 text-white shadow-xl shadow-[#2E2F7F]/20' : 'bg-gray-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-gray-100 dark:border-slate-700'}`}>
-                                        <span className="material-symbols-outlined text-[20px]">
-                                            {log.action === 'creation' ? 'add' : log.action === 'rejet' ? 'close' : 'check'}
-                                        </span>
-                                    </div>
-                                    <div className="flex-1 pt-3">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <h4 className="text-[11px] font-black text-[#2E2F7F] dark:text-indigo-400 uppercase tracking-wider">{log.action.replace('_', ' ')}</h4>
-                                            <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400">{format(new Date(log.created_at), 'dd/MM/yyyy HH:mm')}</span>
+                            {(!convention.logs || convention.logs.length === 0) ? (
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic ml-16">Aucune activité enregistrée pour le moment.</p>
+                            ) : (
+                                convention.logs.map((log, idx) => (
+                                    <div key={`log-${log.id || idx}`} className="flex gap-10 items-start relative bg-white dark:bg-slate-900 group">
+                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 z-10 transition-all ${idx === 0 ? 'bg-[#2E2F7F] dark:bg-indigo-600 text-white shadow-xl shadow-[#2E2F7F]/20' : 'bg-gray-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-gray-100 dark:border-slate-700'}`}>
+                                            <span className="material-symbols-outlined text-[20px]">
+                                                {log.action === 'creation' ? 'add' : log.action === 'rejet' ? 'close' : 'check'}
+                                            </span>
                                         </div>
-                                        <p className="text-xs font-bold text-gray-500 dark:text-slate-500">Par {log.user?.name}</p>
-                                        {log.comment && <p className="mt-3 text-[10px] text-slate-600 dark:text-slate-400 italic bg-gray-50/50 dark:bg-white/5 p-4 rounded-xl">"{log.comment}"</p>}
+                                        <div className="flex-1 pt-3">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <h4 className="text-[11px] font-black text-[#2E2F7F] dark:text-indigo-400 uppercase tracking-wider">{log.action.replace('_', ' ')}</h4>
+                                                <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400">{format(new Date(log.created_at), 'dd/MM/yyyy HH:mm')}</span>
+                                            </div>
+                                            <p className="text-xs font-bold text-gray-500 dark:text-slate-500">Par {log.user?.name || 'Système'}</p>
+                                            {log.comment && <p className="mt-3 text-[10px] text-slate-600 dark:text-slate-400 italic bg-gray-50/50 dark:bg-white/5 p-4 rounded-xl">"{log.comment}"</p>}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
@@ -740,7 +760,7 @@ const ConventionDetails = () => {
                                 <p className="text-sm font-black">{convention.user?.name}</p>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Contact Rectorat</label>
+                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Contact Recteur</label>
                                 <p className="text-[10px] font-bold text-white/60">Direction de la Coopération - UIDT</p>
                             </div>
                             <div className="h-px bg-white/5"></div>
@@ -787,10 +807,13 @@ const ConventionDetails = () => {
                                         <h2 className="text-lg font-black text-[#2E2F7F] uppercase">
                                             {activeModalAction === 'reject' ? 'Rejet du Dossier' : 
                                              activeModalAction === 'sign' ? 'Signature Finale et Archivage' : 
+                                             activeModalAction === 'validate-sg' ? 'Octroi du Visa SG' : 
                                              'Avis et Pré-validation'}
                                         </h2>
                                         <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mt-1">
-                                            {activeModalAction === 'sign' ? 'Confirmation de la signature officielle' : 'Saisie de commentaire obligatoire'}
+                                            {activeModalAction === 'sign' ? 'Confirmation de la signature officielle' : 
+                                             activeModalAction === 'validate-sg' ? 'Commentaires institutionnels (Optionnel)' : 
+                                             'Saisie de commentaire obligatoire'}
                                         </p>
                                     </div>
                                 </div>
@@ -805,10 +828,11 @@ const ConventionDetails = () => {
                                             {activeModalAction === 'sign' ? 'Observations finales (Optionnel)' : 'Observations et recommandations'}
                                         </label>
                                         <textarea 
-                                            required={activeModalAction !== 'sign'}
+                                            required={activeModalAction !== 'sign' && activeModalAction !== 'validate-sg'}
                                             className={`w-full bg-gray-50 dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 rounded-[2rem] p-8 text-sm font-bold text-[#2E2F7F] dark:text-white outline-none transition-all min-h-[150px] placeholder:italic ${activeModalAction === 'reject' ? 'focus:border-red-200' : 'focus:border-blue-200'}`}
                                             placeholder={activeModalAction === 'reject' ? "Veuillez spécifier les corrections nécessaires..." : 
                                                          activeModalAction === 'sign' ? "Ajouter une note finale avant l'archivage..." : 
+                                                         activeModalAction === 'validate-sg' ? "Observations éventuelles sur le dossier..." :
                                                          "Détaillez votre avis sur la pertinence et cohérence..."}
                                             value={rejectionReason}
                                             onChange={(e) => setRejectionReason(e.target.value)}
@@ -833,6 +857,7 @@ const ConventionDetails = () => {
                                     >
                                         {activeModalAction === 'reject' ? 'Confirmer le Rejet' : 
                                          activeModalAction === 'sign' ? 'Valider la Signature Finale' : 
+                                         activeModalAction === 'validate-sg' ? 'Valider et Accorder le Visa' :
                                          'Confirmer la Pré-validation'}
                                     </button>
                                 </div>

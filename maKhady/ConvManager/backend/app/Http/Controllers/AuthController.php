@@ -69,12 +69,27 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $user = $request->user();
-        $user->update([
-            'name' => $request->name,
-        ]);
+        $data = ['name' => $request->name];
+
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if exists
+            if ($user->avatar_url) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar_url);
+            }
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar_url'] = $path;
+        } elseif ($request->delete_avatar) {
+            if ($user->avatar_url) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar_url);
+            }
+            $data['avatar_url'] = null;
+        }
+
+        $user->update($data);
 
         return response()->json([
             'message' => 'Profil mis à jour avec succès.',

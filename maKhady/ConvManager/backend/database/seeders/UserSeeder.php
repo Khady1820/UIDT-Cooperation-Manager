@@ -80,7 +80,7 @@ class UserSeeder extends Seeder
         \App\Models\User::firstOrCreate(
             ['email' => 'secretariat@uidt.sn'],
             [
-                'name' => 'Secrétariat Général',
+                'name' => 'Secrétariat',
                 'password' => bcrypt('password'),
                 'role_id' => \App\Models\Role::where('name', 'secretariat')->first()->id ?? null,
             ]

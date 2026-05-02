@@ -32,8 +32,13 @@ const StatusBadge = ({ status }) => {
         },
         'valide_juridique': { 
             color: 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 border-cyan-100 dark:border-cyan-900/30', 
-            label: 'Contrôle Final', 
+            label: 'Contrôle Final (Dir)', 
             icon: 'verified_user' 
+        },
+        'attente_sg': { 
+            color: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/30', 
+            label: 'Visa Secrétariat Général', 
+            icon: 'verified' 
         },
         'pret_pour_signature': { 
             color: 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 border-orange-100 dark:border-orange-900/30', 

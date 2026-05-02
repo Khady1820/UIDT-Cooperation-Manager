@@ -615,7 +615,7 @@ const Conventions = () => {
                                                 >
                                                     <span className="material-symbols-outlined text-[16px]">visibility</span>
                                                 </Link>
-                                                {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
+                                                {(user?.role?.name === 'porteur_projet') && (
                                                     <div className="flex items-center gap-1.5 ml-1.5 border-l border-gray-100 dark:border-slate-800 pl-1.5">
                                                         <button onClick={(e) => { e.stopPropagation(); openModal(conv); }} className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-[#2E2F7F] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 rounded-lg transition-all">
                                                             <span className="material-symbols-outlined text-[16px]">edit</span>

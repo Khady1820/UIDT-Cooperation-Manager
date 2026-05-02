@@ -52,7 +52,7 @@ const Landing = () => {
         <div className="nav-content">
           <Link to="/" className="nav-brand">
             <div className="brand-text">
-              <span className="brand-title">GESTION DE LA COOPERATION - UIDT</span>
+              <span className="brand-title">CoopManager</span>
             </div>
           </Link>
 
@@ -236,16 +236,23 @@ const Landing = () => {
           </div>
           <div className="stats-flex">
             <div className="stat-card-v2">
+              <div className="s-icon-wrap">
+                <span className="material-symbols-outlined">handshake</span>
+              </div>
               <span className="s-num">{loadingStats ? '...' : stats.active_partnerships}</span>
               <span className="s-label">Conventions Actives</span>
             </div>
-            <div className="stat-divider"></div>
             <div className="stat-card-v2">
+              <div className="s-icon-wrap">
+                <span className="material-symbols-outlined">public</span>
+              </div>
               <span className="s-num">{loadingStats ? '...' : stats.countries}</span>
               <span className="s-label">Pays Partenaires</span>
             </div>
-            <div className="stat-divider"></div>
             <div className="stat-card-v2">
+              <div className="s-icon-wrap">
+                <span className="material-symbols-outlined">flight_takeoff</span>
+              </div>
               <span className="s-num">{loadingStats ? '...' : stats.mobilities}+</span>
               <span className="s-label">Mobilités Facilitées</span>
             </div>

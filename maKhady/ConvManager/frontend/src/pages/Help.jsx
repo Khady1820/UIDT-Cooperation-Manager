@@ -16,9 +16,10 @@ const Help = () => {
                 { label: "2. Pré-validation (Chef)", desc: "Examen par le Chef de Division pour vérifier la cohérence et la complétude." },
                 { label: "3. Instruction (Direction)", desc: "Le dossier est envoyé à la Direction de la Coopération pour première instruction." },
                 { label: "4. Visa Juridique", desc: "Le Service Juridique certifie la conformité légale et le respect des règlementations." },
-                { label: "5. Contrôle Final", desc: "La Direction effectue une vérification finale avant transmission au Rectorat." },
-                { label: "6. Signature Rectorale", desc: "Le Recteur appose la validation finale pour l'officialisation de l'accord." },
-                { label: "7. Archivage (Secrétariat)", desc: "Impression, cachet officiel, scan et mise en ligne du document final." }
+                { label: "5. Contrôle Final", desc: "Vérification finale par la Coopération avant transmission au Secrétaire Général." },
+                { label: "6. Visa Secrétaire Général", desc: "Le Secrétaire Général de l'UIDT examine et valide le dossier pour le Recteur." },
+                { label: "7. Signature Rectorale", desc: "Le Recteur appose la validation finale pour l'officialisation de l'accord." },
+                { label: "8. Archivage (Secrétariat)", desc: "Impression, cachet officiel, scan et mise en ligne du document final." }
             ]
         },
         {
@@ -40,8 +41,9 @@ const Help = () => {
                 { name: "Chef de Division", desc: "Vérifie la pertinence académique et pré-valide le dossier." },
                 { name: "Directeur Coopération", desc: "Instruit les dossiers, assure l'arbitrage et le contrôle final." },
                 { name: "Service Juridique", desc: "Garantit la conformité et la sécurité juridique des partenariats." },
+                { name: "Secrétaire Général", desc: "Assure le visa administratif de l'UIDT et la transmission officielle au Recteur." },
                 { name: "Recteur", desc: "Assure la signature institutionnelle et le pilotage de haut niveau." },
-                { name: "Secrétariat Général", desc: "Gère l'archivage numérique, le cachetage et la conservation des actes." }
+                { name: "Secrétariat", desc: "Secrétariat de la Direction de Coopération. Gère l'archivage numérique, le cachetage et la conservation des actes." }
             ]
         },
         {

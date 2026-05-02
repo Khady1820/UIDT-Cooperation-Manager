@@ -111,7 +111,8 @@ const Validation = () => {
                         {[
                             { step: 1, label: 'Direction / Service', role: 'Initialisation', icon: 'description' },
                             { step: 2, label: 'Direction Juridique', role: 'Conformité', icon: 'gavel' },
-                            { step: 3, label: 'Rectorat / Signature', role: 'Approbation Finale', icon: 'draw' }
+                            { step: 3, label: 'Secrétariat Général', role: 'Visa UIDT', icon: 'verified_user' },
+                            { step: 4, label: 'Recteur / Signature', role: 'Approbation Finale', icon: 'draw' }
                         ].map((s, i) => (
                             <div key={i} className="flex items-center gap-4 p-6 rounded-3xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 group hover:border-[#2E2F7F]/20 transition-all">
                                 <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-[#2E2F7F] dark:text-white font-black text-xs shadow-sm">

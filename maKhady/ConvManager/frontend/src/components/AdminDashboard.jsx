@@ -3,6 +3,8 @@ import api from '../services/api';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 const STATUS_COLORS = {
@@ -195,6 +197,11 @@ const AdminDashboard = () => {
                                     <div className="flex flex-col">
                                         <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Rôle Système</span>
                                         <span className="text-sm font-black text-[#2E2F7F] dark:text-slate-300 uppercase tracking-tight">{t(`role_${role.name}`) || role.name.replace('_', ' ').toUpperCase()}</span>
+                                        {role.last_login && (
+                                            <span className="text-[8px] font-bold text-[#F7931E] uppercase tracking-tighter mt-1 italic">
+                                                Activité : {format(new Date(role.last_login), 'dd/MM/yyyy HH:mm', { locale: fr })}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="w-2 h-2 rounded-full bg-[#F7931E] group-hover:scale-150 transition-transform"></div>

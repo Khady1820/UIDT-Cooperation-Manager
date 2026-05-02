@@ -57,7 +57,7 @@ const SecretariatDashboard = () => {
             <div className="flex justify-between items-end">
                 <div>
                     <h1 className="text-xl font-black text-[#2E2F7F] tracking-tight">Espace Archivage Numérique</h1>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Secrétariat Général • Gestion des Conventions Signées</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Secrétariat • Gestion des Conventions Signées</p>
                 </div>
                 <div className="bg-amber-50 px-6 py-3 rounded-2xl border border-amber-100 flex items-center gap-3">
                     <span className="material-symbols-outlined text-amber-600">info</span>
