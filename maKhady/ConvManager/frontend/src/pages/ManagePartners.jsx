@@ -6,9 +6,11 @@ import { Building2, Plus, Trash2, Edit2, Globe, Phone, MapPin, Mail } from 'luci
 import AdminModal from '../components/AdminModal';
 import { useSearch } from '../context/SearchContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const ManagePartners = () => {
     const { t } = useLanguage();
+    const { user } = useAuth();
     const [partners, setPartners] = useState([]);
     const [loading, setLoading] = useState(true);
     
@@ -73,6 +75,16 @@ const ManagePartners = () => {
     useEffect(() => {
         fetchPartners();
     }, []);
+
+    useEffect(() => {
+        if (user && user.role?.name !== 'admin') {
+            navigate('/dashboard');
+        }
+    }, [user, navigate]);
+
+    if (user?.role?.name !== 'admin') {
+        return null;
+    }
 
     // Filter Logic
     const filteredPartners = partners.filter(partner => {

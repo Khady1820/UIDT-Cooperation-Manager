@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus, Trash2, Edit2, Shield, Mail, Key, Eye, EyeOff } from 'lucide-react';
@@ -12,6 +13,7 @@ import { fr } from 'date-fns/locale';
 const ManageUsers = () => {
     const navigate = useNavigate();
     const { t } = useLanguage();
+    const { user } = useAuth();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     
@@ -57,6 +59,16 @@ const ManageUsers = () => {
     useEffect(() => {
         fetchUsers();
     }, []);
+
+    useEffect(() => {
+        if (user && user.role?.name !== 'admin') {
+            navigate('/dashboard');
+        }
+    }, [user, navigate]);
+
+    if (user?.role?.name !== 'admin') {
+        return null;
+    }
 
     const handleToggleStatus = async (user) => {
         try {

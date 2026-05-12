@@ -944,16 +944,18 @@ const ConventionDetails = () => {
                                         />
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-[#2E2F7F] uppercase tracking-widest ml-1">{t('valeur_atteinte')}</label>
-                                        <input 
-                                            type="text"
-                                            className="w-full bg-[#2E2F7F]/5 border-2 border-[#2E2F7F]/10 rounded-2xl px-6 py-4 text-sm font-black text-[#2E2F7F] outline-none focus:bg-white transition-all"
-                                            placeholder="Valeur actuelle..."
-                                            value={kpiFormData.valeur_atteinte}
-                                            onChange={(e) => setKpiFormData({...kpiFormData, valeur_atteinte: e.target.value})}
-                                        />
-                                    </div>
+                                    {(convention.status === 'signe_recteur' || convention.status === 'termine') && (
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-[#2E2F7F] uppercase tracking-widest ml-1">{t('valeur_atteinte')}</label>
+                                            <input 
+                                                type="text"
+                                                className="w-full bg-[#2E2F7F]/5 border-2 border-[#2E2F7F]/10 rounded-2xl px-6 py-4 text-sm font-black text-[#2E2F7F] outline-none focus:bg-white transition-all"
+                                                placeholder="Valeur actuelle..."
+                                                value={kpiFormData.valeur_atteinte}
+                                                onChange={(e) => setKpiFormData({...kpiFormData, valeur_atteinte: e.target.value})}
+                                            />
+                                        </div>
+                                    )}
 
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{t('frequence_mesure')}</label>

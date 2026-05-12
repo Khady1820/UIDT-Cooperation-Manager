@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
+import { useSearch } from '../context/SearchContext';
 import { useNavigate } from 'react-router-dom';
 
 const Timeline = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [logs, setLogs] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
+    const { searchQuery } = useSearch();
     const [filterType, setFilterType] = useState('all');
     const [loading, setLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -110,16 +113,6 @@ const Timeline = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="relative group hidden md:block">
-                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
-                        <input 
-                            type="text" 
-                            placeholder="Rechercher une action..." 
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-slate-900/5 transition-all w-64"
-                        />
-                    </div>
                     <button 
                         onClick={fetchLogs}
                         disabled={isRefreshing}
@@ -195,8 +188,8 @@ const Timeline = () => {
                                         </div>
                                         
                                             <div 
-                                                onClick={() => navigate('/manage-users')}
-                                                className="flex items-center gap-4 bg-slate-50 dark:bg-white/5 px-5 py-3 rounded-2xl border border-slate-100 dark:border-white/10 cursor-pointer hover:border-indigo-200 transition-all group/user"
+                                                onClick={() => user?.role?.name === 'admin' ? navigate('/manage-users') : null}
+                                                className={`flex items-center gap-4 bg-slate-50 dark:bg-white/5 px-5 py-3 rounded-2xl border border-slate-100 dark:border-white/10 transition-all group/user ${user?.role?.name === 'admin' ? 'cursor-pointer hover:border-indigo-200' : ''}`}
                                             >
                                                 <div className="w-8 h-8 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 group-hover/user:text-indigo-600 transition-colors">
                                                     <span className="material-symbols-outlined text-[18px]">person</span>
