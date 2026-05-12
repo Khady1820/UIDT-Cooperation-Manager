@@ -36,18 +36,21 @@ class ConventionController extends Controller
             // Chef sees dossiers at 'soumis' or 'en attente' stage
             if ($request->has('pending')) {
                 $query->whereIn('status', ['soumis', 'en attente']);
+            } else {
+                $query->whereIn('status', ['soumis', 'en attente', 'termine']);
             }
         } elseif ($role === 'directeur_cooperation' || $role === 'admin') {
             // Admin and Director see pending dossiers at 'valide_chef_division' and 'valide_juridique'
             if ($request->has('pending')) {
                 $query->whereIn('status', ['valide_chef_division', 'valide_juridique']);
             }
+            // If not pending, Admin/Director see everything by default, no restriction needed
         } elseif ($role === 'service_juridique') {
             // Legal sees dossiers after initial director validation
             if ($request->has('pending')) {
                 $query->where('status', 'valide_dir_initial');
             } else {
-                $query->whereIn('status', ['valide_dir_initial', 'valide_juridique']);
+                $query->whereIn('status', ['valide_dir_initial', 'valide_juridique', 'termine']);
             }
         } elseif ($role === 'recteur') {
             // Rector only sees dossiers after final validation
@@ -66,6 +69,11 @@ class ConventionController extends Controller
         } elseif ($role === 'partenaire') {
             $query->where('partners', 'like', '%' . $user->name . '%')
                   ->where('status', 'termine');
+        } elseif ($role === 'secretariat') {
+            // Secretariat sees everything to manage archives
+            if ($request->has('pending')) {
+                $query->where('status', 'pret_pour_signature'); // or other status they handle
+            }
         }
 
         $conventions = $query->with('user', 'logs.user')->orderBy('created_at', 'desc')->get();
@@ -189,9 +197,16 @@ class ConventionController extends Controller
             $recipients = User::whereHas('role', function($q) {
                 $q->whereIn('name', ['chef_division', 'admin']);
             })->get();
-            Notification::send($recipients, new ConventionStatusChanged($convention, 'soumis', $request->user()));
+            
+            foreach ($recipients as $recipient) {
+                try {
+                    $recipient->notify(new ConventionStatusChanged($convention, 'soumis', $request->user()));
+                } catch (\Exception $e) {
+                    \Log::error('Notification Error for ' . $recipient->email . ': ' . $e->getMessage());
+                }
+            }
         } catch (\Exception $e) {
-            \Log::error('Mail Error: ' . $e->getMessage());
+            \Log::error('Recipient Fetch Error: ' . $e->getMessage());
         }
 
         return response()->json($convention);
@@ -222,7 +237,14 @@ class ConventionController extends Controller
             $recipients = User::whereHas('role', function($q) {
                 $q->whereIn('name', ['directeur_cooperation', 'admin']);
             })->get();
-            Notification::send($recipients, new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
+            
+            foreach ($recipients as $recipient) {
+                try {
+                    $recipient->notify(new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
+                } catch (\Exception $e) {
+                    \Log::error('Notification Error: ' . $e->getMessage());
+                }
+            }
             $convention->user->notify(new ConventionStatusChanged($convention, 'valide_chef_division', $request->user()));
         } catch (\Exception $e) {
             \Log::error('Mail Error: ' . $e->getMessage());
@@ -257,7 +279,13 @@ class ConventionController extends Controller
             $recipients = User::whereHas('role', function($q) {
                 $q->whereIn('name', ['service_juridique', 'admin']);
             })->get();
-            Notification::send($recipients, new ConventionStatusChanged($convention, 'valide_dir_initial', $request->user()));
+            foreach ($recipients as $recipient) {
+                try {
+                    $recipient->notify(new ConventionStatusChanged($convention, 'valide_dir_initial', $request->user()));
+                } catch (\Exception $e) {
+                    \Log::error('Notification Error: ' . $e->getMessage());
+                }
+            }
         } catch (\Exception $e) {
             \Log::error('Mail Error: ' . $e->getMessage());
         }
@@ -286,7 +314,13 @@ class ConventionController extends Controller
             $recipients = User::whereHas('role', function($q) {
                 $q->whereIn('name', ['directeur_cooperation', 'admin']);
             })->get();
-            Notification::send($recipients, new ConventionStatusChanged($convention, 'valide_juridique', $request->user()));
+            foreach ($recipients as $recipient) {
+                try {
+                    $recipient->notify(new ConventionStatusChanged($convention, 'valide_juridique', $request->user()));
+                } catch (\Exception $e) {
+                    \Log::error('Notification Error: ' . $e->getMessage());
+                }
+            }
         } catch (\Exception $e) {
             \Log::error('Mail Error: ' . $e->getMessage());
         }
@@ -310,7 +344,13 @@ class ConventionController extends Controller
             $recipients = User::whereHas('role', function($q) {
                 $q->whereIn('name', ['secretaire_general', 'admin']);
             })->get();
-            Notification::send($recipients, new ConventionStatusChanged($convention, 'attente_sg', $request->user()));
+            foreach ($recipients as $recipient) {
+                try {
+                    $recipient->notify(new ConventionStatusChanged($convention, 'attente_sg', $request->user()));
+                } catch (\Exception $e) {
+                    \Log::error('Notification Error: ' . $e->getMessage());
+                }
+            }
         } catch (\Exception $e) {
             \Log::error('Mail Error: ' . $e->getMessage());
         }
@@ -339,7 +379,13 @@ class ConventionController extends Controller
             $recipients = User::whereHas('role', function($q) {
                 $q->whereIn('name', ['recteur', 'admin']);
             })->get();
-            Notification::send($recipients, new ConventionStatusChanged($convention, 'pret_pour_signature', $request->user()));
+            foreach ($recipients as $recipient) {
+                try {
+                    $recipient->notify(new ConventionStatusChanged($convention, 'pret_pour_signature', $request->user()));
+                } catch (\Exception $e) {
+                    \Log::error('Notification Error: ' . $e->getMessage());
+                }
+            }
         } catch (\Exception $e) {
             \Log::error('Mail Error: ' . $e->getMessage());
         }
@@ -375,7 +421,13 @@ class ConventionController extends Controller
             $admins = User::whereHas('role', function($q) {
                 $q->where('name', 'admin');
             })->get();
-            Notification::send($admins, new ConventionStatusChanged($convention, 'termine', $request->user()));
+            foreach ($admins as $admin) {
+                try {
+                    $admin->notify(new ConventionStatusChanged($convention, 'termine', $request->user()));
+                } catch (\Exception $e) {
+                    \Log::error('Notification Error: ' . $e->getMessage());
+                }
+            }
             $convention->user->notify(new ConventionStatusChanged($convention, 'termine', $request->user()));
         } catch (\Exception $e) {
             \Log::error('Mail Error: ' . $e->getMessage());
@@ -420,13 +472,25 @@ class ConventionController extends Controller
             $admins = User::whereHas('role', function($q) {
                 $q->where('name', 'admin');
             })->get();
-            Notification::send($admins, new ConventionStatusChanged($convention, $newStatus, $user));
+            foreach ($admins as $admin) {
+                try {
+                    $admin->notify(new ConventionStatusChanged($convention, $newStatus, $user));
+                } catch (\Exception $e) {
+                    \Log::error('Notification Error: ' . $e->getMessage());
+                }
+            }
 
             if ($newStatus === 'soumis') {
                 $directors = User::whereHas('role', function($q) {
                     $q->where('name', 'directeur_cooperation');
                 })->get();
-                Notification::send($directors, new ConventionStatusChanged($convention, 'soumis', $user));
+                foreach ($directors as $director) {
+                    try {
+                        $director->notify(new ConventionStatusChanged($convention, 'soumis', $user));
+                    } catch (\Exception $e) {
+                        \Log::error('Notification Error: ' . $e->getMessage());
+                    }
+                }
             } else {
                 $convention->user->notify(new ConventionStatusChanged($convention, 'brouillon', $user));
             }
@@ -547,12 +611,20 @@ class ConventionController extends Controller
     {
         return \Illuminate\Support\Facades\Cache::remember('public_stats', 3600, function () {
             $activeConventions = Convention::where('status', 'termine')->count();
-            $totalPartners = Convention::distinct('partners')->count('partners');
+            
+            $countries = \App\Models\Partenaire::distinct('country')->count('country');
+            if ($countries === 0 && $activeConventions > 0) {
+                $countries = 1; // Au moins le pays local s'il y a des conventions mais pas de pays enregistrés
+            }
+
+            $mobilities = Convention::where('status', 'termine')
+                                    ->where('indicator', 'like', '%mobilit%')
+                                    ->sum('actual_value');
             
             return [
                 'active_partnerships' => $activeConventions,
-                'countries' => 12, // Statistique fixe ou calculée
-                'mobilities' => max(450, $activeConventions * 15) // Valeur réaliste minimum
+                'countries' => $countries,
+                'mobilities' => (int) $mobilities
             ];
         });
     }

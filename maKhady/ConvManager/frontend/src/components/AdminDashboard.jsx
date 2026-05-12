@@ -93,13 +93,16 @@ const AdminDashboard = () => {
                     <h1 className="text-xl font-black text-[#2E2F7F] dark:text-white tracking-tight text-balance">Portail Administration</h1>
                     <p className="text-xs font-bold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wider">Supervision Système • {new Date().toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }).toUpperCase()}</p>
                 </div>
-                <button 
-                    onClick={handleBackup}
-                    className="flex items-center gap-3 px-8 py-4 bg-[#F7931E] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#d87a1a] transition-all shadow-xl shadow-[#F7931E]/20 active:scale-95"
-                >
-                    <span className="material-symbols-outlined text-[20px]">database</span>
-                    Sauvegarder BD
-                </button>
+                <div className="flex items-center gap-4">
+
+                    <button 
+                        onClick={handleBackup}
+                        className="flex items-center gap-3 px-8 py-4 bg-[#F7931E] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#d87a1a] transition-all shadow-xl shadow-[#F7931E]/20 active:scale-95"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">database</span>
+                        Sauvegarder BD
+                    </button>
+                </div>
             </div>
 
             {/* Stats Grid */}
@@ -141,10 +144,10 @@ const AdminDashboard = () => {
                     </h3>
                     <div className="h-[400px]">
                         <ResponsiveContainer width="100%" height={400} minWidth={0} minHeight={0}>
-                            <PieChart>
+                            <PieChart margin={{ left: 20 }}>
                                 <Pie
                                     data={pieData}
-                                    cx="35%"
+                                    cx="50%"
                                     cy="50%"
                                     innerRadius={60}
                                     outerRadius={100}

@@ -102,13 +102,7 @@ function App() {
                   </Layout>
                 </ProtectedRoute>
               } />
-              <Route path="/partenaire" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <PartnerDashboard />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+
               <Route path="/indicators" element={
                 <ProtectedRoute>
                   <Layout>

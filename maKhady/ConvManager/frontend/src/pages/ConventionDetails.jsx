@@ -415,7 +415,6 @@ const ConventionDetails = () => {
                     {(user?.role?.name === 'chef_division') && (convention.status === 'soumis' || convention.status === 'en attente') && (
                         <div className="flex gap-4">
                             <button onClick={() => setActiveModalAction('validate-chef')} disabled={submitting} className="px-10 py-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-600/20 hover:bg-blue-700 transition-all">Accorder Pré-validation</button>
-                            <button onClick={() => setActiveModalAction('reject')} disabled={submitting} className="px-10 py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-50 transition-all">Rejeter</button>
                         </div>
                     )}
 
@@ -480,6 +479,13 @@ const ConventionDetails = () => {
                             </div>
                         );
                     })}
+                </div>
+
+                <div className="mt-10 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 text-center">
+                    <p className="text-[11px] font-bold text-slate-600 dark:text-slate-400 leading-[1.8]">
+                        <span className="font-black text-[#2E2F7F] dark:text-indigo-400 uppercase tracking-widest block mb-2">Notice Explicative du Circuit de Validation</span>
+                        Ce processus garantit la conformité institutionnelle de chaque accord. L'instruction initiale par la Direction de la Coopération est suivie d'un contrôle rigoureux par le Service Juridique. Le visa du Secrétaire Général valide la conformité administrative avant la signature officielle du Recteur, clôturant la procédure par un archivage définitif.
+                    </p>
                 </div>
             </div>
 

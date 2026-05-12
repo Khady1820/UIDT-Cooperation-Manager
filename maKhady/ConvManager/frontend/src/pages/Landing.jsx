@@ -253,7 +253,7 @@ const Landing = () => {
               <div className="s-icon-wrap">
                 <span className="material-symbols-outlined">flight_takeoff</span>
               </div>
-              <span className="s-num">{loadingStats ? '...' : stats.mobilities}+</span>
+              <span className="s-num">{loadingStats ? '...' : stats.mobilities}</span>
               <span className="s-label">Mobilités Facilitées</span>
             </div>
           </div>

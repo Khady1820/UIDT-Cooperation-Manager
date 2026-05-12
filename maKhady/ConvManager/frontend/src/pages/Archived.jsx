@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearch } from '../context/SearchContext';
@@ -24,6 +24,7 @@ const Toast = ({ message, type, onClose }) => (
 );
 
 const Archived = () => {
+    const navigate = useNavigate();
     const [conventions, setConventions] = useState([]);
     const { searchQuery, setSearchQuery } = useSearch();
     const [loading, setLoading] = useState(true);
@@ -135,15 +136,9 @@ const Archived = () => {
 
             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.02)] border border-gray-100 dark:border-slate-800 overflow-hidden">
                 <div className="p-10 border-b border-gray-50 dark:border-slate-800 bg-[#FBFBFB]/50 dark:bg-slate-900/50 flex items-center justify-between">
-                    <div className="relative w-full max-w-md group">
-                        <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#2E2F7F] dark:group-focus-within:text-white transition-colors text-[20px]">search</span>
-                        <input 
-                            type="text" 
-                            placeholder="RECHERCHER DANS LES ARCHIVES..." 
-                            value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full bg-white dark:bg-white/5 border border-gray-100 dark:border-slate-700 text-[#2E2F7F] dark:text-white rounded-2xl pl-14 pr-6 py-3.5 text-[10px] font-black placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:outline-none focus:ring-8 focus:ring-[#2E2F7F]/5 focus:border-[#2E2F7F]/10 transition-all shadow-sm"
-                        />
+                    <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-[#2E2F7F] dark:text-white opacity-40">inventory_2</span>
+                        <h3 className="text-sm font-black text-[#2E2F7F] dark:text-white uppercase tracking-widest">Archives Institutionnelles</h3>
                     </div>
                     <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest bg-gray-50 dark:bg-white/5 px-4 py-2 rounded-full border border-gray-100 dark:border-white/10">
                         <span className="w-2 h-2 bg-slate-400 rounded-full"></span>

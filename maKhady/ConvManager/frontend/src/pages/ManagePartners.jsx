@@ -18,7 +18,7 @@ const ManagePartners = () => {
     const [currentPartner, setCurrentPartner] = useState(null);
     const [partnerConventions, setPartnerConventions] = useState([]);
     const [loadingConventions, setLoadingConventions] = useState(false);
-    const { setSearchQuery } = useSearch();
+    const { searchQuery, setSearchQuery } = useSearch();
     const navigate = useNavigate();
     
     // Form State
@@ -57,7 +57,6 @@ const ManagePartners = () => {
         { name: 'Brésil', dial: '+55', code: 'BR' },
     ];
 
-    const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
 
     const fetchPartners = async () => {
@@ -77,8 +76,8 @@ const ManagePartners = () => {
 
     // Filter Logic
     const filteredPartners = partners.filter(partner => {
-        const matchesSearch = partner.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                             partner.email?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = partner.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                             partner.email?.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesType = filterType === 'all' || partner.type === filterType;
         return matchesSearch && matchesType;
     });
@@ -203,17 +202,11 @@ const ManagePartners = () => {
                 </button>
             </div>
 
-            {/* Search and Filters */}
-            <div className="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-slate-900 p-4 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm">
-                <div className="relative flex-1 w-full">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                    <input 
-                        type="text"
-                        placeholder="Rechercher par nom ou email..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-white/5 border-none rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm font-bold dark:text-white"
-                    />
+            {/* Filters (Search removed as it is now in Topnav) */}
+            <div className="flex flex-col md:flex-row justify-end items-center bg-white dark:bg-slate-900 p-4 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm">
+                <div className="flex items-center gap-3 mr-auto px-4">
+                    <span className="material-symbols-outlined text-primary opacity-40">filter_list</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Filtrer par type de structure</span>
                 </div>
                 <select 
                     value={filterType}

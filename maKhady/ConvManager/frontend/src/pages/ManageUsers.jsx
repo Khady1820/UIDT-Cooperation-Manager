@@ -3,6 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import api from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus, Trash2, Edit2, Shield, Mail, Key, Eye, EyeOff } from 'lucide-react';
+import { useSearch } from '../context/SearchContext';
 import AdminModal from '../components/AdminModal';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -38,8 +39,8 @@ const ManageUsers = () => {
         { id: 8, name: 'chef_division' }
     ]);
 
-    // Search & Filter State
-    const [searchTerm, setSearchTerm] = useState('');
+    // Search & Filter State from Context
+    const { searchQuery, setSearchQuery } = useSearch();
     const [filterRole, setFilterRole] = useState('all');
 
     const fetchUsers = async () => {
@@ -73,8 +74,8 @@ const ManageUsers = () => {
 
     // Filter Logic
     const filteredUsers = users.filter(user => {
-        const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                             user.email.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                             user.email.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesRole = filterRole === 'all' || user.role?.name === filterRole;
         return matchesSearch && matchesRole;
     });
@@ -192,17 +193,11 @@ const ManageUsers = () => {
                 </button>
             </div>
 
-            {/* Search and Filters */}
-            <div className="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-slate-900 p-4 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm">
-                <div className="relative flex-1 w-full">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                    <input 
-                        type="text"
-                        placeholder="Rechercher par nom ou email..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-white/5 border-none rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm font-bold dark:text-white"
-                    />
+            {/* Filters (Search removed as it is now in Topnav) */}
+            <div className="flex flex-col md:flex-row justify-end items-center bg-white dark:bg-slate-900 p-4 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm">
+                <div className="flex items-center gap-3 mr-auto px-4">
+                    <span className="material-symbols-outlined text-primary opacity-40">filter_list</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Filtrer par responsabilité</span>
                 </div>
                 <select 
                     value={filterRole}

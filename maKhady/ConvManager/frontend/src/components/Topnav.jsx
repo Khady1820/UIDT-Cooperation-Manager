@@ -20,7 +20,14 @@ const Topnav = ({ onMenuClick }) => {
     const [notifications, setNotifications] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [currentTime, setCurrentTime] = useState(new Date());
     const dropdownRef = useRef(null);
+
+    // Live Clock Timer
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
 
     // Close on click outside
     useEffect(() => {
@@ -37,6 +44,17 @@ const Topnav = ({ onMenuClick }) => {
     useEffect(() => {
         setIsDropdownOpen(false);
     }, [location]);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('global-search')?.focus();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     useEffect(() => {
         if (user) {
@@ -84,7 +102,7 @@ const Topnav = ({ onMenuClick }) => {
 
     return (
         <header className="no-print h-20 z-40 bg-institutional flex justify-between items-center px-6 lg:px-10 transition-all duration-300 shadow-2xl border-b border-white/10 shrink-0">
-            <div className="flex items-center gap-4 lg:gap-8">
+            <div className="flex items-center gap-4 lg:gap-8 flex-1">
                 {/* Mobile Hamburger */}
                 <button 
                     onClick={onMenuClick}
@@ -93,8 +111,50 @@ const Topnav = ({ onMenuClick }) => {
                     <span className="material-symbols-outlined text-[24px]">menu</span>
                 </button>
 
-                <h2 className="text-sm lg:text-lg font-black text-white tracking-tight uppercase line-clamp-1">{t('app_name')}</h2>
-                
+                {/* Global Search Bar - Refined Design (Wider) */}
+                <div className="hidden md:flex flex-1 max-w-2xl relative group">
+                    <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center gap-4 pointer-events-none">
+                        <span className="material-symbols-outlined text-white/80 group-focus-within:text-[#F7931E] transition-all duration-300 text-[24px]">search</span>
+                        <div className="h-6 w-px bg-white/30 group-focus-within:bg-[#F7931E]/40 transition-colors"></div>
+                    </div>
+                    
+                    <input 
+                        type="text" 
+                        id="global-search"
+                        placeholder="RECHERCHER UN DOSSIER..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-white/10 hover:bg-white/15 border-2 border-white/15 text-white rounded-[1.2rem] pl-16 pr-16 py-3 text-[11px] font-black uppercase tracking-wide placeholder:text-white/50 focus:outline-none focus:ring-8 focus:ring-[#F7931E]/5 focus:border-[#F7931E]/40 focus:bg-white/20 transition-all duration-300 shadow-xl"
+                    />
+
+                    {searchQuery && (
+                        <button 
+                            onClick={() => setSearchQuery('')}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-sm">close</span>
+                        </button>
+                    )}
+                </div>
+
+                {/* Institutional Info & Status - New Elements */}
+                <div className="hidden xl:flex items-center gap-8 ml-4">
+                    {/* Clock */}
+                    <div className="flex flex-col items-start leading-none gap-1 px-4 border-l border-white/10">
+                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">TEMPS RÉEL</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-[13px] font-black text-white tracking-widest">
+                                {currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Status Pill */}
+                    <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-full">
+                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.15em]">SYSTÈME SÉCURISÉ</span>
+                    </div>
+                </div>
             </div>
             
             <div className="flex items-center gap-6">
@@ -102,10 +162,10 @@ const Topnav = ({ onMenuClick }) => {
                     {/* Theme Toggle */}
                     <button 
                         onClick={toggleDarkMode}
-                        className="p-2 text-white/80 hover:text-white transition-all rounded-xl hover:bg-white/10"
+                        className="p-2.5 text-white/60 hover:text-white transition-all rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10"
                         title={darkMode ? "Passer au mode clair" : "Passer au mode sombre"}
                     >
-                        <span className="material-symbols-outlined text-[24px]">
+                        <span className="material-symbols-outlined text-[22px]">
                             {darkMode ? 'light_mode' : 'dark_mode'}
                         </span>
                     </button>
@@ -195,7 +255,7 @@ const Topnav = ({ onMenuClick }) => {
 
                 <div className="flex items-center gap-3">
                     <div className="hidden sm:block text-right">
-                        <p className="text-[11px] font-black text-white uppercase tracking-wider">{user?.role?.name === 'admin' ? t('chief_curator') : user?.name}</p>
+                        {/* Le nom d'utilisateur a été retiré ici pour éviter la répétition avec la barre latérale */}
                         <button 
                             onClick={logout}
                             className="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1.5"

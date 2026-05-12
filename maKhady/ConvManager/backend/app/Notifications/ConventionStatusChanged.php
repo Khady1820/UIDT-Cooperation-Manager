@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\Convention;
 
-class ConventionStatusChanged extends Notification
+class ConventionStatusChanged extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -71,22 +71,57 @@ class ConventionStatusChanged extends Notification
             'convention_name' => $this->convention->name,
             'status' => $this->status,
             'actor_name' => $this->actor->name,
-            'message' => $this->getNotificationMessage(),
+            'message' => $this->getNotificationMessage($notifiable),
         ];
     }
 
-    protected function getNotificationMessage()
+    protected function getNotificationMessage($notifiable)
     {
+        $role = $notifiable->role->name ?? '';
+        $projectName = $this->convention->name;
+
         switch ($this->status) {
             case 'soumis':
-            case 'en attente': return 'Un nouveau dossier est en attente de votre instruction.';
-            case 'valide_dir_initial': return 'Dossier en attente de visa juridique.';
-            case 'valide_juridique': return 'Visa juridique accordé, retour à la Direction.';
+            case 'en attente':
+                if ($role === 'chef_division') return "Nouveau dossier \"$projectName\" soumis. Action requise de votre part.";
+                if ($role === 'admin') return "Le dossier \"$projectName\" a été soumis par " . $this->actor->name;
+                return "Dossier \"$projectName\" en attente d'instruction.";
+
+            case 'valide_chef_division':
+                if ($role === 'directeur_cooperation') return "Avis favorable du Chef de Division pour \"$projectName\". Dossier prêt pour validation.";
+                if ($role === 'porteur_projet') return "Votre dossier \"$projectName\" a été pré-validé par le Chef de Division.";
+                if ($role === 'admin') return "Pré-validation effectuée par le Chef pour \"$projectName\".";
+                return "Dossier \"$projectName\" pré-validé.";
+
+            case 'valide_dir_initial':
+                if ($role === 'service_juridique') return "Dossier \"$projectName\" transmis pour votre visa juridique.";
+                if ($role === 'admin') return "Examen juridique en cours pour le dossier \"$projectName\".";
+                return "Dossier \"$projectName\" en attente de visa juridique.";
+
+            case 'valide_juridique':
+                if ($role === 'directeur_cooperation') return "Visa juridique accordé pour \"$projectName\". Vous pouvez finaliser le dossier.";
+                if ($role === 'admin') return "Conformité juridique validée pour le dossier \"$projectName\".";
+                return "Visa juridique accordé pour \"$projectName\".";
+
+            case 'attente_sg':
+                if ($role === 'secretaire_general') return "Dossier \"$projectName\" transmis pour votre visa (SG).";
+                return "Dossier \"$projectName\" transmis au Secrétariat Général.";
+
             case 'pret_pour_signature':
-            case 'en cours': return 'Dossier validé par la Direction, en attente de signature.';
-            case 'termine': return 'Le dossier a été signé par le Recteur.';
-            case 'brouillon': return 'Le dossier a été rejeté pour correction.';
-            default: return 'Le statut du dossier a été mis à jour.';
+            case 'en cours':
+                if ($role === 'recteur') return "Dossier \"$projectName\" prêt pour votre signature officielle.";
+                if ($role === 'admin') return "Signature Rectorale attendue pour le dossier \"$projectName\".";
+                return "Dossier \"$projectName\" prêt pour signature.";
+
+            case 'termine':
+                return "Le protocole \"$projectName\" a été officiellement signé par le Recteur.";
+
+            case 'brouillon':
+                if ($role === 'porteur_projet') return "Votre dossier \"$projectName\" a été rejeté pour correction.";
+                return "Dossier \"$projectName\" rejeté pour correction par " . $this->actor->name;
+
+            default:
+                return "Le statut du dossier \"$projectName\" a été mis à jour.";
         }
     }
 }

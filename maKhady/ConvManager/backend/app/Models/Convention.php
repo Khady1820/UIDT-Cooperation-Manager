@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Convention extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'name', 'type', 'description', 'objectives', 'partners', 
         'start_date', 'end_date', 'status', 'user_id', 'rejection_reason',
@@ -19,7 +21,19 @@ class Convention extends Model
         static::creating(function ($convention) {
             if (!$convention->num_dossier) {
                 $year = $convention->start_date ? \Carbon\Carbon::parse($convention->start_date)->year : date('Y');
-                $count = static::where('num_dossier', 'like', "UIDT-{$year}-%")->count() + 1;
+                
+                // Get the latest convention for this year to prevent duplicate IDs if rows are deleted
+                $latest = static::where('num_dossier', 'like', "UIDT-{$year}-%")
+                                ->orderBy('num_dossier', 'desc')
+                                ->first();
+                
+                if ($latest) {
+                    $parts = explode('-', $latest->num_dossier);
+                    $count = intval(end($parts)) + 1;
+                } else {
+                    $count = 1;
+                }
+                
                 $convention->num_dossier = "UIDT-{$year}-" . str_pad($count, 3, '0', STR_PAD_LEFT);
             }
         });
@@ -58,5 +72,27 @@ class Convention extends Model
             
             $this->update(['completion_rate' => $average]);
         }
+    }
+
+    /**
+     * Vérifie si la convention est actuellement active.
+     */
+    public function isActive(): bool
+    {
+        $today = now();
+        return $this->status === 'en cours' && 
+               (!$this->end_date || $this->end_date >= $today->toDateString());
+    }
+
+    /**
+     * Scope pour filtrer les conventions actives en base de données.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'en cours')
+                     ->where(function($q) {
+                         $q->whereNull('end_date')
+                           ->orWhere('end_date', '>=', now()->toDateString());
+                     });
     }
 }

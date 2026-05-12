@@ -20,7 +20,17 @@ class FixDossierNumbers extends Seeder
 
         foreach ($conventions as $convention) {
             $year = $convention->start_date ? Carbon::parse($convention->start_date)->year : ($convention->created_at->year ?? date('Y'));
-            $count = Convention::where('num_dossier', 'like', "UIDT-{$year}-%")->count() + 1;
+            
+            $latest = Convention::where('num_dossier', 'like', "UIDT-{$year}-%")
+                                ->orderBy('num_dossier', 'desc')
+                                ->first();
+            if ($latest) {
+                $parts = explode('-', $latest->num_dossier);
+                $count = intval(end($parts)) + 1;
+            } else {
+                $count = 1;
+            }
+            
             $num = "UIDT-{$year}-" . str_pad($count, 3, '0', STR_PAD_LEFT);
             
             $convention->update(['num_dossier' => $num]);

@@ -15,6 +15,10 @@ const ConventionSummary = () => {
 
     useEffect(() => {
         const fetchConvention = async () => {
+            if (!id || id === 'undefined') {
+                setLoading(false);
+                return;
+            }
             try {
                 const res = await api.get(`/conventions/${id}`);
                 setConvention(res.data);

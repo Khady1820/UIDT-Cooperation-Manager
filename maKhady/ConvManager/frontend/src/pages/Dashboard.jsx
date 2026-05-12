@@ -109,7 +109,7 @@ const Dashboard = () => {
                         Exporter Rapport
                     </button>
                     {(user?.role?.name === 'porteur_projet' || user?.role?.name === 'admin') && (
-                        <Link to="/conventions" className="px-6 py-2.5 bg-[#2E2F7F] dark:bg-indigo-600 border border-[#2E2F7F] dark:border-indigo-600 rounded-xl text-[11px] font-black text-white uppercase tracking-widest hover:bg-[#002b5c] dark:hover:bg-indigo-700 transition-all shadow-xl shadow-[#2E2F7F]/20 dark:shadow-indigo-600/20 flex items-center gap-2">
+                        <Link to="/conventions?new=true" className="px-6 py-2.5 bg-[#2E2F7F] dark:bg-indigo-600 border border-[#2E2F7F] dark:border-indigo-600 rounded-xl text-[11px] font-black text-white uppercase tracking-widest hover:bg-[#002b5c] dark:hover:bg-indigo-700 transition-all shadow-xl shadow-[#2E2F7F]/20 dark:shadow-indigo-600/20 flex items-center gap-2">
                             NOUVEAU PROJET
                             <span className="material-symbols-outlined text-[14px]">add</span>
                         </Link>
@@ -229,10 +229,10 @@ const Dashboard = () => {
                     </div>
                     <div className="h-[350px] w-full">
                         <ResponsiveContainer width="100%" height={350} minWidth={0} minHeight={0}>
-                            <PieChart>
+                            <PieChart margin={{ left: 20, right: 20, top: 0, bottom: 0 }}>
                                 <Pie
                                     data={stats.status_distribution}
-                                    cx="40%"
+                                    cx="50%"
                                     cy="50%"
                                     innerRadius={60}
                                     outerRadius={100}
